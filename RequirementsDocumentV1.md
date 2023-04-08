@@ -100,9 +100,19 @@ User --> EzWallet
 
 | ID        | Description  |
 | ------------- |:-------------:| 
-|  FR1     |  |
-|  FR2     |   |
-| FRx..  | | 
+|FR1|Manage user account|
+|FR1.1|Login|
+|FR1.2|Logout|
+|FR1.3|Authorize|
+|FR1.4|Register (name, email, pwd)|
+|FR2|Manage categories|
+|FR2.1|Add category|
+|FR2.2|Show categories|
+|FR3|Manage transactions|
+|FR3.1|Add transaction|
+|FR3.2|Delete transaction|
+|FR3.3|Show transactions|
+|FR3.4|Show labelled transactions|
 
 ## Non Functional Requirements
 
