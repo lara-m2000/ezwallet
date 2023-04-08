@@ -243,10 +243,51 @@ User --- "0..*" Category
 
 \<must be consistent with Context diagram>
 
+```plantuml
+@startuml
+
+class EzWalletSystem
+
+class EzWalletServer
+
+EzWalletSystem o-- EzWalletServer
+EzWalletSystem o-- DataBaseServer
+
+
+@enduml
+```
+
 # Deployment Diagram 
 
 \<describe here deployment diagram >
 
+```plantuml
+@startuml
+
+
+artifact EzWalletServer
+node ServerMachine
+
+EzWalletServer ..> ServerMachine : deploy
+
+
+artifact DataBaseServer
+node DBMachine
+
+DataBaseServer ..> DBMachine
+
+
+
+ServerMachine - DBMachine : internet
+
+
+node UserMachine
+
+UserMachine - ServerMachine : internet link
+
+
+@enduml
+```
 
 
 
