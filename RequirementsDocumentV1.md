@@ -40,7 +40,15 @@ EZWallet (read EaSy Wallet) is a software application designed to help individua
 
 | Stakeholder name  | Description | 
 | ----------------- |:-----------:|
-|   Stakeholder x..     |             | 
+|Users|Individuals and families| 
+|Developers|Testers and programmers|
+|CEO|Head of the startup company|
+|Competitors|Satispay/Postepay (functionality that tracks expenses)|
+|??DB admin??||
+|Admin|User with special privileges|
+|COO|Manages analytics and market analyis|
+
+
 
 # Context Diagram and interfaces
 
