@@ -299,4 +299,5 @@ UserMachine - ServerMachine : internet link
   - Come specificare il tipo di Transaction e Category 
   - Client nel system design?
   - Table of rights?
+  - Version Number?
   - -->
