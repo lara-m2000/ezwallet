@@ -68,7 +68,7 @@ EZWallet (read EaSy Wallet) is a software application designed to help individua
 usecase EzWallet
 actor User
 
-User --> EzWallet
+User -- EzWallet
 
 @enduml
 ```
@@ -180,6 +180,64 @@ User --> EzWallet
 
 \<concepts must be used consistently all over the document, ex in use cases, requirements etc>
 
+```plantuml
+@startuml
+
+
+class Account {
+	+ usename
+	+ email
+	+ password
+}
+
+class User {
+}
+
+note top of User
+User who wants to use the app
+managing his transaction and categories.
+endnote
+
+
+User - Account : has >
+
+
+
+
+
+class Transaction {
+	+ name
+	+ amount
+	+ date
+}
+
+note bottom of Transaction
+Money transaction created by a User.
+endnote
+
+
+class Category {
+	+ type
+	+ color
+}
+
+note bottom of Category
+Category that can link together many
+transactions.
+endnote
+
+
+Transaction "0..*" - "0..1" Category : labelled >
+
+
+User --- "0..*" Transaction
+User --- "0..*" Category
+
+
+
+@enduml
+```
+
 # System Design
 \<describe here system design>
 
@@ -192,3 +250,7 @@ User --> EzWallet
 
 
 
+<!-- CHIDERE:
+  - DB admin negli stakerholder
+  - Specializzazione User in Admin, COO (in Glossario)
+  - Come specificare il tipo di Transaction e Category -->
