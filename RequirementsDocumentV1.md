@@ -105,6 +105,8 @@ User --> EzWallet
 |FR1.2|Logout|
 |FR1.3|Authorize|
 |FR1.4|Register (name, email, pwd)|
+|FR1.5|Show registered users|
+|FR1.5.1|Filter by username|
 |FR2|Manage categories|
 |FR2.1|Add category|
 |FR2.2|Show categories|
