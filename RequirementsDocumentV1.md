@@ -296,4 +296,7 @@ UserMachine - ServerMachine : internet link
 <!-- CHIDERE:
   - DB admin negli stakerholder
   - Specializzazione User in Admin, COO (in Glossario)
-  - Come specificare il tipo di Transaction e Category -->
+  - Come specificare il tipo di Transaction e Category 
+  - Client nel system design?
+  - Table of rights?
+  - -->
