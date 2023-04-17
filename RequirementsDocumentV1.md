@@ -153,6 +153,31 @@ User -- EzWallet
 ## Use case diagram
 \<define here UML Use case diagram UCD summarizing all use cases, and their relationships>
 
+```plantuml
+@startuml
+left to right direction
+
+actor User
+
+rectangle "EzWallet System" as System {
+	usecase "Add, Delete, Show Transaction" as Transaction
+
+	usecase Register
+	usecase Login
+	usecase Logout
+
+	usecase "Add, Show Category" as Category
+}
+
+User --> Transaction
+User --> Register
+User --> Login
+User --> Category
+Login --> Logout
+
+@enduml
+```
+
 
 \<next describe here each use case in the UCD>
 ### Add transaction, UC1
