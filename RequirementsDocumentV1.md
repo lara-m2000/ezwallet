@@ -98,7 +98,7 @@ User -- EzWallet
 
 | Actor | Logical Interface | Physical Interface  |
 | ------------- |:-------------:| -----:|
-|User|GUI or shell/API|Keyboard, Screen|
+|User|GUI (to be defined)|Keyboard, Screen|
 
 # Stories and personas
 \<A Persona is a realistic impersonation of an actor. Define here a few personas and describe in plain text how a persona interacts with the system>
