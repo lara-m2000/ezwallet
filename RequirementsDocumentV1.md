@@ -403,7 +403,7 @@ Login --> Logout
 |  Post condition     | List of categories |
 |  Nominal Scenario     | A list with all available categories is returned |
 |  Variants     |  |
-|  Exceptions     | Server exception |
+|  Exceptions     | Server exception; No categories in the databse |
 
 ##### Scenario 8.1 
 
@@ -426,6 +426,17 @@ Login --> Logout
 |  1     | User request the list |  
 |  2     | An error occours during the retrieve of the list|
 |3| The system returns an empty list|
+##### Scenario 8.3
+
+| Scenario 8.3 | Get categories (exception) |
+| ------------- |:-------------:| 
+|  Precondition     | User is logged in |
+|  Post condition     | Empty list |
+| Step#        | Description  |
+|  1     | User request the list |  
+|  2     | No categories are present in the database|
+|3| The system returns an empty list|
+
 
 # Glossary
 
