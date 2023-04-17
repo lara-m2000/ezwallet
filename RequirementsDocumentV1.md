@@ -31,6 +31,14 @@ Version: V1 - description of EZWallet in CURRENT form (as received by teachers)
 				- [Scenario 1.x](#scenario-1x)
 		- [Use case 2, UC2](#use-case-2-uc2)
 		- [Use case x, UCx](#use-case-x-ucx)
+		- [User Registration, UC4](#user-registration-uc4)
+				- [Scenario 4.1](#scenario-41)
+			- [Scenario 4.2](#scenario-42)
+		- [User Login, UC5](#user-login-uc5)
+				- [Scenario 5.1](#scenario-51)
+				- [Scenario 5.2](#scenario-52)
+		- [User Logout, UC6](#user-logout-uc6)
+				- [Scenario 6.1](#scenario-61)
 - [Glossary](#glossary)
 - [System Design](#system-design)
 - [Deployment Diagram](#deployment-diagram)
@@ -176,6 +184,102 @@ User -- EzWallet
 ### Use case x, UCx
 ..
 
+
+### User Registration, UC4
+
+| Actors Involved        |User |
+| ------------- |:-------------:| 
+|  Precondition     | |
+|  Post condition     | User is registerd and authorized |
+|  Nominal Scenario     | User want's to register to the EzWallet system |
+|  Variants     | |
+|  Exceptions     | Server is not available, A User with the credentials exists |
+
+##### Scenario 4.1 
+
+| Scenario 4.1 | (Nominal) |
+| ------------- |:-------------:| 
+|  Precondition     | |
+|  Post condition     |User is registerd |
+| Step#        | Description  |
+|1|User goes on the EzWallet System |  
+|2|Enters the register page |
+|3|System asks for his credentials |
+|4|System checks if (username, password, email) are correct |
+|5|User is registerd |
+
+#### Scenario 4.2
+
+| Scenario 4.2 | (Exception) |
+| ------------- |:-------------:| 
+|  Precondition     |User registered |
+|  Post condition     |New User registration failed |
+| Step#        | Description  |
+|1|User goes on the EzWallet System |  
+|2|Enters the register page |
+|3|System asks for his credentials |
+|4|System checks if (username, password, email) are correct |
+|5|Email is already used, User alreay registered |
+
+
+### User Login, UC5
+
+| Actors Involved        |User |
+| ------------- |:-------------:| 
+|  Precondition     | User is registerd |
+|  Post condition     | User is logged in and authorized |
+|  Nominal Scenario     | User want's to login to the EzWallet System |
+|  Variants     | |
+|  Exceptions     | The login creadentials are invalid |
+
+##### Scenario 5.1 
+
+| Scenario 5.1 | (Nominal) |
+| ------------- |:-------------:| 
+|  Precondition     |User is registered |
+|  Post condition     | User is logged in and authorized |
+| Step#        | Description  |
+|1|User goes on the EzWallet System |  
+|2|Enters the login page |
+|3|System asks for his credentials |
+|4|System checks if (username, password, email) are correct |
+|5|User is logged in |
+
+##### Scenario 5.2
+
+| Scenario 5.2 | (Exception) |
+| ------------- |:-------------:| 
+|  Precondition     |User is registered or not registered |
+|  Post condition     | User is not logged in |
+| Step#        | Description  |
+|1|User goes on the EzWallet System |  
+|2|Enters the login page |
+|3|System asks for his credentials |
+|4|System checks if (username, password, email) are correct |
+|5|System rejects User |
+
+
+
+### User Logout, UC6
+
+| Actors Involved        |User |
+| ------------- |:-------------:| 
+|  Precondition     | User is logged id and authorized |
+|  Post condition     | User is logged out  |
+|  Nominal Scenario     | User want's to logout fom the EzWallet System |
+|  Variants     | |
+|  Exceptions     | |
+
+##### Scenario 6.1 
+
+| Scenario 6.1 | (Nominal) |
+| ------------- |:-------------:| 
+|  Precondition     |User is registered |
+|  Post condition     | User is logged in and authorized |
+| Step#        | Description  |
+|1|User goes on the EzWallet System |  
+|2|User ask to logout |
+|2|User is logged out |
 
 
 # Glossary
