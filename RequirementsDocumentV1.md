@@ -277,7 +277,7 @@ Login --> Logout
 |  Post condition     | User is registerd and authorized |
 |  Nominal Scenario     | User want's to register to the EzWallet system |
 |  Variants     | |
-|  Exceptions     | Server is not available, A User with the credentials exists |
+|  Exceptions     | Server is not available, A User with the same credentials exists |
 
 ##### Scenario 4.1 
 
