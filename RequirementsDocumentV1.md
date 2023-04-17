@@ -166,6 +166,7 @@ rectangle "EzWallet System" as System {
 	usecase Register
 	usecase Login
 	usecase Logout
+	usecase "Show labelled transaction" as Labelled
 
 	usecase "Add, Show Category" as Category
 }
@@ -174,7 +175,8 @@ User --> Transaction
 User --> Register
 User --> Login
 User --> Category
-Login --> Logout
+User --> Logout
+Transaction .> Labelled : include
 
 @enduml
 ```
