@@ -539,4 +539,12 @@ UserMachine - ServerMachine : internet link
   - Add something about defects found in the project
   - Aggiungere eccezioni dovute al fatto che server/db hanno qualche errore ?
   - Glossario, lo scrivo come penso che debba essere fatto, o come è nel codice ?
+
+
+  ---DEFECTS:
+  -No admin implementation
+  -Transactions and categories are not tied to the users, everyone can see all transactions and categories
+  -Get label does not return transaction with attached label
+  -Getusers can be done also by users who are not logged in
+  -Getuserbyusername works only if done on the user that is the same of the one who is performing the research
   - -->
