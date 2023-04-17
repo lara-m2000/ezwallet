@@ -246,7 +246,7 @@ Transaction .> Labelled : include
 |  Post condition     |Transactions are shown to the user|
 |  Nominal Scenario     |Transactions are showed to the user|
 |  Variants     |Labelled transactions are showed to the user|
-|  Exceptions     |There are no transactions in the DB|
+|  Exceptions     |There are no transactions inserted yet|
 
 ##### Scenario 3.1 
 
@@ -284,46 +284,46 @@ Transaction .> Labelled : include
 | ------------- |:-------------:| 
 |  Precondition     | |
 |  Post condition     | User is registerd and authorized |
-|  Nominal Scenario     | User want's to register to the EzWallet system |
+|  Nominal Scenario     | User wants to register to the EzWallet system |
 |  Variants     | |
-|  Exceptions     | Server is not available, A User with the same credentials exists |
+|  Exceptions     | A User with the same credentials exists |
 
 ##### Scenario 4.1 
 
 | Scenario 4.1 | (Nominal) |
 | ------------- |:-------------:| 
 |  Precondition     | |
-|  Post condition     |User is registerd |
+|  Post condition     |User is registered |
 | Step#        | Description  |
 |1|User goes on the EzWallet System |  
-|2|Enters the register page |
+|2|Enters the registration page |
 |3|System asks for his credentials |
 |4|System checks if (username, password, email) are correct |
-|5|User is registerd |
+|5|User is registered |
 
 #### Scenario 4.2
 
 | Scenario 4.2 | (Exception) |
 | ------------- |:-------------:| 
-|  Precondition     |User registered |
+|  Precondition     |User is registered |
 |  Post condition     |New User registration failed |
 | Step#        | Description  |
 |1|User goes on the EzWallet System |  
-|2|Enters the register page |
+|2|Enters the registration page |
 |3|System asks for his credentials |
 |4|System checks if (username, password, email) are correct |
-|5|Email is already used, User alreay registered |
+|5|Email is already used, an error is showed to the user|
 
 
 ### User Login, UC5
 
 | Actors Involved        |User |
 | ------------- |:-------------:| 
-|  Precondition     | User is registerd |
+|  Precondition     | User is registered |
 |  Post condition     | User is logged in and authorized |
-|  Nominal Scenario     | User want's to login to the EzWallet System |
+|  Nominal Scenario     | User wants to login to the EzWallet System |
 |  Variants     | |
-|  Exceptions     | The login creadentials are invalid |
+|  Exceptions     | The login credentials are invalid |
 
 ##### Scenario 5.1 
 
@@ -359,7 +359,7 @@ Transaction .> Labelled : include
 | ------------- |:-------------:| 
 |  Precondition     | User is logged id and authorized |
 |  Post condition     | User is logged out  |
-|  Nominal Scenario     | User want's to logout fom the EzWallet System |
+|  Nominal Scenario     | User wants to logout fom the EzWallet System |
 |  Variants     | |
 |  Exceptions     | |
 
@@ -371,7 +371,7 @@ Transaction .> Labelled : include
 |  Post condition     | User is logged in and authorized |
 | Step#        | Description  |
 |1|User goes on the EzWallet System |  
-|2|User ask to logout |
+|2|User asks to logout |
 |2|User is logged out |
 
 ### Add category, UC7
@@ -379,7 +379,7 @@ Transaction .> Labelled : include
 | ------------- |:-------------:| 
 |  Precondition     | User is logged in |
 |  Post condition     | Category added |
-|  Nominal Scenario     | A new category is added in the database |
+|  Nominal Scenario     | A new category is added|
 |  Variants     |  |
 |  Exceptions     ||
 
@@ -392,7 +392,6 @@ Transaction .> Labelled : include
 | Step#        | Description  |
 |  1     | User inserts category type and color |  
 |  2     | System creates the new category with the specified type and color|
-|3| System saves the created category in the database|
 
 
 ### Show categories, UC8
@@ -402,7 +401,7 @@ Transaction .> Labelled : include
 |  Post condition     | List of categories |
 |  Nominal Scenario     | A list with all available categories is returned |
 |  Variants     |  |
-|  Exceptions     | No categories in the database |
+|  Exceptions     | No categories inserted|
 
 ##### Scenario 8.1 
 
@@ -412,7 +411,7 @@ Transaction .> Labelled : include
 |  Post condition     | List of categories |
 | Step#        | Description  |
 |  1     | User request the list |  
-|  2     | System retrieves the list of categories from the database|
+|  2     | System retrieves the list of categories|
 |3|The list of categories is returned|
 
 ##### Scenario 8.2
@@ -423,7 +422,7 @@ Transaction .> Labelled : include
 |  Post condition     | Empty list |
 | Step#        | Description  |
 |  1     | User request the list |  
-|  2     | No categories are present in the database|
+|  2     | No categories are present|
 |3| The system returns an empty list|
 
 
