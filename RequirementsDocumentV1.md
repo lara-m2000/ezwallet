@@ -465,11 +465,11 @@ transactions.
 endnote
 
 
-Transaction "0..*" - "0..1" Category : labelled >
+ Transaction "0..*" - "0..1" Category : labelled >
 
 
-User --- "0..*" Transaction
-User --- "0..*" Category
+' User --- "0..*" Transaction
+' User --- "0..*" Category
 
 
 
@@ -538,4 +538,5 @@ UserMachine - ServerMachine : internet link
   - Version Number?
   - Add something about defects found in the project
   - Aggiungere eccezioni dovute al fatto che server/db hanno qualche errore ?
+  - Glossario, lo scrivo come penso che debba essere fatto, o come è nel codice ?
   - -->
