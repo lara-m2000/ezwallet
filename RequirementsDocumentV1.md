@@ -330,6 +330,68 @@ User -- EzWallet
 |2|User ask to logout |
 |2|User is logged out |
 
+### Add category, UC7
+| Actors Involved        |User|
+| ------------- |:-------------:| 
+|  Precondition     | User is logged in |
+|  Post condition     | Category added |
+|  Nominal Scenario     | A new category is added in the database |
+|  Variants     |  |
+|  Exceptions     | Server exception |
+
+##### Scenario 7.1 
+
+| Scenario 7.1 | Add category (nominal) |
+| ------------- |:-------------:| 
+|  Precondition     | User is logged in |
+|  Post condition     | Category added |
+| Step#        | Description  |
+|  1     | User inserts category type and color |  
+|  2     | System creates the new category with the specified type and color|
+|3| System saves the created category in the database|
+
+
+##### Scenario 7.2
+| Scenario 7.2 | Add category (server exception)|
+| ------------- |:-------------:| 
+|  Precondition     | User is logged in |
+|  Post condition     | Response 400 |
+| Step#        | Description  |
+|  1     | User inserts category type and color |  
+|  2     | Error occours during the creation of the category|
+|3|The operation is aborted and the system returns an error code 400|
+
+
+### Show categories, UC8
+| Actors Involved        |User|
+| ------------- |:-------------:| 
+|  Precondition     | User has to be logged in |
+|  Post condition     | List of categories |
+|  Nominal Scenario     | A list with all available categories is returned |
+|  Variants     |  |
+|  Exceptions     | Server exception |
+
+##### Scenario 8.1 
+
+| Scenario 8.1 | Get categories (nominal) |
+| ------------- |:-------------:| 
+|  Precondition     | User is logged in |
+|  Post condition     | List of categories |
+| Step#        | Description  |
+|  1     | User request the list |  
+|  2     | System retrieves the list of categories from the database|
+|3|The list of categories is returned|
+
+##### Scenario 8.2
+
+| Scenario 8.2 | Get categories (server exception) |
+| ------------- |:-------------:| 
+|  Precondition     | User is logged in |
+|  Post condition     | Empty list |
+| Step#        | Description  |
+|  1     | User request the list |  
+|  2     | An error occours during the retrieve of the list|
+|3| The system returns an empty list|
 
 # Glossary
 
