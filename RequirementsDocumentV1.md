@@ -300,4 +300,5 @@ UserMachine - ServerMachine : internet link
   - Client nel system design?
   - Table of rights?
   - Version Number?
+  - Add something about defects found in the project
   - -->
