@@ -48,6 +48,7 @@ Version: V1 - description of EZWallet in CURRENT form (as received by teachers)
 		- [Show categories, UC8](#show-categories-uc8)
 				- [Scenario 8.1](#scenario-81)
 				- [Scenario 8.2](#scenario-82)
+				- [Scenario 8.3](#scenario-83)
 - [Glossary](#glossary)
 - [System Design](#system-design)
 - [Deployment Diagram](#deployment-diagram)
@@ -276,7 +277,7 @@ Login --> Logout
 |  Post condition     | User is registerd and authorized |
 |  Nominal Scenario     | User want's to register to the EzWallet system |
 |  Variants     | |
-|  Exceptions     | Server is not available, A User with the credentials exists |
+|  Exceptions     | Server is not available, A User with the same credentials exists |
 
 ##### Scenario 4.1 
 
@@ -427,24 +428,16 @@ Login --> Logout
 @startuml
 
 
-class Account {
+class User {
 	+ usename
 	+ email
 	+ password
-}
-
-class User {
 }
 
 note top of User
 User who wants to use the app
 managing his transaction and categories.
 endnote
-
-
-User - Account : has >
-
-
 
 
 
