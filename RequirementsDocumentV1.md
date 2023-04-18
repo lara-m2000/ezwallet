@@ -464,56 +464,26 @@ but also by non logged users.
 |  1     | User requests the list of users|  
 |  2     | System retrieves users and returns the list|
 
-### Filter user by username, UC10
+### Get info about account, UC10
 
 
 | Actors Involved        |User|
 | ------------- |:-------------:| 
 |  Precondition     | User is logged in  |
-|  Post condition     | Filtered user is showed |
-|  Nominal Scenario     | Info of the requested user are showed |
+|  Post condition     | Account info are showed |
+|  Nominal Scenario     | Info of the account of the requesting user are showed |
 |  Variants     |  |
-|  Exceptions     | User is not found, user is not authorized to see the info about the requested user |
+|  Exceptions     ||
 
 ##### Scenario 10.1
 
-| Scenario 10.1| Filter user by username (nominal) |
+| Scenario 10.1| Get info about account (nominal) |
 | ------------- |:-------------:| 
 |  Precondition     |User is logged in |
 |  Post condition     | Filtered user is showed |
 | Step#        | Description  |
-|  1     | User asks the system information about a certain user|  
-|  2     | System retrieves and returns info about the requested user|
-
-##### Scenario 10.2
-
-| Scenario 10.2| Filter user by username (exception1) |
-| ------------- |:-------------:| 
-|  Precondition     |User is logged in |
-|  Post condition     | Error message is shown to the user |
-| Step#        | Description  |
-|  1     | User asks the system information about a certain user|  
-|  2     | System can't find the requested user|
-|3|An error message is showed to the user by the system |
-
-##### Scenario 10.3
-
-| Scenario 10.3| Filter user by username (exception2) |
-| ------------- |:-------------:| 
-|  Precondition     |User is logged in |
-|  Post condition     | Error message is shown to the user |
-| Step#        | Description  |
-|  1     | User asks the system information about a certain user|  
-|  2     | User is not authorized to get info about that user|
-|3|An error message is showed to the user by the system |
-
-
-
-
-
-
-
-
+|  1     | User asks the system information about his profile|  
+|  2     | System retrieves and returns info about the profile|
 
 
 
