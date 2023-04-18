@@ -581,11 +581,12 @@ endnote
 @startuml
 
 class EzWalletSystem
-
 class EzWalletServer
+class EzWalletWebClient
 
 EzWalletSystem o-- EzWalletServer
 EzWalletSystem o-- DataBaseServer
+EzWalletSystem o-- "1..*" EzWalletWebClient
 
 
 @enduml
@@ -614,8 +615,10 @@ DataBaseServer ..> DBMachine
 
 ServerMachine - DBMachine : internet
 
-
+artifact EzWalletWebClient
 node UserMachine
+
+EzWalletWebClient ..> UserMachine : deploy
 
 UserMachine - ServerMachine : internet link
 
