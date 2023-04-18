@@ -21,13 +21,13 @@ Consider the EZWallet  project in CURRENT version (as received by the teachers),
 ### 
 |         component name    | Estimated effort (person hours)   |             
 | ----------- | ------------------------------- | 
-|requirement document    | |
-| GUI prototype ||
-|design document ||
-|code ||
-| unit tests ||
-| api tests ||
-| management documents  ||
+|requirement document    |40 person hours|
+| GUI prototype |10 person hours|
+|design document |40 person hours|
+|code |50 person hours|
+| unit tests | 30 person hours|
+| api tests | 30 person hours|
+| management documents  | 10 person hours|
 
 
 
