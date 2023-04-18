@@ -484,11 +484,24 @@ but also by non logged users.
 | Scenario 10.2| Filter user by username (exception1) |
 | ------------- |:-------------:| 
 |  Precondition     |User is logged in |
-|  Post condition     | Error message is shown |
+|  Post condition     | Error message is shown to the user |
 | Step#        | Description  |
 |  1     | User asks the system information about a certain user|  
 |  2     | System can't find the requested user|
-|3|An error message is showed to the user |
+|3|An error message is showed to the user by the system |
+
+##### Scenario 10.3
+
+| Scenario 10.3| Filter user by username (exception2) |
+| ------------- |:-------------:| 
+|  Precondition     |User is logged in |
+|  Post condition     | Error message is shown to the user |
+| Step#        | Description  |
+|  1     | User asks the system information about a certain user|  
+|  2     | User is not authorized to get info about that user|
+|3|An error message is showed to the user by the system |
+
+
 
 
 
