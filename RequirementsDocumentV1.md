@@ -168,22 +168,33 @@ left to right direction
 actor User
 
 rectangle "EzWallet System" as System {
-	usecase "Add, Delete, Show Transaction" as Transaction
+	usecase "Delete transaction" as DelTransaction
+	usecase "Show transactions" as ShowTransactions
+	usecase "Add transaction" as AddTransaction
 
 	usecase Register
 	usecase Login
 	usecase Logout
-	usecase "Show labelled transaction" as Labelled
+	usecase "Show labelled transactions" as Labelled
 
-	usecase "Add, Show Category" as Category
+	usecase "Add category" as AddCategory
+	usecase "Show categories" as ShowCategories
 }
 
-User --> Transaction
+User --> DelTransaction
+User --> ShowTransactions
+User --> AddTransaction
+ShowTransactions .> Labelled : include
+
+User --> AddCategory
+User --> ShowCategories
+
 User --> Register
 User --> Login
-User --> Category
 User --> Logout
-Transaction .> Labelled : include
+
+
+
 
 @enduml
 ```
@@ -207,7 +218,7 @@ Transaction .> Labelled : include
 |  Post condition     | New transaction is added |
 | Step#        | Description  |
 |1|User creates new transaction with certain attributes|  
-|2|System adds new transaction for the user|
+|2|System adds new transaction |
 
 
 ### Delete transaction, UC2
@@ -262,7 +273,7 @@ Transaction .> Labelled : include
 
 | Scenario 3.2 |Show transactions (exception1)|
 | ------------- |:-------------:| 
-|  Precondition     |User is logged in|
+|  Precondition     |User is logged in, no transactions inserted yet|
 |  Post condition     |Empty list of transaction if showed to the user|
 | Step#        | Description  |
 |1|User asks the system to show the transactions|  
@@ -275,7 +286,7 @@ Transaction .> Labelled : include
 |  Precondition     |User is logged in|
 |  Post condition     |Labelled transactions are showed to the user|
 | Step#        | Description  |
-|1|User asks the system to show the labeled transactions|  
+|1|User asks the system to show the labelled transactions|  
 |2|System retrieves and shows labelled transactions to the user|
 
 ### User Registration, UC4
@@ -405,7 +416,7 @@ Transaction .> Labelled : include
 
 ##### Scenario 8.1 
 
-| Scenario 8.1 | Get categories (nominal) |
+| Scenario 8.1 | Show categories (nominal) |
 | ------------- |:-------------:| 
 |  Precondition     | User is logged in |
 |  Post condition     | List of categories |
@@ -416,7 +427,7 @@ Transaction .> Labelled : include
 
 ##### Scenario 8.2
 
-| Scenario 8.2| Get categories (exception) |
+| Scenario 8.2| Show categories (exception) |
 | ------------- |:-------------:| 
 |  Precondition     | User is logged in |
 |  Post condition     | Empty list |
@@ -424,6 +435,67 @@ Transaction .> Labelled : include
 |  1     | User request the list |  
 |  2     | No categories are present|
 |3| The system returns an empty list|
+
+### Show users, UC9
+WARNING: this use case is actually a defect of the app, since this should be an only-admin usecase, but can be done not only by normal logged users, 
+but also by non logged users.
+
+| Actors Involved        |User|
+| ------------- |:-------------:| 
+|  Precondition     |  |
+|  Post condition     | List of registered users is showed |
+|  Nominal Scenario     | A list with all registered users is returned to the user |
+|  Variants     |  |
+|  Exceptions     | |
+
+##### Scenario 9.1
+
+| Scenario 9.1| Show users (nominal) |
+| ------------- |:-------------:| 
+|  Precondition     | |
+|  Post condition     | List of registered users is showed |
+| Step#        | Description  |
+|  1     | User requests the list of users|  
+|  2     | System retrieves users and returns the list|
+
+### Filter user by username, UC10
+
+
+| Actors Involved        |User|
+| ------------- |:-------------:| 
+|  Precondition     | User is logged in  |
+|  Post condition     | Filtered user is showed |
+|  Nominal Scenario     | Info of the requested user are showed |
+|  Variants     |  |
+|  Exceptions     | User is not found, user is not authorized to see the info about the requested user |
+
+##### Scenario 10.1
+
+| Scenario 10.1| Filter user by username (nominal) |
+| ------------- |:-------------:| 
+|  Precondition     |User is logged in |
+|  Post condition     | Filtered user is showed |
+| Step#        | Description  |
+|  1     | User asks the system information about a certain user|  
+|  2     | System retrieves and returns info about the requested user|
+
+##### Scenario 10.2
+
+| Scenario 10.2| Filter user by username (exception1) |
+| ------------- |:-------------:| 
+|  Precondition     |User is logged in |
+|  Post condition     | Error message is shown |
+| Step#        | Description  |
+|  1     | User asks the system information about a certain user|  
+|  2     | System can't find the requested user|
+|3|An error message is showed to the user |
+
+
+
+
+
+
+
 
 
 # Glossary
