@@ -20,6 +20,8 @@ Version: V1 - description of EZWallet in CURRENT form (as received by teachers)
 	- [Context Diagram](#context-diagram)
 	- [Interfaces](#interfaces)
 - [Stories and personas](#stories-and-personas)
+		- [Persona1:](#persona1)
+		- [Persona2:](#persona2)
 - [Functional and non functional requirements](#functional-and-non-functional-requirements)
 	- [Functional Requirements](#functional-requirements)
 	- [Non Functional Requirements](#non-functional-requirements)
@@ -44,11 +46,14 @@ Version: V1 - description of EZWallet in CURRENT form (as received by teachers)
 				- [Scenario 6.1](#scenario-61)
 		- [Add category, UC7](#add-category-uc7)
 				- [Scenario 7.1](#scenario-71)
-				- [Scenario 7.2](#scenario-72)
 		- [Show categories, UC8](#show-categories-uc8)
 				- [Scenario 8.1](#scenario-81)
 				- [Scenario 8.2](#scenario-82)
-				- [Scenario 8.3](#scenario-83)
+		- [Show users, UC9](#show-users-uc9)
+				- [Scenario 9.1](#scenario-91)
+		- [Filter user by username, UC10](#filter-user-by-username-uc10)
+				- [Scenario 10.1](#scenario-101)
+				- [Scenario 10.2](#scenario-102)
 - [Glossary](#glossary)
 - [System Design](#system-design)
 - [Deployment Diagram](#deployment-diagram)
@@ -168,32 +173,33 @@ left to right direction
 actor User
 
 rectangle "EzWallet System" as System {
-	usecase "Delete transaction" as DelTransaction
+	usecase "Add, Delete transaction" as ADTransaction
 	usecase "Show transactions" as ShowTransactions
-	usecase "Add transaction" as AddTransaction
 
 	usecase Register
 	usecase Login
 	usecase Logout
 	usecase "Show labelled transactions" as Labelled
 
-	usecase "Add category" as AddCategory
-	usecase "Show categories" as ShowCategories
+	usecase "Add, Show category" as Category
+
+	usecase "Show Users" as SUsers
+	usecase "Filter by username" as FilterUser
 }
 
-User --> DelTransaction
 User --> ShowTransactions
-User --> AddTransaction
-ShowTransactions .> Labelled : include
+User --> ADTransaction
+ShowTransactions ..> Labelled : include
 
-User --> AddCategory
-User --> ShowCategories
+User --> Category
 
 User --> Register
 User --> Login
 User --> Logout
 
 
+User --> SUsers
+SUsers ..> FilterUser : include
 
 
 @enduml
