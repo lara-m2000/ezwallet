@@ -54,6 +54,7 @@ Version: V1 - description of EZWallet in CURRENT form (as received by teachers)
 		- [Filter user by username, UC10](#filter-user-by-username-uc10)
 				- [Scenario 10.1](#scenario-101)
 				- [Scenario 10.2](#scenario-102)
+				- [Scenario 10.3](#scenario-103)
 - [Glossary](#glossary)
 - [System Design](#system-design)
 - [Deployment Diagram](#deployment-diagram)
@@ -173,33 +174,25 @@ left to right direction
 actor User
 
 rectangle "EzWallet System" as System {
-	usecase "Add, Delete transaction" as ADTransaction
-	usecase "Show transactions" as ShowTransactions
+	usecase "Add, Delete, Show, Show labelled transaction" as Transaction
 
 	usecase Register
 	usecase Login
 	usecase Logout
-	usecase "Show labelled transactions" as Labelled
 
 	usecase "Add, Show category" as Category
 
 	usecase "Show Users" as SUsers
-	usecase "Filter by username" as FilterUser
+	usecase "Show User by username" as UUsers
 }
 
-User --> ShowTransactions
-User --> ADTransaction
-ShowTransactions ..> Labelled : include
-
+User --> Transaction
 User --> Category
-
 User --> Register
 User --> Login
 User --> Logout
-
-
 User --> SUsers
-SUsers ..> FilterUser : include
+User --> UUsers
 
 
 @enduml
