@@ -62,7 +62,10 @@ Version: V1 - description of EZWallet in CURRENT form (as received by teachers)
 - [Deployment Diagram](#deployment-diagram)
 
 # Informal description
-EZWallet (read EaSy Wallet) is a software application designed to help individuals and families keep track of their expenses. Users can enter and categorize their expenses, allowing them to quickly see where their money is going. EZWallet is a powerful tool for those looking to take control of their finances and make informed decisions about their spending.
+EZWallet (read EaSy Wallet) is a software application designed to help individuals and families keep track of their expenses. Users can enter and categorize their expenses, allowing them to quickly see where their money is going. EZWallet is a powerful tool for those looking to take control of their finances and make informed decisions about their spending. 
+<!--REMEMBER TO ADD SOMETHING -->
+
+
 
 
 
@@ -75,9 +78,10 @@ EZWallet (read EaSy Wallet) is a software application designed to help individua
 | Developers       |                Testers and programmers                 |
 | CEO              |              Head of the startup company               |
 | Competitors      | Satispay/Postepay (functionality that tracks expenses) |
-| ??DB admin??     |                                                        |
+| DB admin     	   | Person in charge of managing the database              |
 | Admin            |              User with special privileges              |
 | COO              |          Manages analytics and market analyis          |
+| Banks            | Contract to obtain access to users credit card transactions|
 
 
 
@@ -95,6 +99,9 @@ usecase EzWallet
 actor User
 
 User -- EzWallet
+Admin -- EzWallet
+COO -- EzWallet
+Bank -- EzWallet
 
 @enduml
 ```
@@ -106,7 +113,10 @@ User -- EzWallet
 
 | Actor |  Logical Interface  | Physical Interface |
 | ----- | :-----------------: | -----------------: |
-| User  | GUI (to be defined) |   Keyboard, Screen |
+| User  | GUI |   Keyboard, Screen |
+| Admin | GUI/Shell| Keyboard, Screen|
+| COO | GUI | Keyboard, Screen|
+| Bank| API | Internet |
 
 # Stories and personas
 \<A Persona is a realistic impersonation of an actor. Define here a few personas and describe in plain text how a persona interacts with the system>
@@ -145,16 +155,24 @@ Finds herself with a high income just after graduation, needs a way to manage th
 | FR1.2   |           Logout            |
 | FR1.3   |          Authorize          |
 | FR1.4   | Register (name, email, pwd) |
-| FR1.5   |    Show registered users    |
-| FR1.5.1 |     Filter by username      |
-| FR2     |      Manage categories      |
-| FR2.1   |        Add category         |
-| FR2.2   |       Show categories       |
-| FR3     |     Manage transactions     |
-| FR3.1   |       Add transaction       |
-| FR3.2   |     Delete transaction      |
-| FR3.3   |      Show transactions      |
-| FR3.4   | Show labelled transactions  |
+| FR1.5   |   Manage access rights      |
+| FR1.6   |    Show registered users    |
+| FR1.6.1 |     Filter by username      |
+|FR2| CRUD categories|
+|FR3| Manage transactions|
+|FR3.1|CRUD transactions|
+|FR3.2| Show labelled transactions|
+|FR4| Manage credit cards|
+|FR4.1|Add/remove credit card details|
+|FR4.2|Get credit card transactions|
+|FR5|Analytics|
+|FR5.1||
+|FR6|Manage groups of users|
+|FR6.1|Manage users rights|
+|FR6.1.1|Show/Hide other users' transactions|
+|FR6.2|Create group|
+|FR6.3|Add/remove user to group|
+
 
 ## Non Functional Requirements
 
