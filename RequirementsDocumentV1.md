@@ -629,7 +629,7 @@ UserMachine - ServerMachine : internet link
   - Add something about defects found in the project
   - Aggiungere eccezioni dovute al fatto che server/db hanno qualche errore ?
   - Glossario, lo scrivo come penso che debba essere fatto, o come è nel codice ?
-
+  - Add something in informal description about the app (?)
 
   ---DEFECTS:
   -No admin implementation
