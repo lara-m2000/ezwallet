@@ -21,13 +21,13 @@ Consider the EZWallet  project in CURRENT version (as received by the teachers),
 ### 
 |         component name    | Estimated effort (person hours)   |             
 | ----------- | ------------------------------- | 
-|requirement document    |40 person hours|
-| GUI prototype |10 person hours|
-|design document |40 person hours|
-|code |50 person hours|
-| unit tests | 30 person hours|
-| api tests | 30 person hours|
-| management documents  | 10 person hours|
+|requirement document    |30 ph|
+| GUI prototype |10 ph|
+|design document |30 ph|
+|code |50 ph|
+| unit tests | 20 ph|
+| api tests | 20 ph|
+| management documents  | 10 ph|
 
 
 
@@ -45,8 +45,8 @@ Report here the results of the three estimation approaches. The  estimates may d
 
 |             | Estimated effort                        |   Estimated duration |          
 | ----------- | ------------------------------- | ---------------|
-| estimate by size ||
-| estimate by product decomposition ||
+| estimate by size |120 ph|1 week|
+| estimate by product decomposition |170 ph|1 week|
 | estimate by activity decomposition ||
 
 
