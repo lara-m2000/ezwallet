@@ -112,19 +112,20 @@ User -- EzWallet
 \<Persona is-an-instance-of actor>
 
 \<stories will be formalized later as scenarios in use cases>
-### Persona1:
+## Persona1
 Persona1: male, middle-age, low income, father, married with children 																					
 
 Persona1, work day: wake up, breakfast, drive children to school, return home for smart working 
 
 Persona1, week end day: wake up, prepare breakfast for family, go out with its family, hang out with friends at night 
+### Story
+He finds out he is spending too much money than expected, need an easy to use app to keep track of his expenses, in order to be able to maintain his family and keep on having fun with his hobbies.
 
-Story: he finds out he is spending too much money than expected, need an easy to use app to keep track of his expenses, in order to be able to maintain his family and keep on having fun with his hobbies.
-
-### Persona2:
+## Persona2
 Persona2: female, young, just graduated, high income, no children, no husband.
 
-Story: finds herself with a high income just after graduation, needs a way to manage the great unexpected amount of money she is gaining.
+### Story
+Finds herself with a high income just after graduation, needs a way to manage the great unexpected amount of money she is gaining.
 
 
 # Functional and non functional requirements
