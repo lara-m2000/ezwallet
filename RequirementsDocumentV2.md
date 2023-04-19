@@ -163,7 +163,7 @@ Finds herself with a high income just after graduation, needs a way to manage th
 | FR1.1   |            Login            |
 | FR1.2   |           Logout            |
 | FR1.3   |          Authorize          |
-| FR1.4   | Register (name, email, pwd, credit card details) |
+| FR1.4   | Register (name, email, pwd) |
 | FR1.5   |   Manage access rights      |
 | FR1.6   |    Show registered users    |
 | FR1.6.1 |     Get info about user account      |
