@@ -586,7 +586,7 @@ class Transaction {
 }
 
 note bottom of Transaction
-Money transaction created by a User.
+Money transaction created by a User, or retrived from a credit card of the user
 endnote
 
 
