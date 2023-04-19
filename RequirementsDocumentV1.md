@@ -56,6 +56,7 @@ Version: V1 - description of EZWallet in CURRENT form (as received by teachers)
 - [Glossary](#glossary)
 - [System Design](#system-design)
 - [Deployment Diagram](#deployment-diagram)
+- [Defects](#defects)
 
 # Informal description
 EZWallet (read EaSy Wallet) is a software application designed to help individuals and families keep track of their expenses. Users can enter and categorize their expenses, allowing them to quickly see where their money is going. EZWallet is a powerful tool for those looking to take control of their finances and make informed decisions about their spending.
@@ -591,8 +592,11 @@ UserMachine - ServerMachine : internet link
 
 @enduml
 ```
-
-
+# Defects
+- No admin implementation
+- Transactions and categories are not tied to the users who created them, everyone can see all transactions and categories
+- GetLabels does not return transaction with attached category color
+- GetUsers can be done also by users who are not logged in
 
 <!-- CHIDERE:
   - DB admin negli stakerholder
@@ -606,10 +610,4 @@ UserMachine - ServerMachine : internet link
   - Glossario, lo scrivo come penso che debba essere fatto, o come è nel codice ?
   - Add something in informal description about the app (?)
 
-  ---DEFECTS:
-  -No admin implementation
-  -Transactions and categories are not tied to the users, everyone can see all transactions and categories
-  -Get label does not return transaction with attached label
-  -Getusers can be done also by users who are not logged in
-  -Getuserbyusername works only if done on the user that is the same of the one who is performing the research
   - -->
