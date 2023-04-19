@@ -97,11 +97,16 @@ EZWallet (read EaSy Wallet) is a software application designed to help individua
 
 usecase EzWallet
 actor User
+actor Admin
+actor COO
+actor Bank
+actor "Payment service" as PaymentService
 
 User -- EzWallet
 Admin -- EzWallet
 COO -- EzWallet
-Bank -- EzWallet
+EzWallet -- Bank
+EzWallet -- PaymentService
 
 @enduml
 ```
@@ -179,6 +184,7 @@ Finds herself with a high income just after graduation, needs a way to manage th
 |FR7.1|Notify the user when monthly offer is expiring|
 |FR7.3|Receive monthly payment|
 |FR7.4| Record credit card debit|
+
 
 
 ## Non Functional Requirements
@@ -657,15 +663,14 @@ UserMachine - ServerMachine : internet link
 
 
 <!-- CHIDERE:
-  - DB admin negli stakerholder
-  - Specializzazione User in Admin, COO (in Glossario)
-  - Come specificare il tipo di Transaction e Category 
-  - Client nel system design?
-  - Table of rights?
+  - DB admin negli stakerholder => SI
+  - Specializzazione User in Admin, COO (in Glossario) => NO
+  - Client nel system design? => NO
+  - Table of rights? => nel V2
   - Version Number?
   - Add something about defects found in the project
   - Aggiungere eccezioni dovute al fatto che server/db hanno qualche errore ?
-  - Glossario, lo scrivo come penso che debba essere fatto, o come è nel codice ?
+  - Glossario, lo scrivo come penso che debba essere fatto, o come è nel codice ? => va bene user separato da trans
   - Add something in informal description about the app (?)
 
   ---DEFECTS:
