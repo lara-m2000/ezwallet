@@ -155,10 +155,10 @@ Finds herself with a high income just after graduation, needs a way to manage th
 | FR1.1   |            Login            |
 | FR1.2   |           Logout            |
 | FR1.3   |          Authorize          |
-| FR1.4   | Register (name, email, pwd) |
+| FR1.4   | Register (name, email, pwd, credit card details) |
 | FR1.5   |   Manage access rights      |
 | FR1.6   |    Show registered users    |
-| FR1.6.1 |     Filter by username      |
+| FR1.6.1 |     Get info about user account      |
 |FR2| CRUD categories|
 |FR3| Manage transactions|
 |FR3.1|CRUD transactions|
@@ -167,12 +167,15 @@ Finds herself with a high income just after graduation, needs a way to manage th
 |FR4.1|Add/remove credit card details|
 |FR4.2|Get credit card transactions|
 |FR5|Analytics|
-|FR5.1||
+|FR5.1|Show charts about expenses|
 |FR6|Manage groups of users|
 |FR6.1|Manage users rights|
 |FR6.1.1|Show/Hide other users' transactions|
 |FR6.2|Create group|
 |FR6.3|Add/remove user to group|
+|FR7|Manage payment of monthly fee|
+|FR7.1|Notify the user when monthly offer is expiring|
+|FR7.2|Disable account when monthly payment is missing|
 
 
 ## Non Functional Requirements
