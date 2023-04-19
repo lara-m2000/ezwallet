@@ -63,7 +63,11 @@ Version: V1 - description of EZWallet in CURRENT form (as received by teachers)
 
 # Informal description
 EZWallet (read EaSy Wallet) is a software application designed to help individuals and families keep track of their expenses. Users can enter and categorize their expenses, allowing them to quickly see where their money is going. EZWallet is a powerful tool for those looking to take control of their finances and make informed decisions about their spending. 
+EzWallet allows people also to attach credit cards to their account in order to automatically track transactions coming from them.
+
 <!--REMEMBER TO ADD SOMETHING -->
+# Business model
+Startup company developing an application. Money gain comes from a monthly fee that must be payed by the user.
 
 
 
