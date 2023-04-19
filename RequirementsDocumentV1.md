@@ -555,7 +555,6 @@ class EzWalletWebClient
 
 EzWalletSystem o-- EzWalletServer
 EzWalletSystem o-- DataBaseServer
-EzWalletSystem o-- "1..*" EzWalletWebClient
 
 
 @enduml
@@ -587,7 +586,6 @@ ServerMachine - DBMachine : internet
 artifact EzWalletWebClient
 node UserMachine
 
-EzWalletWebClient ..> UserMachine : deploy
 
 UserMachine - ServerMachine : internet link
 
