@@ -39,6 +39,7 @@ Consider the EZWallet  project in CURRENT version (as received by the teachers),
 | Market analisys on competitors | 4ph |
 | Define requirements document | 25ph  |
 | Design GUI prototype | 10ph |
+| Define design document | 30ph |
 | Code implementation | 50ph |
 | Define Unit test | 20ph |
 | Define API test cases | 20ph |
@@ -47,6 +48,37 @@ Consider the EZWallet  project in CURRENT version (as received by the teachers),
 ###
 Insert here Gantt chart with above activities
 
+```plantuml
+@startgantt
+Project starts 1st of April 2023
+saturday are closed
+sunday are closed
+
+[Identify Stakeholders] as [stake] lasts 1 day
+[Market analisys on competitors] as [market] lasts 1 day
+[Define requirements document] as [req] lasts 2 day
+[Design GUI prototype] as [gui] lasts 2 day
+[Define design document] as [design] lasts 3 day
+[Code implementation] as [code] lasts 5 day
+[Define Unit test] as [unit] lasts 3 day
+[Define API test cases] as [api] lasts 3 day
+[Final project review] as [rev] lasts 2 day
+
+[stake] -> [market]
+[market] -> [req]
+[req] -> [gui]
+[gui] -> [design]
+
+[design] -> [code]
+[design] -> [unit]
+[design] -> [api]
+
+[code] -> [rev]
+[unit] -> [rev]
+[api] -> [rev]
+
+@endgantt
+```
 # Summary
 
 Report here the results of the three estimation approaches. The  estimates may differ. Discuss here the possible reasons for the difference
@@ -55,7 +87,7 @@ Report here the results of the three estimation approaches. The  estimates may d
 | ----------- | ------------------------------- | ---------------|
 | estimate by size |120 ph|1 week|
 | estimate by product decomposition |170 ph|1 week|
-| estimate by activity decomposition ||
+| estimate by activity decomposition | 178ph | 4 weeks |
 
 
 
