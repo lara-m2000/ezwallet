@@ -650,7 +650,7 @@ class EzWalletWebClient
 
 EzWalletSystem o-- EzWalletServer
 EzWalletSystem o-- DataBaseServer
-EzWalletSystem o-- "1..*" EzWalletWebClient
+EzWalletSystem o-- EzWalletWebClient
 
 
 @enduml
