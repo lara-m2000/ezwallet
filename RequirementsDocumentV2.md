@@ -82,7 +82,7 @@ EZWallet (read EaSy Wallet) is a software application designed to help individua
 | Admin            |              User with special privileges              |
 | COO              |          Manages analytics and market analyis          |
 | Banks            | Contract to obtain access to users credit card transactions|
-
+|Payment service| Service to manage users' monthly payment|
 
 
 # Context Diagram and interfaces
@@ -118,6 +118,7 @@ Payment service -- EzWallet
 | Admin | GUI/Shell| Keyboard, Screen|
 | COO | GUI | Keyboard, Screen|
 | Bank| API | Internet |
+|Payment service|API|Internet|
 
 # Stories and personas
 \<A Persona is a realistic impersonation of an actor. Define here a few personas and describe in plain text how a persona interacts with the system>
