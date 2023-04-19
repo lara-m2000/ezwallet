@@ -169,7 +169,7 @@ Finds herself with a high income just after graduation, needs a way to manage th
 | FR1.6   |    Show registered users    |
 | FR1.6.1 |     Get info about user account      |
 |FR1.7|Disable account when monthly payment is missing|
-|FR2| CRUD categories|
+|FR2|CRUD categories|
 |FR3| Manage transactions|
 |FR3.1|CRUD transactions|
 |FR3.2| Show labelled transactions|
