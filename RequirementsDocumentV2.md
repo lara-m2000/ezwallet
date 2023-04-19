@@ -176,6 +176,7 @@ Finds herself with a high income just after graduation, needs a way to manage th
 |FR6.3|Add/remove user to group|
 
 
+
 ## Non Functional Requirements
 
 \<Describe constraints on functional requirements>
@@ -652,15 +653,14 @@ UserMachine - ServerMachine : internet link
 
 
 <!-- CHIDERE:
-  - DB admin negli stakerholder
-  - Specializzazione User in Admin, COO (in Glossario)
-  - Come specificare il tipo di Transaction e Category 
-  - Client nel system design?
-  - Table of rights?
+  - DB admin negli stakerholder => SI
+  - Specializzazione User in Admin, COO (in Glossario) => NO
+  - Client nel system design? => NO
+  - Table of rights? => nel V2
   - Version Number?
   - Add something about defects found in the project
   - Aggiungere eccezioni dovute al fatto che server/db hanno qualche errore ?
-  - Glossario, lo scrivo come penso che debba essere fatto, o come è nel codice ?
+  - Glossario, lo scrivo come penso che debba essere fatto, o come è nel codice ? => va bene user separato da trans
   - Add something in informal description about the app (?)
 
   ---DEFECTS:
