@@ -97,12 +97,16 @@ EZWallet (read EaSy Wallet) is a software application designed to help individua
 
 usecase EzWallet
 actor User
+actor Admin
+actor COO
+actor Bank
+actor "Payment service" as PaymentService
 
 User -- EzWallet
 Admin -- EzWallet
 COO -- EzWallet
-Bank -- EzWallet
-Payment service -- EzWallet
+EzWallet -- Bank
+EzWallet -- PaymentService
 
 @enduml
 ```
