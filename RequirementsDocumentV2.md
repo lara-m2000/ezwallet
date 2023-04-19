@@ -571,6 +571,9 @@ User who wants to use the app
 managing his transaction and categories.
 endnote
 
+class Admin {
+
+}
 
 
 class Transaction {
@@ -613,14 +616,18 @@ endnote
 
 Transaction "0..*" --- "0..1" Category : labelled >
 
-User "0..*" --- CreditCard
+
+User --- "0..*" CreditCard
 
 User --- "0..*" Transaction
 
 User --- "0..*" Category
 
-User --- 
+User "1..*" --- "0..*" Group : made of <
 
+Admin --|> User
+
+CreditCard "0..*" -- "0..*" Transaction
 
 
 @enduml
