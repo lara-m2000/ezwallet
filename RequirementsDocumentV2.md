@@ -555,7 +555,7 @@ but also by non logged users.
 
 
 class User {
-	+ usename
+	+ username
 	+ email
 	+ password
 }
@@ -588,12 +588,32 @@ Category that can link together many
 transactions.
 endnote
 
+class CreditCard {
+	+ IBAN
+	+ expiry date
+	+ owner
+}
 
- Transaction "0..*" - "0..1" Category : labelled >
+note bottom of CreditCard
+Credit card inserted by the user to track his transactions
+endnote
 
+class Group {
+	+ name
+}
+note bottom of Group
+Group of users that can be used for example to track the expenses of a family
+endnote
 
-' User --- "0..*" Transaction
-' User --- "0..*" Category
+Transaction "0..*" --- "0..1" Category : labelled >
+
+User "0..*" --- CreditCard
+
+User --- "0..*" Transaction
+
+User --- "0..*" Category
+
+User --- 
 
 
 
