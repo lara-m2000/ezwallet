@@ -182,8 +182,7 @@ Finds herself with a high income just after graduation, needs a way to manage th
 |FR6.3|Add/remove user to group|
 |FR7|Manage payment of monthly fee|
 |FR7.1|Notify the user when monthly offer is expiring|
-|FR7.3|Receive monthly payment|
-|FR7.4| Record credit card debit|
+|FR7.2|Receive monthly payment|
 
 
 
