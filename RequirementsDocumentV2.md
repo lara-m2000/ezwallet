@@ -15,6 +15,7 @@ Version: V1 - description of EZWallet in CURRENT form (as received by teachers)
 - [Requirements Document - current EZWallet](#requirements-document---current-ezwallet)
 - [Contents](#contents)
 - [Informal description](#informal-description)
+- [Business model](#business-model)
 - [Stakeholders](#stakeholders)
 - [Context Diagram and interfaces](#context-diagram-and-interfaces)
 	- [Context Diagram](#context-diagram)
@@ -53,10 +54,8 @@ Version: V1 - description of EZWallet in CURRENT form (as received by teachers)
 				- [Scenario 8.2](#scenario-82)
 		- [Show users, UC9](#show-users-uc9)
 				- [Scenario 9.1](#scenario-91)
-		- [Filter user by username, UC10](#filter-user-by-username-uc10)
+		- [Get info about account, UC10](#get-info-about-account-uc10)
 				- [Scenario 10.1](#scenario-101)
-				- [Scenario 10.2](#scenario-102)
-				- [Scenario 10.3](#scenario-103)
 - [Glossary](#glossary)
 - [System Design](#system-design)
 - [Deployment Diagram](#deployment-diagram)
@@ -649,7 +648,7 @@ EzWalletServer ..> ServerMachine : deploy
 
 
 artifact DataBaseServer
-node DBMachine
+database DBMachine
 
 DataBaseServer ..> DBMachine
 
@@ -663,6 +662,26 @@ node UserMachine
 EzWalletWebClient ..> UserMachine : deploy
 
 UserMachine - ServerMachine : internet link
+
+
+artifact BankAPI
+node BankServer
+
+BankAPI ..> BankServer
+
+artifact PaymentAPI
+node PaymentServer
+
+PaymentAPI ..> PaymentServer
+
+
+
+UserMachine --- PaymentServer : internet
+ServerMachine --- PaymentServer : internet
+
+ServerMachine ----- BankServer  : internet 
+
+
 
 
 @enduml
