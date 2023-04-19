@@ -190,7 +190,7 @@ rectangle "EzWallet System" as System {
 	usecase "Add, Show category" as Category
 
 	usecase "Show Users" as SUsers
-	usecase "Show User by username" as UUsers
+	usecase "Get info about account" as UUsers
 }
 
 User --> Transaction
