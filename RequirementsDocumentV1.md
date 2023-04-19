@@ -527,7 +527,7 @@ class Category {
 }
 
 note bottom of Category
-Category that can link together many
+Category that can refer to many
 transactions.
 endnote
 
