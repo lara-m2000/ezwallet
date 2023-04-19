@@ -35,7 +35,15 @@ Consider the EZWallet  project in CURRENT version (as received by the teachers),
 ### 
 |         Activity name    | Estimated effort (person hours)   |             
 | ----------- | ------------------------------- | 
-| | |
+| Identify Stakeholders | 4ph |
+| Market analisys on competitors | 4ph |
+| Define requirements document | 25ph  |
+| Design GUI prototype | 10ph |
+| Code implementation | 50ph |
+| Define Unit test | 20ph |
+| Define API test cases | 20ph |
+| Final project review | 15ph |
+
 ###
 Insert here Gantt chart with above activities
 
