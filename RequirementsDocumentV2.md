@@ -102,6 +102,7 @@ User -- EzWallet
 Admin -- EzWallet
 COO -- EzWallet
 Bank -- EzWallet
+Payment service -- EzWallet
 
 @enduml
 ```
