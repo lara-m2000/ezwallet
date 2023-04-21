@@ -629,7 +629,205 @@ but also by non logged users.
 |  2     | System |
 
 <!--TO BE FINISHED WITH ALSO EXCEPTION BY Francesco-->
+### Create new group, UC15
 
+| Actors Involved   |User|
+| ------------- |:-------------:| 
+|  Precondition     |    User is logged in     |
+|  Post condition   |   New group is created   |
+|  Nominal Scenario | User creates a new group |
+|  Variants         ||
+|  Exceptions       ||
+
+##### Scenario 15.1
+
+| Scenario 15.1| Create new group (nominal) |
+| ------------- |:-------------:| 
+|  Precondition     |User is logged in |
+|  Post condition     | New group is created |
+| Step#        | Description  |
+|  1     | User asks to create a new group| 
+|2|User inserts the group name| 
+|  3     | A new group is created with the user as member with all rights|
+
+### Add new member to a group, UC16
+
+| Actors Involved        |User|
+| ------------- |:-------------:| 
+|  Precondition     | User is logged in  |
+|  Post condition     | New member is added |
+|  Nominal Scenario     | User adds a new member to the group |
+|  Variants     |  |
+|  Exceptions     |User doesn't have the rights; User to be added is not found|
+
+##### Scenario 16.1
+
+| Scenario 16.1| Add new member to a group (nominal) |
+| ------------- |:-------------:| 
+|  Precondition     |User is logged in |
+|  Post condition     | New member is added |
+| Step#        | Description  |
+|  1     | User selects the group|  
+|  2     | User inserts the username of the user to be added|
+|3|User selects the rights to give to the new member|
+|4|New member is added|
+
+##### Scenario 16.2
+
+| Scenario 16.2| Add new member to a group (exception1) |
+| ------------- |:-------------:| 
+|  Precondition     |User is logged in |
+|  Post condition     | New member is not added |
+| Step#        | Description  |
+|  1     | User selects the group|  
+|  2     | User inserts the username of the user to be added|
+|3|User doesn't have the rights to add a new member|
+
+##### Scenario 16.3
+
+| Scenario 16.3| Add new member to a group (exception2) |
+| ------------- |:-------------:| 
+|  Precondition     |User is logged in |
+|  Post condition     | New member is not added |
+| Step#        | Description  |
+|  1     | User selects the group|  
+|  2     | User inserts the username of the user to be added|
+|3|User to be added is not found|
+
+### Delete a member from a group, UC17
+
+| Actors Involved        |User|
+| ------------- |:-------------:| 
+|  Precondition     | User is logged in  |
+|  Post condition     | Member is removed |
+|  Nominal Scenario     | A member is deleted from the group |
+|  Variants     |  |
+|  Exceptions     |User doesn't have the rights|
+
+##### Scenario 17.1
+
+| Scenario 17.1| Delete a member from a group (nominal) |
+| ------------- |:-------------:| 
+|  Precondition     |User is logged in |
+|  Post condition     | Member is removed |
+| Step#        | Description  |
+|  1     | User selects the group|  
+|  2     | User selects the member to be removed|
+|3|Member is removed from the group|
+
+##### Scenario 17.2
+
+| Scenario 17.2| Delete a member from a group (exception1) |
+| ------------- |:-------------:| 
+|  Precondition     |User is logged in |
+|  Post condition     | Member is not removed|
+| Step#        | Description  |
+|  1     | User selects the group|  
+|  2     | User selects the member to be removed|
+|3|User doesn't have the rights to remove the member|
+
+### Manage members rights, UC18
+
+| Actors Involved        |User|
+| ------------- |:-------------:| 
+|  Precondition     | User is logged in  |
+|  Post condition     | Member's rights are updated |
+|  Nominal Scenario     | The rights of a member of the group are changed |
+|  Variants     |  |
+|  Exceptions     |User doesn't have the rights|
+
+##### Scenario 18.1
+
+| Scenario 18.1| Manage members rights (nominal) |
+| ------------- |:-------------:| 
+|  Precondition     |User is logged in |
+|  Post condition     |  Member's rights are updated |
+| Step#        | Description  |
+|  1     | User selects the group|  
+|  2     | User selects the member whose rights have to be changed|
+|3|User selects the member's new rights|
+|4|Member's rights are updated|
+
+##### Scenario 18.2
+
+| Scenario 18.2| Manage members rights (exception1) |
+| ------------- |:-------------:| 
+|  Precondition     |User is logged in |
+|  Post condition     | Member is not removed|
+| Step#        | Description  |
+|  1     | User selects the group|  
+|  2     | User selects the member whose rights have to be changed|
+|3|User doesn't have the rights to change another member's rights|
+### Update transaction, UC19
+
+| Actors Involved        |User|
+| ------------- |:-------------:| 
+|  Precondition     | User is logged in  |
+|  Post condition     | Transaction is updated |
+|  Nominal Scenario     | The transaction's informations are updated |
+|  Variants     |  |
+|  Exceptions     ||
+
+##### Scenario 19.1
+
+| Scenario 19.1| Update transaction (nominal) |
+| ------------- |:-------------:| 
+|  Precondition     |User is logged in |
+|  Post condition     | Transaction is updated |
+| Step#        | Description  |
+|  1     | User selects the transaction to be updated|  
+|  2     | User inserts the new transaction information|
+|3|System updated the transaction's informations|
+### Update category, UC20
+
+| Actors Involved        |User|
+| ------------- |:-------------:| 
+|  Precondition     | User is logged in  |
+|  Post condition     | Category is updated |
+|  Nominal Scenario     | The category's informations are updated |
+|  Variants     |  |
+|  Exceptions     ||
+
+##### Scenario 20.1
+
+| Scenario 20.1| Update category (nominal) |
+| ------------- |:-------------:| 
+|  Precondition     |User is logged in |
+|  Post condition     | category is updated |
+| Step#        | Description  |
+|  1     | User selects the category to be updated|  
+|  2     | User inserts the new category information|
+|3|System updated the category's informations|
+
+### Delete category, UC21
+
+| Actors Involved        |User|
+| ------------- |:-------------:| 
+|  Precondition     | User is logged in  |
+|  Post condition     | Category is deleted |
+|  Nominal Scenario     | The category is deleted|
+|  Variants     |  |
+|  Exceptions     |The category is not found|
+
+##### Scenario 21.1
+
+| Scenario 21.1| Delete category (nominal) |
+| ------------- |:-------------:| 
+|  Precondition     |User is logged in |
+|  Post condition     | Category is deleted |
+| Step#        | Description  |
+|  1     | User selects the category to be removed|  
+|  2     |System deletes the category|
+##### Scenario 21.2
+
+| Scenario 21.1| Delete category (exception) |
+| ------------- |:-------------:| 
+|  Precondition     |User is logged in |
+|  Post condition     | Category is not deleted |
+| Step#        | Description  |
+|  1     | User selects the category to be removed|  
+|  2     |System cannot find the category to be removed|
+|3|No category is removed|
 
 
 
