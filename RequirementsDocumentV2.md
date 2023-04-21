@@ -25,6 +25,8 @@ Version: V1 - description of EZWallet in CURRENT form (as received by teachers)
 		- [Story](#story)
 	- [Persona2](#persona2)
 		- [Story](#story-1)
+	- [Persona3](#persona3)
+		- [Story](#story)
 - [Functional and non functional requirements](#functional-and-non-functional-requirements)
 	- [Functional Requirements](#functional-requirements)
 	- [Non Functional Requirements](#non-functional-requirements)
@@ -37,8 +39,7 @@ Version: V1 - description of EZWallet in CURRENT form (as received by teachers)
 				- [Scenario 2.2](#scenario-22)
 		- [Show transactions, UC3](#show-transactions-uc3)
 				- [Scenario 3.1](#scenario-31)
-				- [Scenario 3.2](
-					#scenario-32)
+				- [Scenario 3.2](#scenario-32)
 				- [Scenario 3.3](#scenario-33)
 		- [User Registration, UC4](#user-registration-uc4)
 				- [Scenario 4.1](#scenario-41)
@@ -57,13 +58,19 @@ Version: V1 - description of EZWallet in CURRENT form (as received by teachers)
 				- [Scenario 9.1](#scenario-91)
 		- [Get info about account, UC10](#get-info-about-account-uc10)
 				- [Scenario 10.1](#scenario-101)
-		- [Show Analytics, UC11](#show-analystics-uc11)
-				- [](#)
-				-
+		- [Show Analytics, UC11](#show-analytics-uc11)
+				- [Scenario 11.1](#scenario-111)
+				- [Scenario 11.2](#scenario-112)
+		- [Add tracked credit card, UC12](#add-tracked-credit-card-uc12)
+				- [Scenario 12.1](#scenario-121)
+				- [Scenario 12.2](#scenario-122)
+		- [Delete tracked credit card, UC13](#delete-tracked-credit-card-uc13)
+				- [Scenario 13.1](#scenario-131)
+		- [Add credit card for payment, UC14](#add-credit-card-for-payment-uc14)
 		- [](#)
-				-
 		- [](#)
-				-
+		- [](#)
+		- [](#)
 - [Glossary](#glossary)
 - [System Design](#system-design)
 - [Deployment Diagram](#deployment-diagram)
@@ -74,10 +81,9 @@ EzWallet allows people also to attach credit cards to their account in order to 
 
 <!--REMEMBER TO ADD SOMETHING -->
 # Business model
-Startup company developing an application. Money gain comes from a monthly fee that must be payed by the user.
-
-
-
+Startup company developing an application. Money gain comes from subscribed users that pay a monthly fee to use the service.
+<!-- CHECK if it fits -->
+The subscription is automatically renewed until the user decides to cancel it. If the payment fails the account is automatically disable and the user can no longer use the service until the fee is paid.
 
 
 # Stakeholders
@@ -156,6 +162,14 @@ Persona2: female, young, just graduated, high income, no children, no husband.
 ### Story
 Finds herself with a high income just after graduation, needs a way to manage the great unexpected amount of money she is gaining.
 
+<!-- CHECK: è un caso un po' marginale visto che gli anziani e la tecnologia non vanno molto d'accordo :/ -->
+## Persona3
+Persona3: male, old, retired, low income, children and grandchildren, married
+Persona3: day: wake up, breakfast, read newspaper, walk to a bar, head back home 
+
+### Story
+He does not spend many money on himself but he likes to help his children and to make presents to his grandchildren on special occasions. Due to his low pension he needs to keep track of his expenses.
+His low expertise with technology does not allow him to use services that are too complex.
 
 # Functional and non functional requirements
 
