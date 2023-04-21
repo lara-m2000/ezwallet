@@ -84,7 +84,7 @@ Startup company developing an application. Money gain comes from a monthly fee t
 | DB admin     	   | Person in charge of managing the database              |
 | Admin            |              User with special privileges              |
 | COO              |          Manages analytics and market analyis          |
-| Banks            | Contract to obtain access to users credit card transactions|
+| Bank service            | Contract to obtain access to users credit card transactions|
 |Payment service| Service to manage users' monthly payment|
 
 
@@ -102,13 +102,13 @@ usecase EzWallet
 actor User
 actor Admin
 actor COO
-actor Bank
+actor "Bank service" as BankService
 actor "Payment service" as PaymentService
 
 User -- EzWallet
 Admin -- EzWallet
 COO -- EzWallet
-EzWallet -- Bank
+EzWallet -- BankService
 EzWallet -- PaymentService
 
 @enduml
@@ -173,11 +173,13 @@ Finds herself with a high income just after graduation, needs a way to manage th
 |FR3.1|CRUD transactions|
 |FR3.2| Show labelled transactions|
 |FR3.3|Show filtered transactions (by category, time period, amount,...)|
-|FR4|Manage credit cards|
+|FR4|Manage tracked credit cards|
 |FR4.1|Add/remove credit card details|
 |FR4.2|Get credit card transactions|
+|FR4.3|Verify credit card credentials|
 |FR5|Analytics|
 |FR5.1|Show charts about expenses|
+|FR5.1.1|Filter by card, type of transaction, date|
 |FR6|Manage groups of users|
 |FR6.1|Manage users rights|
 |FR6.1.1|Show/Hide other users' transactions|
@@ -186,12 +188,12 @@ Finds herself with a high income just after graduation, needs a way to manage th
 |FR7|Manage payment of monthly fee|
 |FR7.1|Add card for monthly payment|
 |FR7.2|Receive monthly payment|
-|FR7.3|Notify user when monthly subscription is going to be renewed|
-
+|FR7.3|Notify user when monthly subscription is near to the renewal|
+<!--Think about adding functionalities proper only of Admin and COO, then consider also adding some use cases about them!-->
 
 
 ## Non Functional Requirements
-
+<!--TODO -->
 \<Describe constraints on functional requirements>
 
 | ID   | Type (efficiency, reliability, ..) |                                                      Description                                                      |   Refers to |
@@ -217,16 +219,16 @@ left to right direction
 actor User
 
 rectangle "EzWallet System" as System {
-	usecase "Add, Delete, Show, Show labelled transaction" as Transaction
+	usecase "Add, Delete, Update, Show, Show labelled transaction" as Transaction
 
 	usecase Register
 	usecase Login
 	usecase Logout
 
-	usecase "Add, Show category" as Category
+	usecase "Add, Delete, Update, Show category" as Category
 
 	usecase "Show Users" as SUsers
-	usecase "Show User by username" as UUsers
+	usecase "Get info about account" as UUsers
 }
 
 User --> Transaction
@@ -350,9 +352,10 @@ User --> UUsers
 | Step#          |                       Description                        |
 | 1              |             User goes on the EzWallet System             |
 | 2              |               Enters the registration page               |
-| 3              |             System asks for his credentials              |
-| 4              | System checks if (username, password, email) are correct |
-| 5              |                    User is registered                    |
+| 3              |             System asks for credentials and method of payment|
+|4|User adds credit card for payment|
+| 5              | System checks if (username, password, email) are correct |
+| 6              |                    User is registered                    |
 
 #### Scenario 4.2
 
@@ -520,6 +523,125 @@ but also by non logged users.
 | Step#        | Description  |
 |  1     | User asks the system information about his profile|  
 |  2     | System retrieves and returns info about the profile|
+
+###  Show Analytics, UC11
+
+| Actors Involved    | User    |
+| ------------- |:-------------:|
+|    Precondition    | User is logged in |
+|    Post condition    | Elaborated transactions data are showed |
+|    Nominal Scenario    | Graphs and statistics of all tracked cards are shown    |
+|    Variants    | Graphs and statistics are shown only for the filtered cards |
+|    Exceptions    || 
+
+##### Scenario 11.1
+
+| Scenario 11.1     | Show analytics of all cards (nominal) |
+| ------------      |:--------------:|
+| Precondition        | User is logged in |
+| Post condition    |    Graphs and statistics of all tracked cards are shown    |
+| Step#                | Description    |
+|    1                |    User asks for his/hers transactions statistics    | 
+|    2                |    System retrieves the information, elaborates and return them    |
+
+##### Scenario 11.2
+
+| Scenario 11.2     | Show analytics of filtered cards (variant) |
+| ------------         |:--------------:|
+| Precondition        |     User is logged in |
+| Post condition     |     Graphs and statistics of filtered tracked cards are shown    |
+| Step#                |    Description |
+|    1                | User set up the filter (card, type of transactions, amount exchanged, time period, ... ) |
+|    2                | User asks for his/hers transactions statistics |
+|    3                | System retrieves the information, filters, elaborates and return them |
+
+
+### Add tracked credit card, UC12
+
+
+| Actors Involved        |User, BankService|
+| ------------- |:-------------:| 
+|  Precondition     | User is logged in |
+|  Post condition     | Card is added to the list of tracked ones |
+|  Nominal Scenario     | User adds a credit card to the list of tracked credit cards |
+|  Variants     |  |
+|  Exceptions     |Credentials non valid|
+
+
+##### Scenario 12.1
+| Scenario 12.1| Add tracked credit card (nominal)|
+| ------------- |:-------------:| 
+|  Precondition     |User is logged in |
+|  Post condition     | Card is added to the list of tracked ones |
+| Step#        | Description  |
+|  1     | User asks the system to add a new tracked credit card and inserts credit card credentials|  
+|  2     | System redirect on BankService for credentials verification|
+|3| BankService notifies System the credentials are correct|
+|4|System retrieves last month transactions of the credit card from BankService|
+|5|System adds credit card to credit card list|
+
+##### Scenario 12.2
+| Scenario 12.2| Add tracked credit card (exception)|
+| ------------- |:-------------:| 
+|  Precondition     |User is logged in |
+|  Post condition     | Card is added to the list of tracked ones |
+| Step#        | Description  |
+|  1     | User asks the system to add a new tracked credit card and inserts credit card credentials|  
+|  2     | System redirect on BankService for credentials verification|
+|3| BankService notifies System the credentials are not correct|
+|4|System notifies the error to the user|
+
+### Delete tracked credit card, UC13
+
+| Actors Involved        |User|
+| ------------- |:-------------:| 
+|  Precondition     | User is logged in, user has at least one tracked card |
+|  Post condition     | Card is removed from the list of tracked ones |
+|  Nominal Scenario     | User removes a credit card to the list of tracked credit cards |
+|  Variants     |  |
+|  Exceptions     ||
+
+##### Scenario 13.1
+| Scenario 13.1| Delete tracked credit card|
+| ------------- |:-------------:| 
+|  Precondition     |User is logged in, user has at least one tracked card |
+|  Post condition     | Card is removed from the list of tracked ones |
+| Step#        | Description  |
+|  1     | User asks the system to delete tracked credit card|  
+|  2     | System removes the credit card|
+
+### Add credit card for payment, UC14	
+| Actors Involved        |User|
+| ------------- |:-------------:| 
+|  Precondition     | User is logged in|
+|  Post condition     | User has a method of payemnt attached to his account |
+|  Nominal Scenario     | User inserts credentials of the credit card intended for the monthly payment |
+|  Variants     |  |
+|  Exceptions     |Credentials not valid|
+
+##### Scenario 14.1
+| Scenario 14.1| Add credit card for payment|
+| ------------- |:-------------:| 
+|  Precondition     |User is logged in, user has at least one tracked card |
+|  Post condition     | Card is removed from the list of tracked ones |
+| Step#        | Description  |
+|  1     | User inserts credit card credentials|  
+|  2     | System |
+
+<!--TO BE FINISHED WITH ALSO EXCEPTION BY Francesco-->
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
