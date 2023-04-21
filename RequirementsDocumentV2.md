@@ -167,13 +167,13 @@ Finds herself with a high income just after graduation, needs a way to manage th
 | FR1.5   |   Manage access rights      |
 | FR1.6   |    Show registered users    |
 | FR1.6.1 |     Get info about user account      |
-|FR1.7|Disable account when monthly payment is missing|
+|FR1.7|Disable account when monthly payment fails|
 |FR2|CRUD categories|
 |FR3| Manage transactions|
 |FR3.1|CRUD transactions|
 |FR3.2| Show labelled transactions|
-|FR3.3|Show filtered transactions (by category, time period...)|
-|FR4| Manage credit cards|
+|FR3.3|Show filtered transactions (by category, time period, amount,...)|
+|FR4|Manage credit cards|
 |FR4.1|Add/remove credit card details|
 |FR4.2|Get credit card transactions|
 |FR5|Analytics|
@@ -184,8 +184,9 @@ Finds herself with a high income just after graduation, needs a way to manage th
 |FR6.2|Create group|
 |FR6.3|Add/remove user to group|
 |FR7|Manage payment of monthly fee|
-|FR7.1|Notify the user when monthly offer is expiring|
+|FR7.1|Add card for monthly payment|
 |FR7.2|Receive monthly payment|
+|FR7.3|Notify user when monthly subscription is going to be renewed|
 
 
 
@@ -573,7 +574,7 @@ class Category {
 }
 
 note bottom of Category
-Category that can link together many
+Category that can refer to many
 transactions.
 endnote
 
@@ -584,7 +585,7 @@ class CreditCard {
 }
 
 note bottom of CreditCard
-Credit card inserted by the user to track his transactions
+Credit card inserted by the user to track his transactions, or to make the monthly payment
 endnote
 
 class Group {
@@ -597,7 +598,8 @@ endnote
 Transaction "0..*" --- "0..1" Category : labelled >
 
 
-User --- "0..*" CreditCard
+User "+cardForTrackingTransactions"--- "0..*" CreditCard
+User "+cardForMonthlyPayment"--- CreditCard
 
 User --- "0..*" Transaction
 
@@ -664,15 +666,15 @@ EzWalletWebClient ..> UserMachine : deploy
 UserMachine - ServerMachine : internet link
 
 
-artifact BankAPI
+artifact BankService
 node BankServer
 
-BankAPI ..> BankServer
+BankService ..> BankServer
 
-artifact PaymentAPI
+artifact PaymentService
 node PaymentServer
 
-PaymentAPI ..> PaymentServer
+PaymentService ..> PaymentServer
 
 
 
