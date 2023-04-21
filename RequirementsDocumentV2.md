@@ -77,13 +77,13 @@ Version: V1 - description of EZWallet in CURRENT form (as received by teachers)
 
 # Informal description
 EZWallet (read EaSy Wallet) is a software application designed to help individuals and families keep track of their expenses. Users can enter and categorize their expenses, allowing them to quickly see where their money is going. EZWallet is a powerful tool for those looking to take control of their finances and make informed decisions about their spending. 
-EzWallet allows people also to attach credit cards to their account in order to automatically track transactions coming from them.
+EzWallet allows people also to attach credit cards to their account in order to automatically track transactions coming from them. EzWallet offers also an easy way to categorize different types of transactions and easily understandable analytics on expenses.
 
 <!--REMEMBER TO ADD SOMETHING -->
 # Business model
 Startup company developing an application. Money gain comes from subscribed users that pay a monthly fee to use the service.
 <!-- CHECK if it fits -->
-The subscription is automatically renewed until the user decides to cancel it. If the payment fails the account is automatically disable and the user can no longer use the service until the fee is paid.
+The subscription is automatically renewed until the user decides to cancel it. If the payment fails the account is automatically disabled and the user can no longer use the service until the fee is paid.
 
 
 # Stakeholders
@@ -596,11 +596,12 @@ but also by non logged users.
 |  Precondition     |User is logged in |
 |  Post condition     | Card is added to the list of tracked ones |
 | Step#        | Description  |
-|  1     | User asks the system to add a new tracked credit card and inserts credit card credentials|  
+|  1     | User asks the system to add a new tracked credit card|  
 |  2     | System redirect on BankService for credentials verification|
-|3| BankService notifies System the credentials are correct|
-|4|System retrieves last month transactions of the credit card from BankService|
-|5|System adds credit card to credit card list|
+|3|User inserts credit card credentials|
+|4| BankService notifies System that the credentials are correct|
+|5|System retrieves last month transactions of the credit card from BankService|
+|6|System adds credit card to credit card list|
 
 ##### Scenario 12.2
 | Scenario 12.2| Add tracked credit card (exception)|
@@ -608,10 +609,11 @@ but also by non logged users.
 |  Precondition     |User is logged in |
 |  Post condition     | Card is added to the list of tracked ones |
 | Step#        | Description  |
-|  1     | User asks the system to add a new tracked credit card and inserts credit card credentials|  
+|  1     | User asks the system to add a new tracked credit card|  
 |  2     | System redirect on BankService for credentials verification|
-|3| BankService notifies System the credentials are not correct|
-|4|System notifies the error to the user|
+|3|User inserts credit card credentials|
+|4| BankService notifies System that the credentials are not correct|
+|5|System notifies User with an error message|
 
 ### Delete tracked credit card, UC13
 
@@ -624,7 +626,7 @@ but also by non logged users.
 |  Exceptions     ||
 
 ##### Scenario 13.1
-| Scenario 13.1| Delete tracked credit card|
+| Scenario 13.1| Delete tracked credit card (nominal)|
 | ------------- |:-------------:| 
 |  Precondition     |User is logged in, user has at least one tracked card |
 |  Post condition     | Card is removed from the list of tracked ones |
@@ -633,24 +635,37 @@ but also by non logged users.
 |  2     | System removes the credit card|
 
 ### Add credit card for payment, UC14	
-| Actors Involved        |User|
+| Actors Involved        |User, Payment Service|
 | ------------- |:-------------:| 
-|  Precondition     | User is logged in|
-|  Post condition     | User has a method of payemnt attached to his account |
-|  Nominal Scenario     | User inserts credentials of the credit card intended for the monthly payment |
+|  Precondition     | User has performed the registration with (email, pwd, username) |
+|  Post condition     | Card is set as method of payment |
+|  Nominal Scenario     | User inserts correct credentials of the credit card intended for the monthly payment |
 |  Variants     |  |
 |  Exceptions     |Credentials not valid|
 
 ##### Scenario 14.1
-| Scenario 14.1| Add credit card for payment|
+| Scenario 14.1| Add credit card for payment (nominal)|
 | ------------- |:-------------:| 
-|  Precondition     |User is logged in, user has at least one tracked card |
-|  Post condition     | Card is removed from the list of tracked ones |
+|  Precondition     |User has performed the registration with (email, pwd, username) |
+|  Post condition     | Card is set as method of payment |
 | Step#        | Description  |
-|  1     | User inserts credit card credentials|  
-|  2     | System |
+|  1     | User asks to insert credit card credentials|  
+|  2     | System redirect user to payment service |
+|3|User inserts his credentials|
+|4|Payment service checks credentials|
+|5|Credentials correct, card is set as method of payment|
 
-<!--TO BE FINISHED WITH ALSO EXCEPTION BY Francesco-->
+| Scenario 14.2| Add credit card for payment (exception)|
+| ------------- |:-------------:| 
+|  Precondition     |User has performed the registration with (email, pwd, username) |
+|  Post condition     | User is asked to insert again the credentials |
+| Step#        | Description  |
+|  1     | User asks to insert credit card credentials|  
+|  2     | System redirect user to payment service |
+|3|User inserts his credentials|
+|4|Payment service checks credentials|
+|5|Credentials not correct, user is asked to try again|
+
 ### Create new group, UC15
 
 | Actors Involved   |User|
