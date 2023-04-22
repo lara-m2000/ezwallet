@@ -551,7 +551,6 @@ endnote
 
 class EzWalletSystem
 class EzWalletServer
-class EzWalletWebClient
 
 EzWalletSystem o-- EzWalletServer
 EzWalletSystem o-- DataBaseServer
@@ -569,21 +568,13 @@ EzWalletSystem o-- DataBaseServer
 
 
 artifact EzWalletServer
+artifact DataBaseServer
 node ServerMachine
 
 EzWalletServer ..> ServerMachine : deploy
+DataBaseServer ..> ServerMachine : deploy
 
 
-artifact DataBaseServer
-node DBMachine
-
-DataBaseServer ..> DBMachine
-
-
-
-ServerMachine - DBMachine : internet
-
-artifact EzWalletWebClient
 node UserMachine
 
 
