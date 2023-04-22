@@ -510,27 +510,26 @@ The goal must be of value to the (primary) actor:
 | 2              |    No categories are present     |
 | 3              | The system returns an empty list |
 
-### Show users, UC9
-WARNING: this use case is actually a defect of the app, since this should be an only-admin usecase, but can be done not only by normal logged users, 
-but also by non logged users.
+### Update category, UC9
 
-| Actors Involved  |                           User                           |
-| ---------------- | :------------------------------------------------------: |
-| Precondition     |                                                          |
-| Post condition   |            List of registered users is showed            |
-| Nominal Scenario | A list with all registered users is returned to the user |
-| Variants         |                                                          |
-| Exceptions       |                                                          |
+| Actors Involved        |User|
+| ------------- |:-------------:| 
+|  Precondition     | User is logged in  |
+|  Post condition     | Category is updated |
+|  Nominal Scenario     | The category's informations are updated |
+|  Variants     |  |
+|  Exceptions     ||
 
 ##### Scenario 9.1
 
-| Scenario 9.1   |            Show users (nominal)             |
-| -------------- | :-----------------------------------------: |
-| Precondition   |                                             |
-| Post condition |     List of registered users is showed      |
-| Step#          |                 Description                 |
-| 1              |       User requests the list of users       |
-| 2              | System retrieves users and returns the list |
+| Scenario 9.1| Update category (nominal) |
+| ------------- |:-------------:| 
+|  Precondition     |User is logged in |
+|  Post condition     | category is updated |
+| Step#        | Description  |
+|  1     | User selects the category to be updated|  
+|  2     | User inserts the new category information|
+|3|System updated the category's informations|
 
 ### Get info about account, UC10
 
@@ -822,28 +821,9 @@ but also by non logged users.
 |  1     | User selects the transaction to be updated|  
 |  2     | User inserts the new transaction information|
 |3|System updated the transaction's informations|
-### Update category, UC20
 
-| Actors Involved        |User|
-| ------------- |:-------------:| 
-|  Precondition     | User is logged in  |
-|  Post condition     | Category is updated |
-|  Nominal Scenario     | The category's informations are updated |
-|  Variants     |  |
-|  Exceptions     ||
 
-##### Scenario 20.1
-
-| Scenario 20.1| Update category (nominal) |
-| ------------- |:-------------:| 
-|  Precondition     |User is logged in |
-|  Post condition     | category is updated |
-| Step#        | Description  |
-|  1     | User selects the category to be updated|  
-|  2     | User inserts the new category information|
-|3|System updated the category's informations|
-
-### Delete category, UC21
+### Delete category, UC20
 
 | Actors Involved        |User|
 | ------------- |:-------------:| 
@@ -853,18 +833,18 @@ but also by non logged users.
 |  Variants     |  |
 |  Exceptions     |The category is not found|
 
-##### Scenario 21.1
+##### Scenario 20.1
 
-| Scenario 21.1| Delete category (nominal) |
+| Scenario 20.1| Delete category (nominal) |
 | ------------- |:-------------:| 
 |  Precondition     |User is logged in |
 |  Post condition     | Category is deleted |
 | Step#        | Description  |
 |  1     | User selects the category to be removed|  
 |  2     |System deletes the category|
-##### Scenario 21.2
+##### Scenario 20.2
 
-| Scenario 21.1| Delete category (exception) |
+| Scenario 20.1| Delete category (exception) |
 | ------------- |:-------------:| 
 |  Precondition     |User is logged in |
 |  Post condition     | Category is not deleted |
