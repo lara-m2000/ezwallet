@@ -215,16 +215,15 @@ His low expertise with technology does not allow him to use services that are to
 
 
 ## Non Functional Requirements
-<!--TODO -->
 \<Describe constraints on functional requirements>
-
+<!--Maybe missing something about security, since we added some functionalities about credit card transactions -->
 | ID   | Type (efficiency, reliability, ..) |                                                      Description                                                      |   Refers to |
 | ---- | :--------------------------------: | :-------------------------------------------------------------------------------------------------------------------: | ----------: |
-| NFR1 |             Usability              |               Should be used with no training by users with at least 6 months experience with computers               | FR1,FR2,FR3 |
-| NFR2 |             Efficiency             |                                  Response time lower than 100ms in optimal condition                                  | FR1,FR2,FR3 |
-| NFR3 |            Availability            |                                          Available for the 99.999% in a year                                          | FR1,FR2,FR3 |
-| NFR4 |            Reliability             |       Less than 4 minor/medium defects per month. Less than 1 severe defect per year. 0 killer defects per year       | FR1,FR2,FR3 |
-| NFR5 |              Security              | GDPR. Legislative requirements of the country in which the application will be used. Only authorized users can access | FR1,FR2,FR3 |
+| NFR1 |Usability|Should be used with no training by users with at least 6 months experience with computers|FR1,FR2,FR3,FR4,FR5,FR6,FR7.1|
+| NFR2 |Efficiency|Response time lower than 100ms in optimal condition|All functionalities|
+| NFR3 |Availability|Available for the 99.999% in a year|All functionalities|
+| NFR4 |Reliability|Less than 4 minor/medium defects per month. Less than 1 severe defect per year. 0 killer defects per year|All functionalities|
+| NFR5 |Security|GDPR.Legislative requirements of the country in which the application will be used. Only authorized users can access|FR1,FR2,FR3,FR4,FR7|
 
 
 
