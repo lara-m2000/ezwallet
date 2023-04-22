@@ -175,7 +175,7 @@ His low expertise with technology does not allow him to use services that are to
 ## Persona4
 Persona4: male, young, CEO of a startup company, medium income, no children, not married
 ### Story
-He started his own startup company and he needs an easy way to track expensed made by his employees using che credit card given them by the company for work-related expenses.
+He started his own startup company and he needs an easy way to track expenses made by his employees using che credit card given them by the company for work-related expenses.
 # Functional and non functional requirements
 
 ## Functional Requirements
