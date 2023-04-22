@@ -239,6 +239,8 @@ His low expertise with technology does not allow him to use services that are to
 left to right direction
 
 actor User
+actor PaymentService
+actor BankService
 
 rectangle "EzWallet System" as System {
 	usecase "Add, Delete, Update, Show, Show labelled transaction" as Transaction
@@ -249,8 +251,13 @@ rectangle "EzWallet System" as System {
 
 	usecase "Add, Delete, Update, Show category" as Category
 
-	usecase "Show Users" as SUsers
 	usecase "Get info about account" as UUsers
+	usecase "Get analytics" as ShowAnalytics
+	usecase "Add, delete tracked credit card" as CreditCard
+	usecase "Add credit card for payment" as CreditCardPayment
+	usecase "Create new group" as CreateGroup
+	usecase "Add/delete member to/from group" as AddDeleteToGroup
+	usecase "Manage group members rights" as ManageMemberRights
 }
 
 User --> Transaction
@@ -258,8 +265,18 @@ User --> Category
 User --> Register
 User --> Login
 User --> Logout
-User --> SUsers
 User --> UUsers
+User --> ShowAnalytics
+User --> CreditCard
+User --> CreateGroup
+User --> AddDeleteToGroup
+User --> ManageMemberRights
+
+Register .> CreditCardPayment : include
+
+CreditCardPayment --> PaymentService
+CreditCard --> BankService
+
 
 
 @enduml
@@ -552,7 +569,7 @@ The goal must be of value to the (primary) actor:
 |  1     | User asks the system information about his profile|  
 |  2     | System retrieves and returns info about the profile|
 
-###  Show Analytics, UC11
+###  Get Analytics, UC11
 
 | Actors Involved    | User    |
 | ------------- |:-------------:|
@@ -769,7 +786,7 @@ The goal must be of value to the (primary) actor:
 |  2     | User selects the member to be removed|
 |3|User doesn't have the rights to remove the member|
 
-### Manage members rights, UC18
+### Manage group members rights, UC18
 
 | Actors Involved        |User|
 | ------------- |:-------------:| 
@@ -781,7 +798,7 @@ The goal must be of value to the (primary) actor:
 
 ##### Scenario 18.1
 
-| Scenario 18.1| Manage members rights (nominal) |
+| Scenario 18.1| Manage group members rights (nominal) |
 | ------------- |:-------------:| 
 |  Precondition     |User is logged in |
 |  Post condition     |  Member's rights are updated |
@@ -793,7 +810,7 @@ The goal must be of value to the (primary) actor:
 
 ##### Scenario 18.2
 
-| Scenario 18.2| Manage members rights (exception1) |
+| Scenario 18.2| Manage group members rights (exception1) |
 | ------------- |:-------------:| 
 |  Precondition     |User is logged in |
 |  Post condition     | Member is not removed|
