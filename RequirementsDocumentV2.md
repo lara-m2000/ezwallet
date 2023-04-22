@@ -379,12 +379,12 @@ The goal must be of value to the (primary) actor:
 | 1              |    User asks the system to show the labelled transactions    |
 | 2              | System retrieves and shows labelled transactions to the user |
 
-### User Registration, UC4
+### Registration, UC4
 
 | Actors Involved  |                     User                      |
 | ---------------- | :-------------------------------------------: |
-| Precondition     |                                               |
-| Post condition   |       User is registerd and authorized        |
+| Precondition     |                                   |
+| Post condition   |       User is registered and authorized        |
 | Nominal Scenario | User wants to register to the EzWallet system |
 | Variants         |                                               |
 | Exceptions       |    A User with the same credentials exists    |
@@ -396,11 +396,11 @@ The goal must be of value to the (primary) actor:
 | Precondition   |                                                          |
 | Post condition |                    User is registered                    |
 | Step#          |                       Description                        |
-| 1              |             User goes on the EzWallet System             |
-| 2              |               Enters the registration page               |
-| 3              |             System asks for credentials and method of payment|
-|4|User adds credit card for payment|
-| 5              | System checks if (username, password, email) are correct |
+| 1              |               User asks the system to register              |
+| 2              |             System asks for credentials                |
+| 3              | System checks if (username, password, email) are valid |
+|4|System asks for method of payment|
+|5|User adds credit card for payment (other UC)|
 | 6              |                    User is registered                    |
 
 #### Scenario 4.2
@@ -410,11 +410,10 @@ The goal must be of value to the (primary) actor:
 | Precondition   |                    User is registered                    |
 | Post condition |               New User registration failed               |
 | Step#          |                       Description                        |
-| 1              |             User goes on the EzWallet System             |
-| 2              |               Enters the registration page               |
-| 3              |             System asks for his credentials              |
-| 4              | System checks if (username, password, email) are correct |
-| 5              |  Email is already used, an error is showed to the user   |
+| 1              |               User asks the system to register              |
+| 2              |             System asks for his credentials			    |
+| 3              | System checks if (username, password, email) are correct |
+| 4              |  Email is already used, an error is showed to the user   |
 
 
 ### User Login, UC5
@@ -434,11 +433,10 @@ The goal must be of value to the (primary) actor:
 | Precondition   |                    User is registered                    |
 | Post condition |             User is logged in and authorized             |
 | Step#          |                       Description                        |
-| 1              |             User goes on the EzWallet System             |
-| 2              |                  Enters the login page                   |
-| 3              |             System asks for his credentials              |
-| 4              | System checks if (username, password, email) are correct |
-| 5              |                    User is logged in                     |
+|1|User asks the system to login|
+| 2              |             System asks for his credentials              |
+| 3              | System checks if (username, password, email) are correct |
+| 4              |                    User is logged in                     |
 
 ##### Scenario 5.2
 
@@ -447,11 +445,10 @@ The goal must be of value to the (primary) actor:
 | Precondition   |           User is registered or not registered           |
 | Post condition |                  User is not logged in                   |
 | Step#          |                       Description                        |
-| 1              |             User goes on the EzWallet System             |
-| 2              |                  Enters the login page                   |
-| 3              |             System asks for his credentials              |
-| 4              | System checks if (username, password, email) are correct |
-| 5              |                   System rejects User                    |
+|1               |     User asks the system to login                        |
+| 2              |             System asks for his credentials              |
+| 3              | System checks if (username, password, email) are correct |
+| 4              |                   System rejects User                    |
 
 
 
@@ -472,8 +469,7 @@ The goal must be of value to the (primary) actor:
 | Precondition   |        User is registered        |
 | Post condition | User is logged in and authorized |
 | Step#          |           Description            |
-| 1              | User goes on the EzWallet System |
-| 2              |       User asks to logout        |
+| 1              |       User asks to logout        |
 | 2              |        User is logged out        |
 
 ### Add category, UC7
@@ -576,7 +572,7 @@ The goal must be of value to the (primary) actor:
 |    Precondition    | User is logged in |
 |    Post condition    | Elaborated transactions data are showed |
 |    Nominal Scenario    | Graphs and statistics of all tracked cards are shown    |
-|    Variants    | Graphs and statistics are shown only for the filtered cards |
+|    Variants    | Graphs and statistics are shown only based on filters |
 |    Exceptions    || 
 
 ##### Scenario 11.1
@@ -586,7 +582,7 @@ The goal must be of value to the (primary) actor:
 | Precondition        | User is logged in |
 | Post condition    |    Graphs and statistics of all tracked cards are shown    |
 | Step#                | Description    |
-|    1                |    User asks for his/hers transactions statistics    | 
+|    1                |    User asks for his/her transactions statistics    | 
 |    2                |    System retrieves the information, elaborates and return them    |
 
 ##### Scenario 11.2
@@ -596,7 +592,7 @@ The goal must be of value to the (primary) actor:
 | Precondition        |     User is logged in |
 | Post condition     |     Graphs and statistics of filtered tracked cards are shown    |
 | Step#                |    Description |
-|    1                | User set up the filter (card, type of transactions, amount exchanged, time period, ... ) |
+|    1                | User sets up the filter (card, type of transactions, amount exchanged, time period, ... ) |
 |    2                | User asks for his/hers transactions statistics |
 |    3                | System retrieves the information, filters, elaborates and return them |
 
