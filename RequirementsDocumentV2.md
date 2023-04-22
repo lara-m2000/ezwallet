@@ -230,7 +230,7 @@ His low expertise with technology does not allow him to use services that are to
 
 # Use case diagram and use cases
 
-
+<!--TODO -->
 ## Use case diagram
 \<define here UML Use case diagram UCD summarizing all use cases, and their relationships>
 
@@ -264,7 +264,14 @@ User --> UUsers
 
 @enduml
 ```
-
+<!-- 
+Check the use case by making attention to this statement taken from the slides: 
+The use case cares only what is the relationship of the actor to the system.
+The goal must be of value to the (primary) actor:
+-Enter PIN code is not
+-Withdraw cash is
+(Don't go in implementation details e.g. touch pinpad screen)
+-->
 
 \<next describe here each use case in the UCD>
 ### Add transaction, UC1
