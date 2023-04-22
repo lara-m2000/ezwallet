@@ -182,14 +182,15 @@ His low expertise with technology does not allow him to use services that are to
 | ID      |         Description         |
 | ------- | :-------------------------: |
 | FR1     |     Manage user account     |
-| FR1.1   |            Login            |
-| FR1.2   |           Logout            |
-| FR1.3   |          Authorize          |
-| FR1.4   | Register (name, email, pwd) |
-| FR1.5   |   Manage access rights      |
-| FR1.6   |    Show registered users    |
-| FR1.6.1 |     Get info about user account      |
-|FR1.7|Disable account when monthly payment fails|
+|FR1.1|CRUD user account (name, email, pwd)|
+| FR1.2   |            Login            |
+| FR1.3   |           Logout            |
+| FR1.4   |          Authorize          |
+| FR1.5   | Register (name, email, pwd) |
+| FR1.6   |   Manage access rights      |
+| FR1.7   |    Show registered users    |
+| FR1.7.1 |     Get info about user account      |
+|FR1.8|Disable account when monthly payment fails|
 |FR2|CRUD categories|
 |FR3| Manage transactions|
 |FR3.1|CRUD transactions|
