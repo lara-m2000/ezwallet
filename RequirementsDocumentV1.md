@@ -36,13 +36,13 @@ Version: V1 - description of EZWallet in CURRENT form (as received by teachers)
 				- [Scenario 3.1](#scenario-31)
 				- [Scenario 3.2](#scenario-32)
 				- [Scenario 3.3](#scenario-33)
-		- [User Registration, UC4](#user-registration-uc4)
+		- [Registration, UC4](#registration-uc4)
 				- [Scenario 4.1](#scenario-41)
 			- [Scenario 4.2](#scenario-42)
-		- [User Login, UC5](#user-login-uc5)
+		- [Login, UC5](#login-uc5)
 				- [Scenario 5.1](#scenario-51)
 				- [Scenario 5.2](#scenario-52)
-		- [User Logout, UC6](#user-logout-uc6)
+		- [Logout, UC6](#logout-uc6)
 				- [Scenario 6.1](#scenario-61)
 		- [Add category, UC7](#add-category-uc7)
 				- [Scenario 7.1](#scenario-71)
@@ -293,7 +293,7 @@ User --> UUsers
 |1|User asks the system to show the labelled transactions|  
 |2|System retrieves and shows labelled transactions to the user|
 
-### User Registration, UC4
+### Registration, UC4
 
 | Actors Involved        |User |
 | ------------- |:-------------:| 
@@ -310,10 +310,10 @@ User --> UUsers
 |  Precondition     | |
 |  Post condition     |User is registered |
 | Step#        | Description  |
-|1|User goes on the EzWallet System |  
-|2|Enters the registration page |
-|3|System asks for his credentials |
-|4|System checks if (username, password, email) are correct |
+|1|User asks the system to register|
+|2|System asks for his credentials |
+|3|User inserts credentials|
+|4|System checks if (username, password, email) are valid |
 |5|User is registered |
 
 #### Scenario 4.2
@@ -323,14 +323,14 @@ User --> UUsers
 |  Precondition     |User is registered |
 |  Post condition     |New User registration failed |
 | Step#        | Description  |
-|1|User goes on the EzWallet System |  
-|2|Enters the registration page |
-|3|System asks for his credentials |
-|4|System checks if (username, password, email) are correct |
+|1|User asks the system to register|
+|2|System asks for his credentials |
+|3|User inserts credentials|
+|4|System checks if (username, password, email) are valid |
 |5|Email is already used, an error is showed to the user|
 
 
-### User Login, UC5
+### Login, UC5
 
 | Actors Involved        |User |
 | ------------- |:-------------:| 
@@ -347,9 +347,9 @@ User --> UUsers
 |  Precondition     |User is registered |
 |  Post condition     | User is logged in and authorized |
 | Step#        | Description  |
-|1|User goes on the EzWallet System |  
-|2|Enters the login page |
-|3|System asks for his credentials |
+|1|User asks the system to login|
+|2|System asks for his credentials |
+|3|User inserts credentials|
 |4|System checks if (username, password, email) are correct |
 |5|User is logged in |
 
@@ -360,15 +360,15 @@ User --> UUsers
 |  Precondition     |User is registered or not registered |
 |  Post condition     | User is not logged in |
 | Step#        | Description  |
-|1|User goes on the EzWallet System |  
-|2|Enters the login page |
-|3|System asks for his credentials |
+|1|User asks the system to login|
+|2|System asks for his credentials |
+|3|User inserts credentials|
 |4|System checks if (username, password, email) are correct |
-|5|System rejects User |
+|5|Credentials not correct, system rejects User |
 
 
 
-### User Logout, UC6
+### Logout, UC6
 
 | Actors Involved        |User |
 | ------------- |:-------------:| 
@@ -384,9 +384,8 @@ User --> UUsers
 | ------------- |:-------------:| 
 |  Precondition     |User is registered |
 |  Post condition     | User is logged in and authorized |
-| Step#        | Description  |
-|1|User goes on the EzWallet System |  
-|2|User asks to logout |
+| Step#        | Description  |  
+|1|User asks to logout |
 |2|User is logged out |
 
 ### Add category, UC7
