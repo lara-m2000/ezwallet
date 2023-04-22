@@ -949,7 +949,8 @@ class Transaction {
 }
 
 note bottom of Transaction
-Money transaction created by a User, or retrived from a credit card of the user
+Money transaction created by a User,
+or retrieved from a credit card of the user
 endnote
 
 
@@ -969,32 +970,36 @@ class CreditCard {
 	+ owner
 }
 
-note bottom of CreditCard
-Credit card inserted by the user to track his transactions, or to make the monthly payment
+note right of CreditCard
+Credit card inserted by the user to track his transactions,
+or to make the monthly payment
 endnote
 
 class Group {
 	+ name
 }
 note bottom of Group
-Group of users that can be used for example to track the expenses of a family
+Group of users that can be used for example 
+to track the expenses of a family
 endnote
 
-Transaction "0..*" --- Category : labelled >
+Transaction "0..*" - Category : labelled >
 
 
 User "+cardForTrackingTransactions"--- "0..*" CreditCard
 User "+cardForMonthlyPayment"--- CreditCard
 
-User --- "0..*" Transaction
+User - "0..*" Transaction
 
-User --- "0..*" Category
+CreditCard "0..*" - "0..*" Transaction
 
-User "1..*" --- "0..*" Group : made of <
+User "1..*" - "0..*" Group : made of <
 
-Admin --|> User
+Admin -|> User
 
-CreditCard "0..*" -- "0..*" Transaction
+User - "0..*" Category
+
+
 
 
 @enduml
