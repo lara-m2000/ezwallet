@@ -165,13 +165,17 @@ Finds herself with a high income just after graduation, needs a way to manage th
 <!-- CHECK: è un caso un po' marginale visto che gli anziani e la tecnologia non vanno molto d'accordo :/ -->
 ## Persona3
 Persona3: male, old, retired, low income, children and grandchildren, married
+
 Persona3: day: wake up, breakfast, read newspaper, walk to a bar, head back home 
 
 ### Story
 He does not spend many money on himself but he likes to help his children and to make presents to his grandchildren on special occasions. Due to his low pension he needs to keep track of his expenses.
 His low expertise with technology does not allow him to use services that are too complex.
-<!-- TODO: maybe add one more story/persona -->
 
+## Persona4
+Persona4: male, young, CEO of a startup company, medium income, no children, not married
+### Story
+He started his own startup company and he needs an easy way to track expensed made by his employees using che credit card given them by the company for work-related expenses.
 # Functional and non functional requirements
 
 ## Functional Requirements
