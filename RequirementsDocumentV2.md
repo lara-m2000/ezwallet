@@ -138,7 +138,7 @@ EzWallet -- PaymentService
 | User  | GUI |   Keyboard, Screen |
 | Admin | GUI/Shell| Keyboard, Screen|
 | COO | GUI | Keyboard, Screen|
-| Bank| API | Internet |
+| Bank service| API | Internet |
 |Payment service|API|Internet|
 
 # Stories and personas
