@@ -41,13 +41,13 @@ Version: V1 - description of EZWallet in CURRENT form (as received by teachers)
 				- [Scenario 3.1](#scenario-31)
 				- [Scenario 3.2](#scenario-32)
 				- [Scenario 3.3](#scenario-33)
-		- [User Registration, UC4](#user-registration-uc4)
+		- [Registration, UC4](#registration-uc4)
 				- [Scenario 4.1](#scenario-41)
 				- [Scenario 4.2](#scenario-42)
-		- [User Login, UC5](#user-login-uc5)
+		- [Login, UC5](#login-uc5)
 				- [Scenario 5.1](#scenario-51)
 				- [Scenario 5.2](#scenario-52)
-		- [User Logout, UC6](#user-logout-uc6)
+		- [Logout, UC6](#logout-uc6)
 				- [Scenario 6.1](#scenario-61)
 		- [Add category, UC7](#add-category-uc7)
 				- [Scenario 7.1](#scenario-71)
@@ -409,10 +409,11 @@ The goal must be of value to the (primary) actor:
 | Step#          |                       Description                        |
 | 1              |               User asks the system to register              |
 | 2              |             System asks for credentials                |
-| 3              | System checks if (username, password, email) are valid |
-|4|System asks for method of payment|
-|5|User adds credit card for payment (other UC)|
-| 6              |                    User is registered                    |
+|3|User inserts credentials|
+| 4              | System checks if (username, password, email) are valid |
+|5|System asks for method of payment|
+|6|User adds credit card for payment (other UC)|
+| 7              |                    User is registered                    |
 
 #### Scenario 4.2
 
@@ -423,11 +424,12 @@ The goal must be of value to the (primary) actor:
 | Step#          |                       Description                        |
 | 1              |               User asks the system to register              |
 | 2              |             System asks for his credentials			    |
-| 3              | System checks if (username, password, email) are correct |
-| 4              |  Email is already used, an error is showed to the user   |
+|3|User inserts credentials|
+| 4              | System checks if (username, password, email) are correct |
+| 5              |  Email is already used, an error is showed to the user   |
 
 
-### User Login, UC5
+### Login, UC5
 
 | Actors Involved  |                    User                    |
 | ---------------- | :----------------------------------------: |
@@ -446,8 +448,9 @@ The goal must be of value to the (primary) actor:
 | Step#          |                       Description                        |
 |1|User asks the system to login|
 | 2              |             System asks for his credentials              |
-| 3              | System checks if (username, password, email) are correct |
-| 4              |                    User is logged in                     |
+|3|User inserts his credentials|
+| 4              | System checks if (username, password, email) are correct |
+| 5              |                    User is logged in                     |
 
 ##### Scenario 5.2
 
@@ -456,14 +459,15 @@ The goal must be of value to the (primary) actor:
 | Precondition   |           User is registered or not registered           |
 | Post condition |                  User is not logged in                   |
 | Step#          |                       Description                        |
-|1               |     User asks the system to login                        |
+|1|User asks the system to login|
 | 2              |             System asks for his credentials              |
-| 3              | System checks if (username, password, email) are correct |
-| 4              |                   System rejects User                    |
+|3|User inserts his credentials|
+| 4              | System checks if (username, password, email) are correct |
+| 5              |                   System rejects User                    |
 
 
 
-### User Logout, UC6
+### Logout, UC6
 
 | Actors Involved  |                     User                     |
 | ---------------- | :------------------------------------------: |
