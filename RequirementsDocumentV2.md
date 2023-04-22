@@ -980,7 +980,7 @@ note bottom of Group
 Group of users that can be used for example to track the expenses of a family
 endnote
 
-Transaction "0..*" --- "0..1" Category : labelled >
+Transaction "0..*" --- Category : labelled >
 
 
 User "+cardForTrackingTransactions"--- "0..*" CreditCard
