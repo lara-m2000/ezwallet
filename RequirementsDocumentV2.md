@@ -77,7 +77,7 @@ Version: V1 - description of EZWallet in CURRENT form (as received by teachers)
 
 # Informal description
 EZWallet (read EaSy Wallet) is a software application designed to help individuals and families keep track of their expenses. Users can enter and categorize their expenses, allowing them to quickly see where their money is going. EZWallet is a powerful tool for those looking to take control of their finances and make informed decisions about their spending. 
-EzWallet allows people also to attach credit cards to their account in order to automatically track transactions coming from them. EzWallet offers also an easy way to categorize different types of transactions and easily understandable analytics on expenses.
+EzWallet allows people also to attach credit cards to their account in order to automatically track transactions coming from them. EzWallet offers also an easy way to categorize different types of transactions and easily understandable analytics on expenses. Users can also create groups, this could be useful for families that need to track their expenses, or for companies to track employees' transactions made with company credit card.
 
 <!--REMEMBER TO ADD SOMETHING -->
 # Business model
@@ -170,6 +170,7 @@ Persona3: day: wake up, breakfast, read newspaper, walk to a bar, head back home
 ### Story
 He does not spend many money on himself but he likes to help his children and to make presents to his grandchildren on special occasions. Due to his low pension he needs to keep track of his expenses.
 His low expertise with technology does not allow him to use services that are too complex.
+<!-- TODO: maybe add one more story/persona -->
 
 # Functional and non functional requirements
 
@@ -232,7 +233,7 @@ His low expertise with technology does not allow him to use services that are to
 
 ## Use case diagram
 \<define here UML Use case diagram UCD summarizing all use cases, and their relationships>
-
+<!--Maybe we could format it better-->
 ```plantuml
 @startuml
 left to right direction
