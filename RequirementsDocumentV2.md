@@ -230,7 +230,6 @@ His low expertise with technology does not allow him to use services that are to
 
 # Use case diagram and use cases
 
-<!--TODO -->
 ## Use case diagram
 \<define here UML Use case diagram UCD summarizing all use cases, and their relationships>
 
@@ -239,10 +238,15 @@ His low expertise with technology does not allow him to use services that are to
 left to right direction
 
 actor User
+actor COO
+actor Admin
 actor PaymentService
 actor BankService
 
 rectangle "EzWallet System" as System {
+	User <|- Admin
+	User <|- COO
+
 	usecase "Add, Delete, Update, Show, Show labelled transaction" as Transaction
 
 	usecase Register
@@ -258,19 +262,21 @@ rectangle "EzWallet System" as System {
 	usecase "Create new group" as CreateGroup
 	usecase "Add/delete member to/from group" as AddDeleteToGroup
 	usecase "Manage group members rights" as ManageMemberRights
+	usecase "Manage accounts" as ManageAccounts
 }
 
-User --> Transaction
-User --> Category
-User --> Register
-User --> Login
-User --> Logout
+User -> Transaction
+User -> Category
+User -> Register
+User -> Login
+User -> Logout
 User --> UUsers
 User --> ShowAnalytics
 User --> CreditCard
 User --> CreateGroup
 User --> AddDeleteToGroup
 User --> ManageMemberRights
+Admin --> ManageAccounts
 
 Register .> CreditCardPayment : include
 
@@ -866,8 +872,25 @@ The goal must be of value to the (primary) actor:
 |  2     |System cannot find the category to be removed|
 |3|No category is removed|
 
+### Manage accounts, UC21
 
+| Actors Involved        |Admin|
+| ------------- |:-------------:| 
+|  Precondition     | Logged as admin  |
+|  Post condition     | Target user account is created/deleted/updated/read |
+|  Nominal Scenario     | Admin creates/deletes/updates/reads target user account|
+|  Variants     |  |
+|  Exceptions     ||
 
+##### Scenario 21.1
+
+| Scenario 21.1| Manage accounts (nominal) |
+| ------------- |:-------------:| 
+|  Precondition     |Logged as admin |
+|  Post condition     | Target user account is created/deleted/updated/read |
+| Step#        | Description  |
+|  1     | User asks the system to create/delete/update/read target user account|  
+|  2     |System creates/deletes/updates/reads target user account|
 
 
 
