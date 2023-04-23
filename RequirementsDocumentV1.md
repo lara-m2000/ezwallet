@@ -20,8 +20,10 @@ Version: V1 - description of EZWallet in CURRENT form (as received by teachers)
 	- [Context Diagram](#context-diagram)
 	- [Interfaces](#interfaces)
 - [Stories and personas](#stories-and-personas)
-		- [Persona1:](#persona1)
-		- [Persona2:](#persona2)
+	- [Persona1](#persona1)
+		- [Story](#story)
+	- [Persona2](#persona2)
+		- [Story](#story-1)
 - [Functional and non functional requirements](#functional-and-non-functional-requirements)
 	- [Functional Requirements](#functional-requirements)
 	- [Non Functional Requirements](#non-functional-requirements)
@@ -38,7 +40,7 @@ Version: V1 - description of EZWallet in CURRENT form (as received by teachers)
 				- [Scenario 3.3](#scenario-33)
 		- [Registration, UC4](#registration-uc4)
 				- [Scenario 4.1](#scenario-41)
-			- [Scenario 4.2](#scenario-42)
+				- [Scenario 4.2](#scenario-42)
 		- [Login, UC5](#login-uc5)
 				- [Scenario 5.1](#scenario-51)
 				- [Scenario 5.2](#scenario-52)
@@ -316,7 +318,7 @@ User --> UUsers
 |4|System checks if (username, password, email) are valid |
 |5|User is registered |
 
-#### Scenario 4.2
+##### Scenario 4.2
 
 | Scenario 4.2 | (Exception) |
 | ------------- |:-------------:| 
