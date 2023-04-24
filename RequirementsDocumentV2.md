@@ -1159,6 +1159,7 @@ ServerMachine ----- BankServer  : internet
   - Chiedere se le exceptions vanno solo scritte, o va messo uno scenario apposta
   - Add something in informal description about the app (?)
   - Chiedere che attore mettere per le API di yoodle
+  - Chiedere se va bene lasciare UC separati per add, delete, update, o se bisogna metterli tutti insieme sotto manage ... 
 
   ---DEFECTS:
   -No admin implementation
