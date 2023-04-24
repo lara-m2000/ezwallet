@@ -1157,6 +1157,7 @@ ServerMachine ----- BankServer  : internet
 <!-- CHIDERE:
   - Chiedere se le exceptions vanno solo scritte, o va messo uno scenario apposta
   - Add something in informal description about the app (?)
+  - Chiedere che attore mettere per le API di yoodle
 
   ---DEFECTS:
   -No admin implementation
