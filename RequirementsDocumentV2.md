@@ -1065,6 +1065,7 @@ User - "0..*" Transaction
 CreditCard "0..*" - "0..*" Transaction
 
 User "1..*" - "0..*" Group : made of <
+User - "0..*" Group : owned by <
 
 Admin -|> User
 
