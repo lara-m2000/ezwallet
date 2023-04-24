@@ -20,8 +20,9 @@ Version: V1 - description of EZWallet in CURRENT form (as received by teachers)
 	- [Context Diagram](#context-diagram)
 	- [Interfaces](#interfaces)
 - [Stories and personas](#stories-and-personas)
-		- [Persona1:](#persona1)
-		- [Persona2:](#persona2)
+		- [Persona1](#persona1)
+		- [Persona2](#persona2)
+		- [Persona3](#persona3)
 - [Functional and non functional requirements](#functional-and-non-functional-requirements)
 	- [Functional Requirements](#functional-requirements)
 	- [Non Functional Requirements](#non-functional-requirements)
@@ -80,9 +81,6 @@ EZWallet (read EaSy Wallet) is a software application designed to help individua
 # Context Diagram and interfaces
 
 ## Context Diagram
-\<Define here Context diagram using UML use case diagram>
-
-\<actors are a subset of stakeholders>
 
 ```plantuml
 @startuml
@@ -96,20 +94,13 @@ User -- EzWallet
 ```
 
 ## Interfaces
-\<describe here each interface in the context diagram>
-
-\<GUIs will be described graphically in a separate document>
 
 | Actor | Logical Interface | Physical Interface  |
 | ------------- |:-------------:| -----:|
 |User|GUI (to be defined)|Keyboard, Screen|
 
 # Stories and personas
-\<A Persona is a realistic impersonation of an actor. Define here a few personas and describe in plain text how a persona interacts with the system>
 
-\<Persona is-an-instance-of actor>
-
-\<stories will be formalized later as scenarios in use cases>
 ## Persona1
 Persona1: male, middle-age, low income, father, married with children 																					
 
@@ -122,9 +113,19 @@ He finds out he is spending too much money than expected, need an easy to use ap
 ## Persona2
 Persona2: female, young, just graduated, high income, no children, no husband.
 
+Persona2, work day: wakes up, breakfast, drives to work, lunch break, returns to work, returns home at 7 pm
+
 ### Story
 Finds herself with a high income just after graduation, needs a way to manage the great unexpected amount of money she is gaining.
+## Persona3
 
+Persona3: male, old, retired, low income, children and grandchildren, married
+
+Persona3: day: wake up, breakfast, read newspaper, walk to a bar, head back home
+
+### Story
+He does not spend a lot of money on himself, but likes to help his children and give presents to his grandchildren on special occasions. Because of his low pension, he needs to keep an eye on his spending.
+His limited knowledge of technology does not allow him to use services that are too complex.
 
 # Functional and non functional requirements
 
