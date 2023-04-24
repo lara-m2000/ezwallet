@@ -43,6 +43,7 @@ Version: V1 - description of EZWallet in CURRENT form (as received by teachers)
 				- [Scenario 3.1](#scenario-31)
 				- [Scenario 3.2](#scenario-32)
 				- [Scenario 3.3](#scenario-33)
+				- [Scenario 3.4](#scenario-34)
 		- [Registration, UC4](#registration-uc4)
 				- [Scenario 4.1](#scenario-41)
 				- [Scenario 4.2](#scenario-42)
@@ -219,14 +220,14 @@ He started his own startup company and he needs an easy way to track expenses ma
 |FR3| Manage transactions|
 |FR3.1|CRUD transactions|
 |FR3.2| Show labelled transactions|
-|FR3.3|Show filtered transactions (by category, time period, amount,...)|
+|FR3.3|Show filtered transactions (by category, time period, amount, card)|
 |FR4|Manage tracked credit cards|
 |FR4.1|Add/remove credit card details|
 |FR4.2|Get credit card transactions|
 |FR4.3|Verify credit card credentials|
 |FR5|Analytics|
 |FR5.1|Show charts about expenses|
-|FR5.1.1|Filter by card, type of transaction, date|
+|FR5.1.1|Filter by card, type of transaction, date, amount exchanged|
 |FR6|Manage groups of users|
 |FR6.1|Manage users rights|
 |FR6.1.1|Show/Hide other users' transactions|
@@ -242,6 +243,7 @@ He started his own startup company and he needs an easy way to track expenses ma
 ## Non Functional Requirements
 \<Describe constraints on functional requirements>
 <!--Maybe missing something about security, since we added some functionalities about credit card transactions -->
+<!-- Add Mantainability -->
 | ID   | Type (efficiency, reliability, ..) |                                                      Description                                                      |   Refers to |
 | ---- | :--------------------------------: | :-------------------------------------------------------------------------------------------------------------------: | ----------: |
 | NFR1 |Usability|Should be used with no training by users with at least 6 months experience with computers|FR1,FR2,FR3,FR4,FR5,FR6,FR7.1|
@@ -377,6 +379,7 @@ The goal must be of value to the (primary) actor:
 | Post condition   |      Transactions are shown to the user      |
 | Nominal Scenario |     Transactions are showed to the user      |
 | Variants         | Labelled transactions are showed to the user |
+|				   | Filtered transactions are showed to the user |
 | Exceptions       |    There are no transactions inserted yet    |
 
 ##### Scenario 3.1 
@@ -390,7 +393,7 @@ The goal must be of value to the (primary) actor:
 | 2              | System retrieves and shows the transactions to the user |
 
 ##### Scenario 3.2
-
+<!-- Are we sure this is an exception?  -->
 | Scenario 3.2   |             Show transactions (exception1)             |
 | -------------- | :----------------------------------------------------: |
 | Precondition   |    User is logged in, no transactions inserted yet     |
@@ -408,6 +411,20 @@ The goal must be of value to the (primary) actor:
 | Step#          |                         Description                          |
 | 1              |    User asks the system to show the labelled transactions    |
 | 2              | System retrieves and shows labelled transactions to the user |
+
+##### Scenario 3.4
+
+<!-- This is different from the analytic section because it returns a raw list of transaction.
+	 It may be useful for an account statement (estratto conto) -->
+| Scenario 3.4   |                 Show transactions (variant2)                    |
+| -------------- | :--------------------------------------------------------------:|
+| Precondition   |                      User is logged in                          |
+| Post condition |         Filtered transactions are showed to the user            |
+| Step#          |                         Description                             |
+| 1				 | User sets up the filter (by category, time period, card, amount)|
+| 2              |          User asks the system to show the transactions	       |
+| 3              | System retrieves and shows filtered transactions to the user    |
+
 
 ### Registration, UC4
 
@@ -626,7 +643,7 @@ The goal must be of value to the (primary) actor:
 | Precondition        |     User is logged in |
 | Post condition     |     Graphs and statistics of filtered tracked cards are shown    |
 | Step#                |    Description |
-|    1                | User sets up the filter (card, type of transactions, amount exchanged, time period, ... ) |
+|    1                | User sets up the filter (card, type of transactions, amount exchanged, time period) |
 |    2                | User asks for his/hers transactions statistics |
 |    3                | System retrieves the information, filters, elaborates and return them |
 
