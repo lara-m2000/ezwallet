@@ -1029,7 +1029,7 @@ transactions.
 endnote
 
 class CreditCard {
-	+ IBAN
+	+ credit card number
 	+ expiry date
 	+ owner
 }
