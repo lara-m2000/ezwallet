@@ -396,7 +396,6 @@ The goal must be of value to the (primary) actor:
 | 2              | System retrieves and shows the transactions to the user |
 
 ##### Scenario 3.2
-<!-- Are we sure this is an exception?  -->
 | Scenario 3.2   |             Show transactions (exception1)             |
 | -------------- | :----------------------------------------------------: |
 | Precondition   |    User is logged in, no transactions inserted yet     |
