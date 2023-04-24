@@ -1106,14 +1106,7 @@ ServerMachine ----- BankServer  : internet
 
 
 <!-- CHIDERE:
-  - DB admin negli stakerholder => SI
-  - Specializzazione User in Admin, COO (in Glossario) => NO
-  - Client nel system design? => NO
-  - Table of rights? => nel V2
-  - Version Number?
-  - Add something about defects found in the project
-  - Aggiungere eccezioni dovute al fatto che server/db hanno qualche errore ?
-  - Glossario, lo scrivo come penso che debba essere fatto, o come è nel codice ? => va bene user separato da trans
+  - Chiedere se le exceptions vanno solo scritte, o va messo uno scenario apposta
   - Add something in informal description about the app (?)
 
   ---DEFECTS:
