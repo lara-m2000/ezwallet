@@ -182,7 +182,6 @@ Persona2: female, young, just graduated, high income, no children, no husband.
 ### Story
 Finds herself with a high income just after graduation, needs a way to manage the great unexpected amount of money she is gaining.
 
-<!-- CHECK: è un caso un po' marginale visto che gli anziani e la tecnologia non vanno molto d'accordo :/ -->
 ## Persona3
 Persona3: male, old, retired, low income, children and grandchildren, married
 
@@ -251,6 +250,7 @@ He started his own startup company and he needs an easy way to track expenses ma
 | NFR3 |Availability|Available for the 99.999% in a year|All functionalities|
 | NFR4 |Reliability|Less than 4 minor/medium defects per month. Less than 1 severe defect per year. 0 killer defects per year|All functionalities|
 | NFR5 |Security|GDPR.Legislative requirements of the country in which the application will be used. Only authorized users can access. Cardholders' sensible data are not stored by the application.|FR1,FR2,FR3,FR4,FR7|
+|NFR6|Maintanibility|2 person hours to add/modify/cancel a software function. 4 person hours to fix a minor/medium defect, 15 person hours to fix a severe defect||
 
 
 
@@ -258,7 +258,6 @@ He started his own startup company and he needs an easy way to track expenses ma
 
 ## Use case diagram
 \<define here UML Use case diagram UCD summarizing all use cases, and their relationships>
-<!--Maybe we could format it better-->
 ```plantuml
 @startuml
 left to right direction
