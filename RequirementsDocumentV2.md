@@ -921,7 +921,7 @@ The goal must be of value to the (primary) actor:
 
 
 # Glossary
-
+<!--Think about adding Chart class, since it's a word used in FR that should be explained -->
 \<use UML class diagram to define important terms, or concepts in the domain of the application, and their relationships> 
 
 \<concepts must be used consistently all over the document, ex in use cases, requirements etc>
