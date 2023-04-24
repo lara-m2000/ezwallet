@@ -99,11 +99,11 @@ Version: V1 - description of EZWallet in CURRENT form (as received by teachers)
 
 # Informal description
 EZWallet (read EaSy Wallet) is a software application designed to help individuals and families keep track of their expenses. Users can enter and categorize their expenses, allowing them to quickly see where their money is going. EZWallet is a powerful tool for those looking to take control of their finances and make informed decisions about their spending. 
-EzWallet allows people also to attach credit cards to their account in order to automatically track transactions coming from them. EzWallet offers also an easy way to categorize different types of transactions and easily understandable analytics on expenses. Users can also create groups, this could be useful for families that need to track their expenses, or for companies to track employees' transactions made with company credit card.
+EzWallet also allows people to link credit cards to their account to automatically track transactions from them. EzWallet also provides an easy way to categorise different types of transactions and easy to understand expense reports. Users can also create groups, which can be useful for families who want to track their spending, or for businesses who want to track transactions made by employees using the company credit card
 
 # Business model
-Startup company developing an application. Money gain comes from subscribed users that pay a monthly fee to use the service.
-The subscription is automatically renewed until the user decides to cancel it. If the payment fails the account is automatically disabled and the user can no longer use the service until the fee is paid.
+Startup company developing an application. Revenue comes from subscribed users who pay a monthly fee to use the service.
+The subscription is automatically renewed until the user decides to cancel it. If payment is not made, the account is automatically deactivated and the user cannot use the service until the fee is paid.
 
 
 # Stakeholders
@@ -174,7 +174,7 @@ Persona1, work day: wake up, breakfast, drive children to school, return home fo
 
 Persona1, week end day: wake up, prepare breakfast for family, go out with its family, hang out with friends at night 
 ### Story
-He finds out he is spending too much money than expected, need an easy to use app to keep track of his expenses, in order to be able to maintain his family and keep on having fun with his hobbies.
+He realises he is spending more money than he expected and needs an easy-to-use app to keep track of his spending so he can provide for his family and continue to enjoy his hobbies
 
 ## Persona2
 Persona2: female, young, just graduated, high income, no children, no husband.
@@ -188,13 +188,13 @@ Persona3: male, old, retired, low income, children and grandchildren, married
 Persona3: day: wake up, breakfast, read newspaper, walk to a bar, head back home 
 
 ### Story
-He does not spend many money on himself but he likes to help his children and to make presents to his grandchildren on special occasions. Due to his low pension he needs to keep track of his expenses.
-His low expertise with technology does not allow him to use services that are too complex.
+He does not spend a lot of money on himself, but likes to help his children and give presents to his grandchildren on special occasions. Because of his low pension, he needs to keep an eye on his spending.
+His limited knowledge of technology does not allow him to use services that are too complex.
 
 ## Persona4
 Persona4: male, young, CEO of a startup company, medium income, no children, not married
 ### Story
-He started his own startup company and he needs an easy way to track expenses made by his employees using che credit card given them by the company for work-related expenses.
+He has set up his own start-up company and needs an easy way to track the expenses incurred by his employees using the corporate credit cards issued to them by the company for work-related expenses.
 # Functional and non functional requirements
 
 ## Functional Requirements
@@ -243,7 +243,6 @@ He started his own startup company and he needs an easy way to track expenses ma
 
 ## Non Functional Requirements
 \<Describe constraints on functional requirements>
-<!--Maybe missing something about security, since we added some functionalities about credit card transactions -->
 | ID   | Type (efficiency, reliability, ..) |                                                      Description                                                      |   Refers to |
 | ---- | :--------------------------------: | :-------------------------------------------------------------------------------------------------------------------: | ----------: |
 | NFR1 |Usability|Should be used with no training by users with at least 6 months experience with computers|FR1,FR2,FR3,FR4,FR5,FR6,FR7.1|
@@ -999,8 +998,8 @@ class User {
 }
 
 note top of User
-User who wants to use the app
-managing his transaction and categories.
+User who wants to use the application
+to manage their expenses
 endnote
 
 class Admin {
