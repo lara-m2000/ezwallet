@@ -91,6 +91,8 @@ Version: V1 - description of EZWallet in CURRENT form (as received by teachers)
 				- [Sceanrio 20.2](#scenario-202)
 		- [Manage accounts, UC21](#manage-accounts-uc21)
 				- [Scenario 21.1](#scenario-211)
+		- [Get analytics on application usage, UC22](#get-analytics-on-application-usage-uc22)
+				- [Scenario 22.1](#scenario-221)
 - [Glossary](#glossary)
 - [System Design](#system-design)
 - [Deployment Diagram](#deployment-diagram)
@@ -99,10 +101,8 @@ Version: V1 - description of EZWallet in CURRENT form (as received by teachers)
 EZWallet (read EaSy Wallet) is a software application designed to help individuals and families keep track of their expenses. Users can enter and categorize their expenses, allowing them to quickly see where their money is going. EZWallet is a powerful tool for those looking to take control of their finances and make informed decisions about their spending. 
 EzWallet allows people also to attach credit cards to their account in order to automatically track transactions coming from them. EzWallet offers also an easy way to categorize different types of transactions and easily understandable analytics on expenses. Users can also create groups, this could be useful for families that need to track their expenses, or for companies to track employees' transactions made with company credit card.
 
-<!--REMEMBER TO ADD SOMETHING -->
 # Business model
 Startup company developing an application. Money gain comes from subscribed users that pay a monthly fee to use the service.
-<!-- CHECK if it fits -->
 The subscription is automatically renewed until the user decides to cancel it. If the payment fails the account is automatically disabled and the user can no longer use the service until the fee is paid.
 
 
@@ -227,6 +227,7 @@ He started his own startup company and he needs an easy way to track expenses ma
 |FR5|Analytics|
 |FR5.1|Show charts about expenses|
 |FR5.1.1|Filter by card, type of transaction, date, amount exchanged|
+|FR5.2|Analytics on application usage|
 |FR6|Manage groups of users|
 |FR6.1|Manage users rights|
 |FR6.1.1|Show/Hide other users' transactions|
@@ -236,6 +237,7 @@ He started his own startup company and he needs an easy way to track expenses ma
 |FR7.1|Add card for monthly payment|
 |FR7.2|Receive monthly payment|
 |FR7.3|Notify user when monthly subscription is near to the renewal|
+
 <!--Think about adding functionalities proper only of Admin and COO, then consider also adding some use cases about them!-->
 
 
@@ -288,6 +290,8 @@ rectangle "EzWallet System" as System {
 	usecase "Add/delete member to/from group" as AddDeleteToGroup
 	usecase "Manage group members rights" as ManageMemberRights
 	usecase "Manage accounts" as ManageAccounts
+
+	usecase "Get analytics on application usage" as UsageAnalytics
 }
 
 User -> Transaction
@@ -302,6 +306,8 @@ User --> CreateGroup
 User --> AddDeleteToGroup
 User --> ManageMemberRights
 Admin --> ManageAccounts
+Admin --> UsageAnalytics
+COO --> UsageAnalytics
 
 Register .> CreditCardPayment : include
 
@@ -938,6 +944,25 @@ The goal must be of value to the (primary) actor:
 | Step#        | Description  |
 |  1     | User asks the system to create/delete/update/read target user account|  
 |  2     |System creates/deletes/updates/reads target user account|
+
+### Get analytics on application usage, UC22
+| Actors Involved        |Admin, COO|
+| ------------- |:-------------:| 
+|  Precondition     | Logged as admin/COO  |
+|  Post condition     | Analytics on application usage are showed |
+|  Nominal Scenario     | Admin/COO gets analytics on application usage |
+|  Variants     |  |
+|  Exceptions     ||
+
+##### Scenario 22.1
+
+| Scenario 22.1| Get analytics on application usage (nominal) |
+| ------------- |:-------------:| 
+|  Precondition     |Logged as admin/COO |
+|  Post condition     |Analytics on application usage are showed|
+| Step#        | Description  |
+|  1     |Admin/COO asks for analytics on application usage|  
+|  2     |System retrieves and show the analytics|
 
 
 
