@@ -27,6 +27,8 @@ Version: V1 - description of EZWallet in CURRENT form (as received by teachers)
 		- [Story](#story-1)
 	- [Persona3](#persona3)
 		- [Story](#story-2)
+	- [Persona4](#persona4)
+		- [Story](#story-3)
 - [Functional and non functional requirements](#functional-and-non-functional-requirements)
 	- [Functional Requirements](#functional-requirements)
 	- [Non Functional Requirements](#non-functional-requirements)
@@ -54,7 +56,7 @@ Version: V1 - description of EZWallet in CURRENT form (as received by teachers)
 		- [Show categories, UC8](#show-categories-uc8)
 				- [Scenario 8.1](#scenario-81)
 				- [Scenario 8.2](#scenario-82)
-		- [Show users, UC9](#show-users-uc9)
+		- [Update category, UC9](#update-category-uc9)
 				- [Scenario 9.1](#scenario-91)
 		- [Get info about account, UC10](#get-info-about-account-uc10)
 				- [Scenario 10.1](#scenario-101)
@@ -246,7 +248,7 @@ He started his own startup company and he needs an easy way to track expenses ma
 | NFR2 |Efficiency|Response time lower than 100ms in optimal condition|All functionalities|
 | NFR3 |Availability|Available for the 99.999% in a year|All functionalities|
 | NFR4 |Reliability|Less than 4 minor/medium defects per month. Less than 1 severe defect per year. 0 killer defects per year|All functionalities|
-| NFR5 |Security|GDPR.Legislative requirements of the country in which the application will be used. Only authorized users can access|FR1,FR2,FR3,FR4,FR7|
+| NFR5 |Security|GDPR.Legislative requirements of the country in which the application will be used. Only authorized users can access. Cardholders' sensible data are not stored by the application.|FR1,FR2,FR3,FR4,FR7|
 
 
 
