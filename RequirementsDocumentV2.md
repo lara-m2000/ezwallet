@@ -244,7 +244,6 @@ He started his own startup company and he needs an easy way to track expenses ma
 ## Non Functional Requirements
 \<Describe constraints on functional requirements>
 <!--Maybe missing something about security, since we added some functionalities about credit card transactions -->
-<!-- Add Mantainability -->
 | ID   | Type (efficiency, reliability, ..) |                                                      Description                                                      |   Refers to |
 | ---- | :--------------------------------: | :-------------------------------------------------------------------------------------------------------------------: | ----------: |
 | NFR1 |Usability|Should be used with no training by users with at least 6 months experience with computers|FR1,FR2,FR3,FR4,FR5,FR6,FR7.1|
@@ -1050,6 +1049,13 @@ Group of users that can be used for example
 to track the expenses of a family
 endnote
 
+class Chart {
+
+}
+note bottom of Chart
+Report chart that can be shown to the user
+to give them visual feedback on their spending
+endnote
 Transaction "0..*" - Category : labelled >
 
 
@@ -1065,6 +1071,8 @@ User "1..*" - "0..*" Group : made of <
 Admin -|> User
 
 User - "0..*" Category
+
+Chart - "1..*" Transaction
 
 
 
