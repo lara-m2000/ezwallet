@@ -132,10 +132,6 @@ His limited knowledge of technology does not allow him to use services that are 
 
 ## Functional Requirements
 
-\<In the form DO SOMETHING, or VERB NOUN, describe high level capabilities of the system>
-
-\<they match to high level use cases>
-
 | ID        | Description  |
 | ------------- |:-------------:| 
 |FR1|Manage user account|
@@ -156,8 +152,6 @@ His limited knowledge of technology does not allow him to use services that are 
 
 ## Non Functional Requirements
 
-\<Describe constraints on functional requirements>
-
 | ID        | Type (efficiency, reliability, ..)           | Description  | Refers to |
 | ------------- |:-------------:| :-----:| -----:|
 |NFR1|Usability|Should be used with no training by users with at least 6 months experience with computers|FR1,FR2,FR3|
@@ -172,7 +166,6 @@ His limited knowledge of technology does not allow him to use services that are 
 
 
 ## Use case diagram
-\<define here UML Use case diagram UCD summarizing all use cases, and their relationships>
 
 ```plantuml
 @startuml
@@ -206,7 +199,6 @@ User --> UUsers
 ```
 
 
-\<next describe here each use case in the UCD>
 ### Add transaction, UC1
 | Actors Involved        |User|
 | ------------- |:-------------:| 
@@ -488,9 +480,6 @@ but also by non logged users.
 
 # Glossary
 
-\<use UML class diagram to define important terms, or concepts in the domain of the application, and their relationships> 
-
-\<concepts must be used consistently all over the document, ex in use cases, requirements etc>
 
 ```plantuml
 @startuml
@@ -543,9 +532,6 @@ endnote
 ```
 
 # System Design
-\<describe here system design>
-
-\<must be consistent with Context diagram>
 
 ```plantuml
 @startuml
@@ -562,7 +548,6 @@ EzWalletSystem o-- DataBaseServer
 
 # Deployment Diagram 
 
-\<describe here deployment diagram >
 
 ```plantuml
 @startuml
@@ -589,17 +574,3 @@ UserMachine - ServerMachine : internet link
 - Transactions and categories are not tied to the users who created them, everyone can see all transactions and categories
 - GetLabels does not return transaction with attached category color
 - GetUsers can be done also by users who are not logged in
-
-<!-- CHIDERE:
-  - DB admin negli stakerholder
-  - Specializzazione User in Admin, COO (in Glossario)
-  - Come specificare il tipo di Transaction e Category 
-  - Client nel system design?
-  - Table of rights?
-  - Version Number?
-  - Add something about defects found in the project
-  - Aggiungere eccezioni dovute al fatto che server/db hanno qualche errore ?
-  - Glossario, lo scrivo come penso che debba essere fatto, o come è nel codice ?
-  - Add something in informal description about the app (?)
-
-  - -->
