@@ -158,8 +158,8 @@ EzWallet -- PaymentService
 | User  | GUI |   Keyboard, Screen |
 | Admin | GUI/Shell| Keyboard, Screen|
 | COO | GUI | Keyboard, Screen|
-| Bank service| API | Internet |
-|Payment service|API|Internet|
+| Bank service| API https://developer.yodlee.com/api/task-apis/income-api | Internet |
+|Payment service|API (see https://developers.google.com/pay/api/web/overview)|Internet|
 
 # Stories and personas
 \<A Persona is a realistic impersonation of an actor. Define here a few personas and describe in plain text how a persona interacts with the system>
