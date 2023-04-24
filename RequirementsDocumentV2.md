@@ -67,10 +67,27 @@ Version: V1 - description of EZWallet in CURRENT form (as received by teachers)
 		- [Delete tracked credit card, UC13](#delete-tracked-credit-card-uc13)
 				- [Scenario 13.1](#scenario-131)
 		- [Add credit card for payment, UC14](#add-credit-card-for-payment-uc14)
-		- [](#)
-		- [](#)
-		- [](#)
-		- [](#)
+				- [Scenario 14.1](#scenario-141)
+				- [Scenario 14.2](#scenario-142)
+		- [Create new group, UC15](#create-new-group-uc15)
+				- [Scenario 15.1](#scenario-151)
+		- [Add new member to a group, UC16](#add-new-member-to-a-group-uc16)
+				- [Scenario 16.1](#scenario-161)
+				- [Scenario 16.2](#scenario-162)
+				- [Scenario 16.3](#scenario-163)
+		- [Delete a member from a group, UC17](#delete-a-member-from-a-group-uc17)
+				- [Scenario 17.1](#scenario-171)
+				- [Scenario 17.2](#scenario-172)
+		- [Manage group members rights, UC18](#manage-group-members-rights-uc18)
+				- [Scenario 18.1](#scenario-181)
+				- [Scenario 18.2](#scenario-182)
+		- [Update transaction, UC19](#update-transaction-uc19)
+				- [Scenario 19.1](#scenario-191)
+		- [Delete category, UC20](#delete-category-uc20)
+				- [Scenario 20.1](#scenario-201)
+				- [Sceanrio 20.2](#scenario-202)
+		- [Manage accounts, UC21](#manage-accounts-uc21)
+				- [Scenario 21.1](#scenario-211)
 - [Glossary](#glossary)
 - [System Design](#system-design)
 - [Deployment Diagram](#deployment-diagram)
@@ -678,6 +695,7 @@ The goal must be of value to the (primary) actor:
 |  Exceptions     |Credentials not valid|
 
 ##### Scenario 14.1
+
 | Scenario 14.1| Add credit card for payment (nominal)|
 | ------------- |:-------------:| 
 |  Precondition     |User has performed the registration with (email, pwd, username) |
@@ -688,6 +706,8 @@ The goal must be of value to the (primary) actor:
 |3|User inserts his credentials|
 |4|Payment service checks credentials|
 |5|Credentials correct, card is set as method of payment|
+
+##### Scenario 14.2
 
 | Scenario 14.2| Add credit card for payment (exception)|
 | ------------- |:-------------:| 
