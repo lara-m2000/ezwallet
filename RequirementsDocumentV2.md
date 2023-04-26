@@ -203,14 +203,18 @@ He has set up his own start-up company and needs an easy way to track the expens
 |FR3.3|Show filtered transactions (by category, time period, amount)|
 |FR3.4|Import transactions from CSV file| <!-- ADD scenario/use case>
 |FR4|Analytics|
-|FR4.1|Show charts about expenses|
-|FR4.1.1|Filter by card, type of transaction, date, amount exchanged|
+|FR4.1|Show charts about personal expenses|
+|FR4.1.1|Filter by type of transaction, date, amount exchanged|
 |FR4.2|Analytics on application usage|
+|FR4.3|Show charts about group expenses|
+|FR4.3.1|Filter by type of transaction, date, amount exchanged, users|
 |FR5|Manage groups of users|
 |FR5.1|Manage users rights|
 |FR5.1.1|Show/Hide other users' transactions|
 |FR5.2|Create group|
 |FR5.3|Add/remove user to group|
+|FR5.4|Show group info|
+|FR5.5|CRUD group description|
 |FR6|Manage ads| <!-- ADD scenario/use case>
 |FR6.1|Receive ad|
 |FR6.2|Show ad|
@@ -961,6 +965,7 @@ endnote
 
 class Group {
 	+ name
+	+ description
 }
 note bottom of Group
 Group of users that can be used for example 
