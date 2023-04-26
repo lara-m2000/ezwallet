@@ -62,6 +62,12 @@ Version: V2 - description of EZWallet
 		- [Get Analytics, UC11](#get-personal-analytics-uc11)
 				- [Scenario 11.1](#scenario-111)
 				- [Scenario 11.2](#scenario-112)
+		- [Get group analytics, UC12](#get-group-analytics-uc12)
+				- [Scenario 12.1](#scenario-121)
+				- [Scenario 12.2](#scenario-122)
+		- [Manage Ads, UC13](#manage-ads-uc13)
+				- [Scenario 13.1](#scenario-131)
+				- [Scenario 13.2](#scenario-132)
 		- [Add credit card for payment, UC14](#add-credit-card-for-payment-uc14)
 				- [Scenario 14.1](#scenario-141)
 				- [Scenario 14.2](#scenario-142)
@@ -94,7 +100,7 @@ Version: V2 - description of EZWallet
 EZWallet (read EaSy Wallet) is a software application designed to help individuals and families keep track of their expenses. Users can enter and categorize their expenses, allowing them to quickly see where their money is going. EZWallet is a powerful tool for those looking to take control of their finances and make informed decisions about their spending. 
 EzWallet also provides an easy way to categorise different types of transactions and easy to understand expense reports. Users can also create groups, which can be useful for families who want to track their spending, or for businesses who want to track transactions made by employees using the company credit card. Group expense reports are also available.
 # Business model
-Startup company developing an application. Revenue comes from ads, using an external service (google ads)
+Startup company developing an application. Revenue comes from ads, using an external service (google ads).
 
 
 # Stakeholders
@@ -109,7 +115,7 @@ Startup company developing an application. Revenue comes from ads, using an exte
 | DB admin     	   | Person in charge of managing the database              |
 | Admin            |              User with special privileges              |
 | COO              |          Manages analytics and market analyis          |
-|Google ads||
+|Google ads		   | 				Advertisement service					|
 
 
 
@@ -318,12 +324,12 @@ The goal must be of value to the (primary) actor:
 | Precondition   |                  User is logged in                   |
 | Post condition |               New transaction is added               |
 | Step#          |                     Description                      |
-| 1              | User akss to create a new transaction with certain attributes |
+| 1              | User asks to create a new transaction with certain attributes |
 | 2              |             System adds new transaction              |
 
 ##### Scenario 1.2 
 
-| Scenario 1.2   |              Add transaction from CSV(variant)               |
+| Scenario 1.2   |              Add transaction from CSV (variant)               |
 | -------------- | :--------------------------------------------------: |
 | Precondition   |                  User is logged in                   |
 | Post condition |               List of transactions is added               |
@@ -351,6 +357,7 @@ The goal must be of value to the (primary) actor:
 | 1              |        User asks to delete an existing transaction        |
 | 2              | System deletes the transaction decided by the user |
 
+<!-- This scenario is impossible with the GUI we implemented. Either delete the scenario or change the GUI. -->
 ##### Scenario 2.2 
 
 | Scenario 2.2   |     Delete transaction (exception)      |
@@ -406,7 +413,7 @@ The goal must be of value to the (primary) actor:
 | Precondition   |                      User is logged in                          |
 | Post condition |         Filtered transactions are showed to the user            |
 | Step#          |                         Description                             |
-| 1				 | User sets up the filter (by category, time period, card, amount)|
+| 1				 | User sets up the filter (by category, time period, amount)|
 | 2              |          User asks the system to show the transactions	       |
 | 3              | System retrieves and shows filtered transactions to the user    |
 
@@ -670,25 +677,40 @@ The goal must be of value to the (primary) actor:
 |    2                | User asks for group A transactions statistics |
 |    3                | System retrieves the information, filters, elaborates and return them as report charts|
 
-### User sees advertisement, UC13
+### Manage Ads, UC13
+
 | Actors Involved        |User, Google ads|
 | ------------- |:-------------:| 
-|  Precondition     |  |
-|  Post condition     | Ads is shown |
-|  Nominal Scenario     | Ads is shown on side of screen while user browses |
-|  Variants     |  |
-|  Exceptions     ||
+|  Precondition     | User is logged in |
+|  Post condition     | User is redirected to ad website |
+|  Nominal Scenario     | User interacts with the shown ad |
+|  Variants     ||
+|  Exceptions     | User does not interact with the shown ad |
 
 ##### Scenario 13.1
 
-| Scenario 13.1     | Show analytics of filtered transactions (nominal) |
+| Scenario 13.1     | User interacts with the shown ad (nominal) |
 | ------------         |:--------------:|
-| Precondition        |  |
-| Post condition     |  Ads is shown on side of screen|
-| Step#                |    Description |
+| Precondition        | User is logged in |
+| Post condition     | User is redirected to ad website |
+| Step#                | Description |
 |    1                | User browses the application page |
 |    2                | System retrieves ads from Google ads |
-|    3                | Ads is shown on side of the application page|
+|    3                | Ad is shown to the user |
+|	 4				  | The user clicks on the ad |
+|    5                | The user is redirected to the ad website |
+
+##### Scenario 13.2
+
+| Scenario 13.1     | User interacts with the shown ad (exception) |
+| ------------         |:--------------:|
+| Precondition        | User is logged in |
+| Post condition     | User is not redirected to ad website |
+| Step#                | Description |
+|    1                | User browses the application page |
+|    2                | System retrieves ads from Google ads |
+|    3                | Ad is shown to the user |
+|	 4				  | The user does not click on the ad |
 
 ### Add credit card for payment, UC14	
 | Actors Involved        |User, Payment Service|
@@ -854,6 +876,7 @@ The goal must be of value to the (primary) actor:
 |  1     | User selects the group|  
 |  2     | User selects the member whose rights have to be changed|
 |3|User doesn't have the rights to change another member's rights|
+
 ### Update transaction, UC19
 
 | Actors Involved        |User|
@@ -895,6 +918,7 @@ The goal must be of value to the (primary) actor:
 | Step#        | Description  |
 |  1     | User selects the category to be removed|  
 |  2     |System deletes the category|
+
 ##### Scenario 20.2
 
 | Scenario 20.1| Delete category (exception) |
@@ -927,6 +951,7 @@ The goal must be of value to the (primary) actor:
 |  2     |System creates/deletes/updates/reads target user account|
 
 ### Get analytics on application usage, UC22
+
 | Actors Involved        |Admin, COO|
 | ------------- |:-------------:| 
 |  Precondition     | Logged as admin/COO  |
