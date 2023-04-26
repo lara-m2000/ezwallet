@@ -27,8 +27,6 @@ Version: V2 - description of EZWallet
 		- [Story](#story-1)
 	- [Persona3](#persona3)
 		- [Story](#story-2)
-	- [Persona4](#persona4)
-		- [Story](#story-3)
 - [Functional and non functional requirements](#functional-and-non-functional-requirements)
 	- [Functional Requirements](#functional-requirements)
 	- [Non Functional Requirements](#non-functional-requirements)
@@ -100,10 +98,9 @@ Version: V2 - description of EZWallet
 # Informal description
 EZWallet (read EaSy Wallet) is a software application designed to help individuals and families keep track of their expenses. Users can enter and categorize their expenses, allowing them to quickly see where their money is going. EZWallet is a powerful tool for those looking to take control of their finances and make informed decisions about their spending. 
 EzWallet also provides an easy way to categorise different types of transactions and easy to understand expense reports. Users can also create groups, which can be useful for families who want to track their spending, or for businesses who want to track transactions made by employees using the company credit card.
-
+<!-- CHECK -->
 # Business model
-Startup company developing an application. Revenue comes from subscribed users who pay a monthly fee to use the service.
-The subscription is automatically renewed until the user decides to cancel it. If payment is not made, the account is automatically deactivated and the user cannot use the service until the fee is paid.
+Startup company developing an application. <!--TODO (google ads) ->
 
 
 # Stakeholders
@@ -119,6 +116,7 @@ The subscription is automatically renewed until the user decides to cancel it. I
 | Admin            |              User with special privileges              |
 | COO              |          Manages analytics and market analyis          |
 |Google ads||
+
 
 
 # Context Diagram and interfaces
@@ -181,15 +179,6 @@ Persona2: female, young, just graduated, high income, no children, no husband.
 Finds herself with a high income just after graduation, needs a way to manage the great unexpected amount of money she is gaining.
 
 ## Persona3
-Persona3: male, old, retired, low income, children and grandchildren, married
-
-Persona3: day: wake up, breakfast, read newspaper, walk to a bar, head back home 
-
-### Story
-He does not spend a lot of money on himself, but likes to help his children and give presents to his grandchildren on special occasions. Because of his low pension, he needs to keep an eye on his spending.
-His limited knowledge of technology does not allow him to use services that are too complex.
-
-## Persona4
 Persona4: male, young, CEO of a startup company, medium income, no children, not married
 ### Story
 He has set up his own start-up company and needs an easy way to track the expenses incurred by his employees using the corporate credit cards issued to them by the company for work-related expenses.
@@ -217,6 +206,7 @@ He has set up his own start-up company and needs an easy way to track the expens
 |FR3.1|CRUD transactions|
 |FR3.2| Show labelled transactions|
 |FR3.3|Show filtered transactions (by category, time period, amount)|
+|FR3.4|Import transactions from CSV file| <!-- ADD scenario/use case>
 |FR4|Analytics|
 |FR4.1|Show charts about expenses|
 |FR4.1.1|Filter by card, type of transaction, date, amount exchanged|
@@ -226,22 +216,23 @@ He has set up his own start-up company and needs an easy way to track the expens
 |FR5.1.1|Show/Hide other users' transactions|
 |FR5.2|Create group|
 |FR5.3|Add/remove user to group|
-|FR6|Manage ads|
+|FR6|Manage ads| <!-- ADD scenario/use case>
 |FR6.1|Receive ad|
 |FR6.2|Show ad|
+<!-- Add budget on categories -->
 
 <!--Think about adding functionalities proper only of Admin and COO, then consider also adding some use cases about them!-->
 
-
+<!-- START CORRECTING FROM HERE -->
 ## Non Functional Requirements
 \<Describe constraints on functional requirements>
 | ID   | Type (efficiency, reliability, ..) |                                                      Description                                                      |   Refers to |
 | ---- | :--------------------------------: | :-------------------------------------------------------------------------------------------------------------------: | ----------: |
-| NFR1 |Usability|Should be used with no training by users with at least 6 months experience with computers|FR1,FR2,FR3,FR4,FR5,FR6,FR7.1|
+| NFR1 |Usability|Should be used with no training by users with at least 6 months experience with computers|All functionalities (exception for FR3.4)|
 | NFR2 |Efficiency|Response time lower than 100ms in optimal condition|All functionalities|
 | NFR3 |Availability|Available for the 99.999% in a year|All functionalities|
 | NFR4 |Reliability|Less than 4 minor/medium defects per month. Less than 1 severe defect per year. 0 killer defects per year|All functionalities|
-| NFR5 |Security|GDPR.Legislative requirements of the country in which the application will be used. Only authorized users can access.|FR1,FR2,FR3,FR4,FR7|
+| NFR5 |Security|GDPR.Legislative requirements of the country in which the application will be used. Only authorized users can access.|FR1,FR2,FR3,FR4,FR5|
 |NFR6|Maintanibility|2 person hours to add/modify/cancel a software function. 4 person hours to fix a minor/medium defect, 15 person hours to fix a severe defect|All functionalities|
 
 
