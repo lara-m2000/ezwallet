@@ -173,9 +173,10 @@ Persona2: female, young, just graduated, high income, no children, no husband.
 Finds herself with a high income just after graduation, needs a way to manage the great unexpected amount of money she is gaining.
 
 ## Persona3
-Persona4: male, young, CEO of a startup company, medium income, no children, not married
+Persona3: male, young, CEO of a startup company, medium income, no children, not married
 ### Story
 He has set up his own start-up company and needs an easy way to track the expenses incurred by his employees using the corporate credit cards issued to them by the company for work-related expenses.
+
 # Functional and non functional requirements
 
 ## Functional Requirements
@@ -1050,25 +1051,12 @@ EzWalletWebClient ..> UserMachine : deploy
 
 UserMachine - ServerMachine : internet link
 
+artifact GoogleAds
+node GoogleAdsServer
 
-artifact BankService
-node BankServer
+GoogleAds ..> GoogleAdsServer : deploy
 
-BankService ..> BankServer
-
-artifact PaymentService
-node PaymentServer
-
-PaymentService ..> PaymentServer
-
-
-
-UserMachine --- PaymentServer : internet
-ServerMachine --- PaymentServer : internet
-
-ServerMachine ----- BankServer  : internet 
-
-
+ServerMachine --- GoogleAdsServer : internet
 
 
 @enduml
