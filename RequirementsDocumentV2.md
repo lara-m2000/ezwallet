@@ -118,7 +118,6 @@ The subscription is automatically renewed until the user decides to cancel it. I
 | DB admin     	   | Person in charge of managing the database              |
 | Admin            |              User with special privileges              |
 | COO              |          Manages analytics and market analyis          |
-|Payment service| Service to manage users' monthly payment|
 |Google ads||
 
 
