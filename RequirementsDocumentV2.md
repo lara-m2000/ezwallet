@@ -213,7 +213,6 @@ He has set up his own start-up company and needs an easy way to track the expens
 | FR1.6   |   Manage access rights      |
 | FR1.7   |    Show registered users    |
 | FR1.7.1 |     Get info about user account      |
-|FR1.8|Disable account when monthly payment fails|
 |FR2|CRUD categories|
 |FR3| Manage transactions|
 |FR3.1|CRUD transactions|
@@ -228,10 +227,9 @@ He has set up his own start-up company and needs an easy way to track the expens
 |FR5.1.1|Show/Hide other users' transactions|
 |FR5.2|Create group|
 |FR5.3|Add/remove user to group|
-|FR6|Manage payment of monthly fee|
-|FR6.1|Add card for monthly payment|
-|FR6.2|Receive monthly payment|
-|FR6.3|Notify user when monthly subscription is near to the renewal|
+|FR6|Manage ads|
+|FR6.1|Receive ad|
+|FR6.2|Show ad|
 
 <!--Think about adding functionalities proper only of Admin and COO, then consider also adding some use cases about them!-->
 
