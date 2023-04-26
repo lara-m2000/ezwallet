@@ -2,7 +2,7 @@
 
 Date: 
 
-Version: V1 - description of EZWallet in CURRENT form (as received by teachers)
+Version: V2 - description of EZWallet
 
  
 | Version number | Change |
@@ -27,8 +27,6 @@ Version: V1 - description of EZWallet in CURRENT form (as received by teachers)
 		- [Story](#story-1)
 	- [Persona3](#persona3)
 		- [Story](#story-2)
-	- [Persona4](#persona4)
-		- [Story](#story-3)
 - [Functional and non functional requirements](#functional-and-non-functional-requirements)
 	- [Functional Requirements](#functional-requirements)
 	- [Non Functional Requirements](#non-functional-requirements)
@@ -43,6 +41,7 @@ Version: V1 - description of EZWallet in CURRENT form (as received by teachers)
 				- [Scenario 3.1](#scenario-31)
 				- [Scenario 3.2](#scenario-32)
 				- [Scenario 3.3](#scenario-33)
+				- [Scenario 3.4](#scenario-34)
 		- [Registration, UC4](#registration-uc4)
 				- [Scenario 4.1](#scenario-41)
 			- [Scenario 4.2](#scenario-42)
@@ -63,13 +62,9 @@ Version: V1 - description of EZWallet in CURRENT form (as received by teachers)
 		- [Get Analytics, UC11](#get-analytics-uc11)
 				- [Scenario 11.1](#scenario-111)
 				- [Scenario 11.2](#scenario-112)
-		- [Add tracked credit card, UC12](#add-tracked-credit-card-uc12)
-				- [Scenario 12.1](#scenario-121)
-				- [Scenario 12.2](#scenario-122)
-		- [Delete tracked credit card, UC13](#delete-tracked-credit-card-uc13)
-				- [Scenario 13.1](#scenario-131)
-		- [Add credit card for montly payment, UC14](#add-credit-card-for-montly-payment-uc14)
+		- [Add credit card for payment, UC14](#add-credit-card-for-payment-uc14)
 				- [Scenario 14.1](#scenario-141)
+				- [Scenario 14.2](#scenario-142)
 		- [Create new group, UC15](#create-new-group-uc15)
 				- [Scenario 15.1](#scenario-151)
 		- [Add new member to a group, UC16](#add-new-member-to-a-group-uc16)
@@ -89,19 +84,18 @@ Version: V1 - description of EZWallet in CURRENT form (as received by teachers)
 				- [Scenario 20.2](#scenario-202)
 		- [Manage accounts, UC21](#manage-accounts-uc21)
 				- [Scenario 21.1](#scenario-211)
+		- [Get analytics on application usage, UC22](#get-analytics-on-application-usage-uc22)
+				- [Scenario 22.1](#scenario-221)
 - [Glossary](#glossary)
 - [System Design](#system-design)
 - [Deployment Diagram](#deployment-diagram)
 
 # Informal description
 EZWallet (read EaSy Wallet) is a software application designed to help individuals and families keep track of their expenses. Users can enter and categorize their expenses, allowing them to quickly see where their money is going. EZWallet is a powerful tool for those looking to take control of their finances and make informed decisions about their spending. 
-EzWallet allows people also to attach credit cards to their account in order to automatically track transactions coming from them. EzWallet offers also an easy way to categorize different types of transactions and easily understandable analytics on expenses. Users can also create groups, this could be useful for families that need to track their expenses, or for companies to track employees' transactions made with company credit card.
-
-<!--REMEMBER TO ADD SOMETHING -->
+EzWallet also provides an easy way to categorise different types of transactions and easy to understand expense reports. Users can also create groups, which can be useful for families who want to track their spending, or for businesses who want to track transactions made by employees using the company credit card.
+<!-- CHECK -->
 # Business model
-Startup company developing an application. Money gain comes from subscribed users that pay a monthly fee to use the service.
-<!-- CHECK if it fits -->
-The subscription is automatically renewed until the user decides to cancel it. If the payment fails the account is automatically disabled and the user can no longer use the service until the fee is paid.
+Startup company developing an application. <!--TODO (google ads) ->
 
 
 # Stakeholders
@@ -116,8 +110,8 @@ The subscription is automatically renewed until the user decides to cancel it. I
 | DB admin     	   | Person in charge of managing the database              |
 | Admin            |              User with special privileges              |
 | COO              |          Manages analytics and market analyis          |
-| Bank service            | Contract to obtain access to users credit card transactions|
-|Payment service| Service to manage users' monthly payment|
+|Google ads||
+
 
 
 # Context Diagram and interfaces
@@ -134,14 +128,14 @@ usecase EzWallet
 actor User
 actor Admin
 actor COO
-actor "Bank service" as BankService
-actor "Payment service" as PaymentService
+
+actor "Google ads" as GoogleAds
 
 User -- EzWallet
 Admin -- EzWallet
 COO -- EzWallet
-EzWallet -- BankService
-EzWallet -- PaymentService
+
+EzWallet -- GoogleAds
 
 @enduml
 ```
@@ -156,8 +150,7 @@ EzWallet -- PaymentService
 | User  | GUI |   Keyboard, Screen |
 | Admin | GUI/Shell| Keyboard, Screen|
 | COO | GUI | Keyboard, Screen|
-| Bank service| API | Internet |
-|Payment service|API|Internet|
+|Google ads|API (see https://developers.google.com/google-ads/api/docs/start)|Internet|
 
 # Stories and personas
 \<A Persona is a realistic impersonation of an actor. Define here a few personas and describe in plain text how a persona interacts with the system>
@@ -172,7 +165,7 @@ Persona1, work day: wake up, breakfast, drive children to school, return home fo
 
 Persona1, week end day: wake up, prepare breakfast for family, go out with its family, hang out with friends at night 
 ### Story
-He finds out he is spending too much money than expected, need an easy to use app to keep track of his expenses, in order to be able to maintain his family and keep on having fun with his hobbies.
+He realises he is spending more money than he expected and needs an easy-to-use app to keep track of his spending so he can provide for his family and continue to enjoy his hobbies
 
 ## Persona2
 Persona2: female, young, just graduated, high income, no children, no husband.
@@ -180,20 +173,10 @@ Persona2: female, young, just graduated, high income, no children, no husband.
 ### Story
 Finds herself with a high income just after graduation, needs a way to manage the great unexpected amount of money she is gaining.
 
-<!-- CHECK: è un caso un po' marginale visto che gli anziani e la tecnologia non vanno molto d'accordo :/ -->
 ## Persona3
-Persona3: male, old, retired, low income, children and grandchildren, married
-
-Persona3: day: wake up, breakfast, read newspaper, walk to a bar, head back home 
-
-### Story
-He does not spend many money on himself but he likes to help his children and to make presents to his grandchildren on special occasions. Due to his low pension he needs to keep track of his expenses.
-His low expertise with technology does not allow him to use services that are too complex.
-
-## Persona4
 Persona4: male, young, CEO of a startup company, medium income, no children, not married
 ### Story
-He started his own startup company and he needs an easy way to track expenses made by his employees using che credit card given them by the company for work-related expenses.
+He has set up his own start-up company and needs an easy way to track the expenses incurred by his employees using the corporate credit cards issued to them by the company for work-related expenses.
 # Functional and non functional requirements
 
 ## Functional Requirements
@@ -213,41 +196,39 @@ He started his own startup company and he needs an easy way to track expenses ma
 | FR1.6   |   Manage access rights      |
 | FR1.7   |    Show registered users    |
 | FR1.7.1 |     Get info about user account      |
-|FR1.8|Disable account when monthly payment fails|
 |FR2|CRUD categories|
 |FR3| Manage transactions|
 |FR3.1|CRUD transactions|
 |FR3.2| Show labelled transactions|
-|FR3.3|Show filtered transactions (by category, time period, amount,...)|
-|FR4|Manage tracked credit cards|
-|FR4.1|Add/remove credit card details|
-|FR4.2|Get credit card transactions|
-|FR4.3|Verify credit card credentials|
-|FR5|Analytics|
-|FR5.1|Show charts about expenses|
-|FR5.1.1|Filter by card, type of transaction, date|
-|FR6|Manage groups of users|
-|FR6.1|Manage users rights|
-|FR6.1.1|Show/Hide other users' transactions|
-|FR6.2|Create group|
-|FR6.3|Add/remove user to group|
-|FR7|Manage payment of monthly fee|
-|FR7.1|Add card for monthly payment|
-|FR7.2|Receive monthly payment|
-|FR7.3|Notify user when monthly subscription is near to the renewal|
+|FR3.3|Show filtered transactions (by category, time period, amount)|
+|FR3.4|Import transactions from CSV file| <!-- ADD scenario/use case>
+|FR4|Analytics|
+|FR4.1|Show charts about expenses|
+|FR4.1.1|Filter by card, type of transaction, date, amount exchanged|
+|FR4.2|Analytics on application usage|
+|FR5|Manage groups of users|
+|FR5.1|Manage users rights|
+|FR5.1.1|Show/Hide other users' transactions|
+|FR5.2|Create group|
+|FR5.3|Add/remove user to group|
+|FR6|Manage ads| <!-- ADD scenario/use case>
+|FR6.1|Receive ad|
+|FR6.2|Show ad|
+<!-- Add budget on categories -->
+
 <!--Think about adding functionalities proper only of Admin and COO, then consider also adding some use cases about them!-->
 
-
+<!-- START CORRECTING FROM HERE -->
 ## Non Functional Requirements
 \<Describe constraints on functional requirements>
-<!--Maybe missing something about security, since we added some functionalities about credit card transactions -->
 | ID   | Type (efficiency, reliability, ..) |                                                      Description                                                      |   Refers to |
 | ---- | :--------------------------------: | :-------------------------------------------------------------------------------------------------------------------: | ----------: |
-| NFR1 |Usability|Should be used with no training by users with at least 6 months experience with computers|FR1,FR2,FR3,FR4,FR5,FR6,FR7.1|
+| NFR1 |Usability|Should be used with no training by users with at least 6 months experience with computers|All functionalities (exception for FR3.4)|
 | NFR2 |Efficiency|Response time lower than 100ms in optimal condition|All functionalities|
 | NFR3 |Availability|Available for the 99.999% in a year|All functionalities|
 | NFR4 |Reliability|Less than 4 minor/medium defects per month. Less than 1 severe defect per year. 0 killer defects per year|All functionalities|
-| NFR5 |Security|GDPR.Legislative requirements of the country in which the application will be used. Only authorized users can access|FR1,FR2,FR3,FR4,FR7|
+| NFR5 |Security|GDPR.Legislative requirements of the country in which the application will be used. Only authorized users can access.|FR1,FR2,FR3,FR4,FR5|
+|NFR6|Maintanibility|2 person hours to add/modify/cancel a software function. 4 person hours to fix a minor/medium defect, 15 person hours to fix a severe defect|All functionalities|
 
 
 
@@ -255,7 +236,6 @@ He started his own startup company and he needs an easy way to track expenses ma
 
 ## Use case diagram
 \<define here UML Use case diagram UCD summarizing all use cases, and their relationships>
-<!--Maybe we could format it better-->
 ```plantuml
 @startuml
 left to right direction
@@ -264,7 +244,6 @@ actor User
 actor COO
 actor Admin
 actor PaymentService
-actor BankService
 
 rectangle "EzWallet System" as System {
 	User <|- Admin
@@ -280,12 +259,13 @@ rectangle "EzWallet System" as System {
 
 	usecase "Get info about account" as UUsers
 	usecase "Get analytics" as ShowAnalytics
-	usecase "Add, delete tracked credit card" as CreditCard
 	usecase "Add credit card for payment" as CreditCardPayment
 	usecase "Create new group" as CreateGroup
 	usecase "Add/delete member to/from group" as AddDeleteToGroup
 	usecase "Manage group members rights" as ManageMemberRights
 	usecase "Manage accounts" as ManageAccounts
+
+	usecase "Get analytics on application usage" as UsageAnalytics
 }
 
 User -> Transaction
@@ -295,16 +275,17 @@ User -> Login
 User -> Logout
 User --> UUsers
 User --> ShowAnalytics
-User --> CreditCard
 User --> CreateGroup
 User --> AddDeleteToGroup
 User --> ManageMemberRights
 Admin --> ManageAccounts
+Admin --> UsageAnalytics
+COO --> UsageAnalytics
 
 Register .> CreditCardPayment : include
 
 CreditCardPayment --> PaymentService
-CreditCard --> BankService
+
 
 
 
@@ -376,6 +357,7 @@ The goal must be of value to the (primary) actor:
 | Post condition   |      Transactions are shown to the user      |
 | Nominal Scenario |     Transactions are showed to the user      |
 | Variants         | Labelled transactions are showed to the user |
+|				   | Filtered transactions are showed to the user |
 | Exceptions       |    There are no transactions inserted yet    |
 
 ##### Scenario 3.1 
@@ -389,7 +371,6 @@ The goal must be of value to the (primary) actor:
 | 2              | System retrieves and shows the transactions to the user |
 
 ##### Scenario 3.2
-
 | Scenario 3.2   |             Show transactions (exception1)             |
 | -------------- | :----------------------------------------------------: |
 | Precondition   |    User is logged in, no transactions inserted yet     |
@@ -407,6 +388,20 @@ The goal must be of value to the (primary) actor:
 | Step#          |                         Description                          |
 | 1              |    User asks the system to show the labelled transactions    |
 | 2              | System retrieves and shows labelled transactions to the user |
+
+##### Scenario 3.4
+
+<!-- This is different from the analytic section because it returns a raw list of transaction.
+	 It may be useful for an account statement (estratto conto) -->
+| Scenario 3.4   |                 Show transactions (variant2)                    |
+| -------------- | :--------------------------------------------------------------:|
+| Precondition   |                      User is logged in                          |
+| Post condition |         Filtered transactions are showed to the user            |
+| Step#          |                         Description                             |
+| 1				 | User sets up the filter (by category, time period, card, amount)|
+| 2              |          User asks the system to show the transactions	       |
+| 3              | System retrieves and shows filtered transactions to the user    |
+
 
 ### Registration, UC4
 
@@ -625,68 +620,13 @@ The goal must be of value to the (primary) actor:
 | Precondition        |     User is logged in |
 | Post condition     |     Graphs and statistics of filtered tracked cards are shown    |
 | Step#                |    Description |
-|    1                | User sets up the filter (card, type of transactions, amount exchanged, time period, ... ) |
+|    1                | User sets up the filter (card, type of transactions, amount exchanged, time period) |
 |    2                | User asks for his/hers transactions statistics |
 |    3                | System retrieves the information, filters, elaborates and return them |
 
 
-### Add tracked credit card, UC12
 
-
-| Actors Involved        |User, BankService|
-| ------------- |:-------------:| 
-|  Precondition     | User is logged in |
-|  Post condition     | Card is added to the list of tracked ones |
-|  Nominal Scenario     | User adds a credit card to the list of tracked credit cards |
-|  Variants     |  |
-|  Exceptions     |Credentials non valid|
-
-
-##### Scenario 12.1
-| Scenario 12.1| Add tracked credit card (nominal)|
-| ------------- |:-------------:| 
-|  Precondition     |User is logged in |
-|  Post condition     | Card is added to the list of tracked ones |
-| Step#        | Description  |
-|  1     | User asks the system to add a new tracked credit card|  
-|  2     | System redirect on BankService for credentials verification|
-|3|User inserts credit card credentials|
-|4| BankService notifies System that the credentials are correct|
-|5|System retrieves last month transactions of the credit card from BankService|
-|6|System adds credit card to credit card list|
-
-##### Scenario 12.2
-| Scenario 12.2| Add tracked credit card (exception)|
-| ------------- |:-------------:| 
-|  Precondition     |User is logged in |
-|  Post condition     | Card is added to the list of tracked ones |
-| Step#        | Description  |
-|  1     | User asks the system to add a new tracked credit card|  
-|  2     | System redirect on BankService for credentials verification|
-|3|User inserts credit card credentials|
-|4| BankService notifies System that the credentials are not correct|
-|5|System notifies User with an error message|
-
-### Delete tracked credit card, UC13
-
-| Actors Involved        |User|
-| ------------- |:-------------:| 
-|  Precondition     | User is logged in, user has at least one tracked card |
-|  Post condition     | Card is removed from the list of tracked ones |
-|  Nominal Scenario     | User removes a credit card to the list of tracked credit cards |
-|  Variants     |  |
-|  Exceptions     ||
-
-##### Scenario 13.1
-| Scenario 13.1| Delete tracked credit card (nominal)|
-| ------------- |:-------------:| 
-|  Precondition     |User is logged in, user has at least one tracked card |
-|  Post condition     | Card is removed from the list of tracked ones |
-| Step#        | Description  |
-|  1     | User asks the system to delete tracked credit card|  
-|  2     | System removes the credit card|
-
-### Add credit card for montly payment, UC14	
+### Add credit card for payment, UC14	
 | Actors Involved        |User, Payment Service|
 | ------------- |:-------------:| 
 |  Precondition     | User has performed the registration with (email, pwd, username) |
@@ -696,6 +636,7 @@ The goal must be of value to the (primary) actor:
 |  Exceptions     |Credentials not valid|
 
 ##### Scenario 14.1
+
 | Scenario 14.1| Add credit card for payment (nominal)|
 | ------------- |:-------------:| 
 |  Precondition     |User has performed the registration with (email, pwd, username) |
@@ -706,6 +647,8 @@ The goal must be of value to the (primary) actor:
 |3|User inserts his credentials|
 |4|Payment service checks credentials|
 |5|Credentials correct, card is set as method of payment|
+
+##### Scenario 14.2
 
 | Scenario 14.2| Add credit card for payment (exception)|
 | ------------- |:-------------:| 
@@ -919,6 +862,25 @@ The goal must be of value to the (primary) actor:
 |  1     | User asks the system to create/delete/update/read target user account|  
 |  2     |System creates/deletes/updates/reads target user account|
 
+### Get analytics on application usage, UC22
+| Actors Involved        |Admin, COO|
+| ------------- |:-------------:| 
+|  Precondition     | Logged as admin/COO  |
+|  Post condition     | Analytics on application usage are showed |
+|  Nominal Scenario     | Admin/COO gets analytics on application usage |
+|  Variants     |  |
+|  Exceptions     ||
+
+##### Scenario 22.1
+
+| Scenario 22.1| Get analytics on application usage (nominal) |
+| ------------- |:-------------:| 
+|  Precondition     |Logged as admin/COO |
+|  Post condition     |Analytics on application usage are showed|
+| Step#        | Description  |
+|  1     |Admin/COO asks for analytics on application usage|  
+|  2     |System retrieves and show the analytics|
+
 
 
 
@@ -939,7 +901,7 @@ The goal must be of value to the (primary) actor:
 
 
 # Glossary
-
+<!--Think about adding Chart class, since it's a word used in FR that should be explained -->
 \<use UML class diagram to define important terms, or concepts in the domain of the application, and their relationships> 
 
 \<concepts must be used consistently all over the document, ex in use cases, requirements etc>
@@ -955,8 +917,8 @@ class User {
 }
 
 note top of User
-User who wants to use the app
-managing his transaction and categories.
+User who wants to use the application
+to manage their expenses
 endnote
 
 class Admin {
@@ -987,7 +949,7 @@ transactions.
 endnote
 
 class CreditCard {
-	+ IBAN
+	+ credit card number
 	+ expiry date
 	+ owner
 }
@@ -1005,6 +967,13 @@ Group of users that can be used for example
 to track the expenses of a family
 endnote
 
+class Chart {
+
+}
+note bottom of Chart
+Report chart that can be shown to the user
+to give them visual feedback on their spending
+endnote
 Transaction "0..*" - Category : labelled >
 
 
@@ -1016,10 +985,13 @@ User - "0..*" Transaction
 CreditCard "0..*" - "0..*" Transaction
 
 User "1..*" - "0..*" Group : made of <
+User - "0..*" Group : owned by <
 
 Admin -|> User
 
 User - "0..*" Category
+
+Chart - "1..*" Transaction
 
 
 
@@ -1104,15 +1076,10 @@ ServerMachine ----- BankServer  : internet
 
 
 <!-- CHIDERE:
-  - DB admin negli stakerholder => SI
-  - Specializzazione User in Admin, COO (in Glossario) => NO
-  - Client nel system design? => NO
-  - Table of rights? => nel V2
-  - Version Number?
-  - Add something about defects found in the project
-  - Aggiungere eccezioni dovute al fatto che server/db hanno qualche errore ?
-  - Glossario, lo scrivo come penso che debba essere fatto, o come è nel codice ? => va bene user separato da trans
+  - Chiedere se le exceptions vanno solo scritte, o va messo uno scenario apposta
   - Add something in informal description about the app (?)
+  - Chiedere che attore mettere per le API di yoodle
+  - Chiedere se va bene lasciare UC separati per add, delete, update, o se bisogna metterli tutti insieme sotto manage ... 
 
   ---DEFECTS:
   -No admin implementation
