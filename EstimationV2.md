@@ -39,20 +39,20 @@ Consider the EZWallet project in CURRENT version (as received by the teachers), 
 
 ###
 
-| Activity name                           | Estimated effort (person hours) |
-| --------------------------------------- | ------------------------------- |
-| Identify Stakeholders                   | 10ph                            |
-| Market analisys on competitors          | 40ph                            |
-| Define requirements document            | 200ph                           |
-| Contract with external payment service  | 300ph                           |
-| Contract with banks to get transactions | 600ph                           |
-| Middle review                           | 40ph                            |
-| Design GUI prototype                    | 100ph                           |
-| Define design document                  | 350ph                           |
-| Code implementation                     | 1600ph                          |
-| Define Unit test                        | 500ph                           |
-| Define API test cases                   | 400ph                           |
-| Final project review                    | 150ph                           |
+| Activity name                     | Estimated effort (person hours) |
+| --------------------------------- | ------------------------------- |
+| Identify Stakeholders             | 10ph                            |
+| Market analisys on competitors    | 40ph                            |
+| Define requirements document      | 200ph                           |
+| Contract with external ad service | 300ph                           |
+| Get bansks CSV transaction format | 600ph                           |
+| Middle review                     | 40ph                            |
+| Design GUI prototype              | 100ph                           |
+| Define design document            | 350ph                           |
+| Code implementation               | 1600ph                          |
+| Define Unit test                  | 500ph                           |
+| Define API test cases             | 400ph                           |
+| Final project review              | 150ph                           |
 
 ###
 
@@ -97,26 +97,18 @@ sunday are closed
 [api] -> [rev]
 
 
+-- External Services --
 
--- Contract with external services --
+[Contract with external ad service] as [adc] lasts 10 day
+[Get bansks CSV transaction format] as [csv] lasts 20 day
 
-[Contract with external payment service] as [bankc] lasts 10 day
-[Contract with banks to get transactions] as [paymentc] lasts 20 day
+[market] -> [adc]
+[market] -> [csv]
 
-[External contracts signed] happens at [bankc]'s end
-[External contracts signed] happens at [paymentc]'s end
-
-
-[market] -> [bankc]
-[market] -> [paymentc]
-
-[bankc] -> [mrev]
-[paymentc] -> [mrev]
+[adc] -> [mrev]
+[csv] -> [mrev]
 
 [Project delivery] happens at [rev]'s end
-[Project delivery] happens at [bankc]'s end
-[Project delivery] happens at [paymentc]'s end
-
 
 @endgantt
 ```
