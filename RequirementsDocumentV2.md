@@ -59,7 +59,7 @@ Version: V2 - description of EZWallet
 				- [Scenario 9.1](#scenario-91)
 		- [Get info about account, UC10](#get-info-about-account-uc10)
 				- [Scenario 10.1](#scenario-101)
-		- [Get Analytics, UC11](#get-analytics-uc11)
+		- [Get Analytics, UC11](#get-personal-analytics-uc11)
 				- [Scenario 11.1](#scenario-111)
 				- [Scenario 11.2](#scenario-112)
 		- [Add credit card for payment, UC14](#add-credit-card-for-payment-uc14)
@@ -195,14 +195,14 @@ He has set up his own start-up company and needs an easy way to track the expens
 | FR1.6   |   Manage access rights      |
 | FR1.7   |    Show registered users    |
 | FR1.7.1 |     Get info about user account      |
-
-|FR2|CRUD categories|
-
+|FR2|Manage categories|
+|FR2.1|CRUD categories|
+|FR2.2|Detect when budget has exceeded|
 |FR3| Manage transactions|
 |FR3.1|CRUD transactions|
 |FR3.2| Show labelled transactions|
 |FR3.3|Show filtered transactions (by category, time period, amount)|
-|FR3.4|Import transactions from CSV file| <!-- ADD scenario/use case>
+|FR3.4|Import transactions from CSV file|
 |FR4|Analytics|
 |FR4.1|Show charts about personal expenses|
 |FR4.1.1|Filter by type of transaction, date, amount exchanged|
@@ -216,7 +216,7 @@ He has set up his own start-up company and needs an easy way to track the expens
 |FR5.3|Add/remove user to group|
 |FR5.4|Show group info|
 |FR5.5|CRUD group description|
-|FR6|Manage ads| <!-- ADD scenario/use case>
+|FR6|Manage ads| 
 |FR6.1|Receive ad|
 |FR6.2|Show ad|
 <!-- Add budget on categories -->
@@ -312,7 +312,7 @@ The goal must be of value to the (primary) actor:
 | Precondition     |      User is logged in      |
 | Post condition   |    Transaction is added     |
 | Nominal Scenario | User adds a new transaction |
-| Variants         |                             |
+| Variants         |  Add transactions from CSV            |
 | Exceptions       |                             |
 
 ##### Scenario 1.1 
@@ -322,8 +322,18 @@ The goal must be of value to the (primary) actor:
 | Precondition   |                  User is logged in                   |
 | Post condition |               New transaction is added               |
 | Step#          |                     Description                      |
-| 1              | User creates new transaction with certain attributes |
+| 1              | User akss to create a new transaction with certain attributes |
 | 2              |             System adds new transaction              |
+
+##### Scenario 1.2 
+
+| Scenario 1.2   |              Add transaction from CSV(variant)               |
+| -------------- | :--------------------------------------------------: |
+| Precondition   |                  User is logged in                   |
+| Post condition |               List of transactions is added               |
+| Step#          |                     Description                      |
+| 1              | User asks to import a list of transactions from a CSV file of a certain format |
+| 2              |             System adds transactions from imported CSV              |
 
 
 ### Delete transaction, UC2
@@ -342,7 +352,7 @@ The goal must be of value to the (primary) actor:
 | Precondition   |                 User is logged in                  |
 | Post condition |               Transaction is deleted               |
 | Step#          |                    Description                     |
-| 1              |        User deletes an existing transaction        |
+| 1              |        User asks to delete an existing transaction        |
 | 2              | System deletes the transaction decided by the user |
 
 ##### Scenario 2.2 
@@ -352,7 +362,7 @@ The goal must be of value to the (primary) actor:
 | Precondition   |            User is logged in            |
 | Post condition |         Transaction is deleted          |
 | Step#          |               Description               |
-| 1              | User deletes a non existing transaction |
+| 1              | User asks to delete a non existing transaction |
 | 2              |     System does not delete anything     |
 
 ### Show transactions, UC3
@@ -395,9 +405,6 @@ The goal must be of value to the (primary) actor:
 | 2              | System retrieves and shows labelled transactions to the user |
 
 ##### Scenario 3.4
-
-<!-- This is different from the analytic section because it returns a raw list of transaction.
-	 It may be useful for an account statement (estratto conto) -->
 | Scenario 3.4   |                 Show transactions (variant2)                    |
 | -------------- | :--------------------------------------------------------------:|
 | Precondition   |                      User is logged in                          |
@@ -414,7 +421,7 @@ The goal must be of value to the (primary) actor:
 | ---------------- | :-------------------------------------------: |
 | Precondition     |                                   |
 | Post condition   |       User is registered and authorized        |
-| Nominal Scenario | User wants to register to the EzWallet system |
+| Nominal Scenario | User registers to the EzWallet system |
 | Variants         |                                               |
 | Exceptions       |    A User with the same credentials exists    |
 
@@ -429,9 +436,7 @@ The goal must be of value to the (primary) actor:
 | 2              |             System asks for credentials                |
 |3|User inserts credentials|
 | 4              | System checks if (username, password, email) are valid |
-|5|System asks for method of payment|
-|6|User adds credit card for payment (other UC)|
-| 7              |                    User is registered                    |
+| 5              |                    User is registered                    |
 
 #### Scenario 4.2
 
@@ -521,8 +526,8 @@ The goal must be of value to the (primary) actor:
 | Precondition   |                         User is logged in                         |
 | Post condition |                          Category added                           |
 | Step#          |                            Description                            |
-| 1              |               User inserts category type and color                |
-| 2              | System creates the new category with the specified type and color |
+| 1              |               User asks to insert a new category with certain attributes       |
+| 2              | System creates the new category with the specified attributes |
 
 
 ### Show categories, UC8
@@ -531,7 +536,7 @@ The goal must be of value to the (primary) actor:
 | Precondition     |             User has to be logged in             |
 | Post condition   |                List of categories                |
 | Nominal Scenario | A list with all available categories is returned |
-| Variants         |                                                  |
+| Variants         |    Categories over budget are highlighted|
 | Exceptions       |              No categories inserted              |
 
 ##### Scenario 8.1 
@@ -545,6 +550,17 @@ The goal must be of value to the (primary) actor:
 | 2              | System retrieves the list of categories |
 | 3              |   The list of categories is returned    |
 
+##### Scenario 8.2 
+
+| Scenario 8.2   |        Show categories (variant)        |
+| -------------- | :-------------------------------------: |
+| Precondition   |            User is logged in            |
+| Post condition |           List of categories           |
+| Step#          |               Description               |
+| 1              |          User request the list          |
+| 2              | System retrieves the list of categories |
+| 3              |   The list of categories is returned with categories over budget highlighted  |
+
 ##### Scenario 8.2
 
 | Scenario 8.2   |   Show categories (exception)    |
@@ -552,7 +568,7 @@ The goal must be of value to the (primary) actor:
 | Precondition   |        User is logged in         |
 | Post condition |            Empty list            |
 | Step#          |           Description            |
-| 1              |      User request the list       |
+| 1              |      User requests the list of categories     |
 | 2              |    No categories are present     |
 | 3              | The system returns an empty list |
 
@@ -573,9 +589,9 @@ The goal must be of value to the (primary) actor:
 |  Precondition     |User is logged in |
 |  Post condition     | category is updated |
 | Step#        | Description  |
-|  1     | User selects the category to be updated|  
+|  1     | User asks to update a category|  
 |  2     | User inserts the new category information|
-|3|System updated the category's informations|
+|3|System updates the category's informations|
 
 ### Get info about account, UC10
 
@@ -593,43 +609,90 @@ The goal must be of value to the (primary) actor:
 | Scenario 10.1| Get info about account (nominal) |
 | ------------- |:-------------:| 
 |  Precondition     |User is logged in |
-|  Post condition     | Filtered user is showed |
+|  Post condition     | Info about the account are showed |
 | Step#        | Description  |
 |  1     | User asks the system information about his profile|  
 |  2     | System retrieves and returns info about the profile|
 
-###  Get Analytics, UC11
+###  Get Personal Analytics, UC11
 
 | Actors Involved    | User    |
 | ------------- |:-------------:|
 |    Precondition    | User is logged in |
-|    Post condition    | Elaborated transactions data are showed |
-|    Nominal Scenario    | Graphs and statistics of all tracked cards are shown    |
-|    Variants    | Graphs and statistics are shown only based on filters |
+|    Post condition    | Report charts on personal expenses are shown |
+|    Nominal Scenario    | Graphs and statistics of transactions are shown    |
+|    Variants    | Graphs and statistics are shown based on filters |
 |    Exceptions    || 
 
 ##### Scenario 11.1
 
-| Scenario 11.1     | Show analytics of all cards (nominal) |
+| Scenario 11.1     | Show analytics of all transactions (nominal) |
 | ------------      |:--------------:|
 | Precondition        | User is logged in |
-| Post condition    |    Graphs and statistics of all tracked cards are shown    |
+| Post condition    |    Graphs and statistics of all transactions are shown    |
 | Step#                | Description    |
 |    1                |    User asks for his/her transactions statistics    | 
-|    2                |    System retrieves the information, elaborates and return them    |
+|    2                |    System retrieves the information, elaborates and return them as report charts   |
 
 ##### Scenario 11.2
 
-| Scenario 11.2     | Show analytics of filtered cards (variant) |
+| Scenario 11.2     | Show analytics of filtered transactions (variant) |
 | ------------         |:--------------:|
 | Precondition        |     User is logged in |
-| Post condition     |     Graphs and statistics of filtered tracked cards are shown    |
+| Post condition     |     Graphs and statistics of filtered transactions are shown    |
 | Step#                |    Description |
-|    1                | User sets up the filter (card, type of transactions, amount exchanged, time period) |
+|    1                | User sets up the filter (type of transactions, amount exchanged, time period) |
 |    2                | User asks for his/hers transactions statistics |
-|    3                | System retrieves the information, filters, elaborates and return them |
+|    3                | System retrieves the information, filters, elaborates and return them as charts|
 
+### Get group analytics, UC12
+| Actors Involved    | User    |
+| ------------- |:-------------:|
+|    Precondition    | User is logged in, user is owner of group A | <!-- CHECK -->
+|    Post condition    | Charts report on group A expenses are shown |
+|    Nominal Scenario    | Graphs and statistics of all transactions are shown    |
+|    Variants    | Graphs and statistics are shown based on filters |
+|    Exceptions    || 
+##### Scenario 12.1
 
+| Scenario 12.1     | Show analytics of all transactions (nominal) |
+| ------------      |:--------------:|
+| Precondition        | User is logged in, user is owner of group A |
+| Post condition    |    Graphs and statistics of all transactions of group A are shown    |
+| Step#                | Description    |
+|    1                |    User asks for group A transactions statistics    | 
+|    2                |    System retrieves the information, elaborates and return them as report charts   |
+
+##### Scenario 12.2
+
+| Scenario 12.2     | Show analytics of filtered transactions (variant) |
+| ------------         |:--------------:|
+| Precondition        |     User is logged in, user is owner of group A |
+| Post condition     |     Graphs and statistics of filtered transactions of group A are shown    |
+| Step#                |    Description |
+|    1                | User sets up the filter (type of transactions, amount exchanged, time period) |
+|    2                | User asks for group A transactions statistics |
+|    3                | System retrieves the information, filters, elaborates and return them as report charts|
+
+### User sees advertisement, UC13
+| Actors Involved        |User, Google ads|
+| ------------- |:-------------:| 
+|  Precondition     |  |
+|  Post condition     | Ads is shown |
+|  Nominal Scenario     | Ads is shown on side of screen while user browses |
+|  Variants     |  |
+|  Exceptions     ||
+
+##### Scenario 13.1
+
+| Scenario 13.1     | Show analytics of filtered transactions (nominal) |
+| ------------         |:--------------:|
+| Precondition        |  |
+| Post condition     |  Ads is shown on side of screen|
+| Step#                |    Description |
+|    1                | User browses the application page |
+|    2                | System retrieves ads from Google ads |
+|    3                | Ads is shown on side of the application page|
 
 ### Add credit card for payment, UC14	
 | Actors Involved        |User, Payment Service|
