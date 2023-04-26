@@ -965,7 +965,6 @@ The goal must be of value to the (primary) actor:
 
 
 # Glossary
-<!--Think about adding Chart class, since it's a word used in FR that should be explained -->
 \<use UML class diagram to define important terms, or concepts in the domain of the application, and their relationships> 
 
 \<concepts must be used consistently all over the document, ex in use cases, requirements etc>
@@ -1005,6 +1004,7 @@ endnote
 class Category {
 	+ type
 	+ color
+	+ budget
 }
 
 note bottom of Category
@@ -1012,16 +1012,6 @@ Category that can refer to many
 transactions.
 endnote
 
-class CreditCard {
-	+ credit card number
-	+ expiry date
-	+ owner
-}
-
-note right of CreditCard
-Credit card inserted by the user to track his transactions,
-or to make the monthly payment
-endnote
 
 class Group {
 	+ name
@@ -1042,12 +1032,8 @@ endnote
 Transaction "0..*" - Category : labelled >
 
 
-User "+cardForTrackingTransactions"--- "0..*" CreditCard
-User "+cardForMonthlyPayment"--- CreditCard
-
 User - "0..*" Transaction
 
-CreditCard "0..*" - "0..*" Transaction
 
 User "1..*" - "0..*" Group : made of <
 User - "0..*" Group : owned by <
