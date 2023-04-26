@@ -173,9 +173,10 @@ Persona2: female, young, just graduated, high income, no children, no husband.
 Finds herself with a high income just after graduation, needs a way to manage the great unexpected amount of money she is gaining.
 
 ## Persona3
-Persona4: male, young, CEO of a startup company, medium income, no children, not married
+Persona3: male, young, CEO of a startup company, medium income, no children, not married
 ### Story
 He has set up his own start-up company and needs an easy way to track the expenses incurred by his employees using the corporate credit cards issued to them by the company for work-related expenses.
+
 # Functional and non functional requirements
 
 ## Functional Requirements
@@ -248,36 +249,32 @@ left to right direction
 actor User
 actor COO
 actor Admin
-actor PaymentService
+
+Admin --|> User
+COO --|> User
 
 rectangle "EzWallet System" as System {
-	User <|- Admin
-	User <|- COO
-
 	usecase "Add, Delete, Update, Show, Show labelled transaction" as Transaction
-
-	usecase Register
-	usecase Login
-	usecase Logout
+	usecase "Register, Login, Logout" as Auth
 
 	usecase "Add, Delete, Update, Show category" as Category
 
 	usecase "Get info about account" as UUsers
 	usecase "Get analytics" as ShowAnalytics
-	usecase "Add credit card for payment" as CreditCardPayment
 	usecase "Create new group" as CreateGroup
 	usecase "Add/delete member to/from group" as AddDeleteToGroup
 	usecase "Manage group members rights" as ManageMemberRights
 	usecase "Manage accounts" as ManageAccounts
 
 	usecase "Get analytics on application usage" as UsageAnalytics
+
+	usecase "Get personal analytics" as PAnalytics
+	usecase "Get group analytics" as GAnalytics
 }
 
 User -> Transaction
 User -> Category
-User -> Register
-User -> Login
-User -> Logout
+User -> Auth
 User --> UUsers
 User --> ShowAnalytics
 User --> CreateGroup
@@ -287,10 +284,9 @@ Admin --> ManageAccounts
 Admin --> UsageAnalytics
 COO --> UsageAnalytics
 
-Register .> CreditCardPayment : include
 
-CreditCardPayment --> PaymentService
-
+ShowAnalytics ..> PAnalytics : include >
+ShowAnalytics ..> GAnalytics : include >
 
 
 
@@ -1118,25 +1114,12 @@ EzWalletWebClient ..> UserMachine : deploy
 
 UserMachine - ServerMachine : internet link
 
+artifact GoogleAds
+node GoogleAdsServer
 
-artifact BankService
-node BankServer
+GoogleAds ..> GoogleAdsServer : deploy
 
-BankService ..> BankServer
-
-artifact PaymentService
-node PaymentServer
-
-PaymentService ..> PaymentServer
-
-
-
-UserMachine --- PaymentServer : internet
-ServerMachine --- PaymentServer : internet
-
-ServerMachine ----- BankServer  : internet 
-
-
+ServerMachine --- GoogleAdsServer : internet
 
 
 @enduml
