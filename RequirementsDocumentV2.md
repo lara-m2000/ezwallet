@@ -2,7 +2,7 @@
 
 Date: 
 
-Version: V1 - description of EZWallet in CURRENT form (as received by teachers)
+Version: V2 - description of EZWallet
 
  
 | Version number | Change |
@@ -99,7 +99,7 @@ Version: V1 - description of EZWallet in CURRENT form (as received by teachers)
 
 # Informal description
 EZWallet (read EaSy Wallet) is a software application designed to help individuals and families keep track of their expenses. Users can enter and categorize their expenses, allowing them to quickly see where their money is going. EZWallet is a powerful tool for those looking to take control of their finances and make informed decisions about their spending. 
-EzWallet also allows people to link credit cards to their account to automatically track transactions from them. EzWallet also provides an easy way to categorise different types of transactions and easy to understand expense reports. Users can also create groups, which can be useful for families who want to track their spending, or for businesses who want to track transactions made by employees using the company credit card
+EzWallet also provides an easy way to categorise different types of transactions and easy to understand expense reports. Users can also create groups, which can be useful for families who want to track their spending, or for businesses who want to track transactions made by employees using the company credit card.
 
 # Business model
 Startup company developing an application. Revenue comes from subscribed users who pay a monthly fee to use the service.
@@ -118,8 +118,8 @@ The subscription is automatically renewed until the user decides to cancel it. I
 | DB admin     	   | Person in charge of managing the database              |
 | Admin            |              User with special privileges              |
 | COO              |          Manages analytics and market analyis          |
-| Bank service            | Contract to obtain access to users credit card transactions|
 |Payment service| Service to manage users' monthly payment|
+|Google ads||
 
 
 # Context Diagram and interfaces
@@ -136,14 +136,14 @@ usecase EzWallet
 actor User
 actor Admin
 actor COO
-actor "Bank service" as BankService
-actor "Payment service" as PaymentService
+
+actor "Google ads" as GoogleAds
 
 User -- EzWallet
 Admin -- EzWallet
 COO -- EzWallet
-EzWallet -- BankService
-EzWallet -- PaymentService
+
+EzWallet -- GoogleAds
 
 @enduml
 ```
@@ -158,8 +158,7 @@ EzWallet -- PaymentService
 | User  | GUI |   Keyboard, Screen |
 | Admin | GUI/Shell| Keyboard, Screen|
 | COO | GUI | Keyboard, Screen|
-| Bank service| API https://developer.yodlee.com/api/task-apis/income-api | Internet |
-|Payment service|API (see https://developers.google.com/pay/api/web/overview)|Internet|
+|Google ads|API (see https://developers.google.com/google-ads/api/docs/start)|Internet|
 
 # Stories and personas
 \<A Persona is a realistic impersonation of an actor. Define here a few personas and describe in plain text how a persona interacts with the system>
@@ -219,24 +218,20 @@ He has set up his own start-up company and needs an easy way to track the expens
 |FR3| Manage transactions|
 |FR3.1|CRUD transactions|
 |FR3.2| Show labelled transactions|
-|FR3.3|Show filtered transactions (by category, time period, amount, card)|
-|FR4|Manage tracked credit cards|
-|FR4.1|Add/remove credit card details|
-|FR4.2|Get credit card transactions|
-|FR4.3|Verify credit card credentials|
-|FR5|Analytics|
-|FR5.1|Show charts about expenses|
-|FR5.1.1|Filter by card, type of transaction, date, amount exchanged|
-|FR5.2|Analytics on application usage|
-|FR6|Manage groups of users|
-|FR6.1|Manage users rights|
-|FR6.1.1|Show/Hide other users' transactions|
-|FR6.2|Create group|
-|FR6.3|Add/remove user to group|
-|FR7|Manage payment of monthly fee|
-|FR7.1|Add card for monthly payment|
-|FR7.2|Receive monthly payment|
-|FR7.3|Notify user when monthly subscription is near to the renewal|
+|FR3.3|Show filtered transactions (by category, time period, amount)|
+|FR4|Analytics|
+|FR4.1|Show charts about expenses|
+|FR4.1.1|Filter by card, type of transaction, date, amount exchanged|
+|FR4.2|Analytics on application usage|
+|FR5|Manage groups of users|
+|FR5.1|Manage users rights|
+|FR5.1.1|Show/Hide other users' transactions|
+|FR5.2|Create group|
+|FR5.3|Add/remove user to group|
+|FR6|Manage payment of monthly fee|
+|FR6.1|Add card for monthly payment|
+|FR6.2|Receive monthly payment|
+|FR6.3|Notify user when monthly subscription is near to the renewal|
 
 <!--Think about adding functionalities proper only of Admin and COO, then consider also adding some use cases about them!-->
 
@@ -249,7 +244,7 @@ He has set up his own start-up company and needs an easy way to track the expens
 | NFR2 |Efficiency|Response time lower than 100ms in optimal condition|All functionalities|
 | NFR3 |Availability|Available for the 99.999% in a year|All functionalities|
 | NFR4 |Reliability|Less than 4 minor/medium defects per month. Less than 1 severe defect per year. 0 killer defects per year|All functionalities|
-| NFR5 |Security|GDPR.Legislative requirements of the country in which the application will be used. Only authorized users can access. Cardholders' sensible data are not stored by the application.|FR1,FR2,FR3,FR4,FR7|
+| NFR5 |Security|GDPR.Legislative requirements of the country in which the application will be used. Only authorized users can access.|FR1,FR2,FR3,FR4,FR7|
 |NFR6|Maintanibility|2 person hours to add/modify/cancel a software function. 4 person hours to fix a minor/medium defect, 15 person hours to fix a severe defect|All functionalities|
 
 
@@ -266,7 +261,6 @@ actor User
 actor COO
 actor Admin
 actor PaymentService
-actor BankService
 
 rectangle "EzWallet System" as System {
 	User <|- Admin
@@ -282,7 +276,6 @@ rectangle "EzWallet System" as System {
 
 	usecase "Get info about account" as UUsers
 	usecase "Get analytics" as ShowAnalytics
-	usecase "Add, delete tracked credit card" as CreditCard
 	usecase "Add credit card for payment" as CreditCardPayment
 	usecase "Create new group" as CreateGroup
 	usecase "Add/delete member to/from group" as AddDeleteToGroup
@@ -299,7 +292,6 @@ User -> Login
 User -> Logout
 User --> UUsers
 User --> ShowAnalytics
-User --> CreditCard
 User --> CreateGroup
 User --> AddDeleteToGroup
 User --> ManageMemberRights
@@ -310,7 +302,7 @@ COO --> UsageAnalytics
 Register .> CreditCardPayment : include
 
 CreditCardPayment --> PaymentService
-CreditCard --> BankService
+
 
 
 
@@ -650,61 +642,6 @@ The goal must be of value to the (primary) actor:
 |    3                | System retrieves the information, filters, elaborates and return them |
 
 
-### Add tracked credit card, UC12
-
-
-| Actors Involved        |User, BankService|
-| ------------- |:-------------:| 
-|  Precondition     | User is logged in |
-|  Post condition     | Card is added to the list of tracked ones |
-|  Nominal Scenario     | User adds a credit card to the list of tracked credit cards |
-|  Variants     |  |
-|  Exceptions     |Credentials non valid|
-
-
-##### Scenario 12.1
-| Scenario 12.1| Add tracked credit card (nominal)|
-| ------------- |:-------------:| 
-|  Precondition     |User is logged in |
-|  Post condition     | Card is added to the list of tracked ones |
-| Step#        | Description  |
-|  1     | User asks the system to add a new tracked credit card|  
-|  2     | System redirect on BankService for credentials verification|
-|3|User inserts credit card credentials|
-|4| BankService notifies System that the credentials are correct|
-|5|System retrieves last month transactions of the credit card from BankService|
-|6|System adds credit card to credit card list|
-
-##### Scenario 12.2
-| Scenario 12.2| Add tracked credit card (exception)|
-| ------------- |:-------------:| 
-|  Precondition     |User is logged in |
-|  Post condition     | Card is added to the list of tracked ones |
-| Step#        | Description  |
-|  1     | User asks the system to add a new tracked credit card|  
-|  2     | System redirect on BankService for credentials verification|
-|3|User inserts credit card credentials|
-|4| BankService notifies System that the credentials are not correct|
-|5|System notifies User with an error message|
-
-### Delete tracked credit card, UC13
-
-| Actors Involved        |User|
-| ------------- |:-------------:| 
-|  Precondition     | User is logged in, user has at least one tracked card |
-|  Post condition     | Card is removed from the list of tracked ones |
-|  Nominal Scenario     | User removes a credit card to the list of tracked credit cards |
-|  Variants     |  |
-|  Exceptions     ||
-
-##### Scenario 13.1
-| Scenario 13.1| Delete tracked credit card (nominal)|
-| ------------- |:-------------:| 
-|  Precondition     |User is logged in, user has at least one tracked card |
-|  Post condition     | Card is removed from the list of tracked ones |
-| Step#        | Description  |
-|  1     | User asks the system to delete tracked credit card|  
-|  2     | System removes the credit card|
 
 ### Add credit card for payment, UC14	
 | Actors Involved        |User, Payment Service|
