@@ -28,6 +28,7 @@ Version:
   - [Delete category (UC20)](#delete-category-uc20)
 - [Manage groups of users](#manage-groups-of-users)
   - [Create new group (UC15)](#create-new-group-uc15)
+  - [Show groups (UC24)](#show-groups-uc24)
   - [Group analytics (UC12)](#group-analytics-uc12)
   - [Add user to group (UC16)](#add-user-to-group-uc16)
   - [Show group info (UC18)](#show-group-info-uc18)
@@ -111,6 +112,9 @@ Version:
 
 ## Create new group (UC15)
 ![create_group](img/Group%20create.png)
+
+## Show groups (UC24)
+
 
 ## Group analytics (UC10)
 ![group_analytics](img/Group%20Analitics.png)
