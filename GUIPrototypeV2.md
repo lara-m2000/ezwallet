@@ -89,8 +89,11 @@ Version:
 
 # Manage categories
 ## Show categories (UC8)
-![categories](./img/Categories%20V1.png)
+![categories](./img/Show%20categories%20v2%20(nominal).png)
 *Scenario 8.1: nominal case*
+
+![categories_variant](./img/Show%20categories%20v2%20(variant).png)
+*Scenario 8.1: overbudget variant*
 
 ![categories_exception](./img/Show%20categories%20v2%20(exception).png)
 *Scenario 8.2: exception*
@@ -136,4 +139,4 @@ Version:
 ![manage_accounts](./img/Manage%20accounts%20%5BADMIN%5D.png)
 
 ## Application usage analytics (UC22)
-[application_usage_analytics](./img/Application%20usage%20analytics%20%5BADMIN%5D.png)
+![application_usage_analytics](./img/Application%20usage%20analytics%20%5BADMIN%5D.png)
