@@ -280,7 +280,6 @@ rectangle "EzWallet System" as System {
 	usecase "Add, Delete, Update, Show category" as Category
 
 	usecase "Get info about account" as UUsers
-	usecase "Get analytics" as ShowAnalytics
 	usecase "Create new group" as CreateGroup
 	usecase "Add/delete member to/from group" as AddDeleteToGroup
 	usecase "Manage group members rights" as ManageMemberRights
@@ -291,30 +290,27 @@ rectangle "EzWallet System" as System {
 	usecase "Get personal analytics" as PAnalytics
 	usecase "Get group analytics" as GAnalytics
 
-	usecase "Manage ads" as ManAds
 	usecase "Show ads" as ShowAds
 	usecase "Interact with ad" as InteractAd
 }
-
+'controllare connessione tra UC ads e google ads
 User -> Transaction
 User -> Category
 User -> Auth
 User --> UUsers
-User --> ShowAnalytics
+User --> PAnalytics
+User --> GAnalytics
 User --> CreateGroup
 User --> AddDeleteToGroup
 User --> ManageMemberRights
-User --> ManAds
-ManAds --> GAds
+User <-- ShowAds
+User --> InteractAd
+ShowAds --> GAds
+InteractAd --> GAds
 Admin --> ManageAccounts
 Admin --> UsageAnalytics
 COO --> UsageAnalytics
 
-
-ShowAnalytics ..> PAnalytics : include >
-ShowAnalytics ..> GAnalytics : include >
-ManAds ..> ShowAds : include >
-ManAds ..> InteractAd : include >
 
 @enduml
 ```
