@@ -191,7 +191,7 @@ He has set up his own start-up company and needs an easy way to track the expens
 
 | ID      |         Description         |
 | ------- | :-------------------------: |
-| FR1     |     Manage user account     |
+| FR1     |     Manage user accounts     |
 |FR1.1|CRUD user account (name, email, pwd)|
 | FR1.2   |            Login            |
 | FR1.3   |           Logout            |
