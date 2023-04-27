@@ -372,16 +372,6 @@ The goal must be of value to the (primary) actor:
 | 1              |        User asks to delete an existing transaction        |
 | 2              | System deletes the transaction decided by the user |
 
-<!-- This scenario is impossible with the GUI we implemented. Either delete the scenario or change the GUI. -->
-##### Scenario 2.2 
-
-| Scenario 2.2   |     Delete transaction (exception)      |
-| -------------- | :-------------------------------------: |
-| Precondition   |            User is logged in            |
-| Post condition |         Transaction is deleted          |
-| Step#          |               Description               |
-| 1              | User asks to delete a non existing transaction |
-| 2              |     System does not delete anything     |
 
 ### Show transactions, UC3
 | Actors Involved  |                     User                     |
