@@ -80,9 +80,8 @@ Version: V2 - description of EZWallet
 		- [Delete a member from a group, UC17](#delete-a-member-from-a-group-uc17)
 				- [Scenario 17.1](#scenario-171)
 				- [Scenario 17.2](#scenario-172)
-		- [Manage group members rights, UC18](#manage-group-members-rights-uc18)
+		- [Get group info, UC18](#get-group-info-uc18)
 				- [Scenario 18.1](#scenario-181)
-				- [Scenario 18.2](#scenario-182)
 		- [Update transaction, UC19](#update-transaction-uc19)
 				- [Scenario 19.1](#scenario-191)
 		- [Delete category, UC20](#delete-category-uc20)
@@ -819,38 +818,26 @@ The goal must be of value to the (primary) actor:
 |  2     | User selects the member to be removed|
 |3|User doesn't have the rights to remove the member|
 
-### Manage group members rights, UC18
+### Get group info, UC18
 
 | Actors Involved        |User|
 | ------------- |:-------------:| 
-|  Precondition     | User is logged in  |
-|  Post condition     | Member's rights are updated |
-|  Nominal Scenario     | The rights of a member of the group are changed |
+|  Precondition     | User is logged in, user is in a group  |
+|  Post condition     | |
+|  Nominal Scenario     | The info about a group are showed to the user |
 |  Variants     |  |
-|  Exceptions     |User doesn't have the rights|
+|  Exceptions     | |
 
 ##### Scenario 18.1
 
-| Scenario 18.1| Manage group members rights (nominal) |
+| Scenario 18.1| Get group info (nominal) |
 | ------------- |:-------------:| 
-|  Precondition     |User is logged in |
+|  Precondition     |User is logged in, user is in a group |
 |  Post condition     |  Member's rights are updated |
 | Step#        | Description  |
 |  1     | User selects the group|  
-|  2     | User selects the member whose rights have to be changed|
-|3|User selects the member's new rights|
-|4|Member's rights are updated|
-
-##### Scenario 18.2
-
-| Scenario 18.2| Manage group members rights (exception1) |
-| ------------- |:-------------:| 
-|  Precondition     |User is logged in |
-|  Post condition     | Member is not removed|
-| Step#        | Description  |
-|  1     | User selects the group|  
-|  2     | User selects the member whose rights have to be changed|
-|3|User doesn't have the rights to change another member's rights|
+|  2     | User clicks on the info button|  
+|  3     | Group info are shown to the user |
 
 ### Update transaction, UC19
 
