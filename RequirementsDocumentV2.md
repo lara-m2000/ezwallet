@@ -233,12 +233,11 @@ He has set up his own start-up company and needs an easy way to track the expens
 
 | Actor | User | Admin | COO | GoogleAds |
 | - | :-: | :-: | :-: | :-: |
-| FR1   | x    |   x   |  x  |           |
-| FR1.7 |      |   x   |     |           |
-| FR1.7.1 | x    |   x   | x   |           |
+| FR1.2/1.3/1.5/1.7.1   | x    |   x   |  x  |           |
+| FR1.1/1.4/1.6/1.7 |      |   x   |     |           |
 | FR2   | x    |   x   | x   |           |
 | FR3   | x    |   x   | x   |           |
-| FR4   | x    |   x   | x   |           |
+| FR4.1/4.3   | x    |   x   | x   |           |
 | FR4.2 |      |   x   | x   |           |
 | FR4   | x    |   x   | x   |           |
 | FR5   | x    |   x   | x   |           |
