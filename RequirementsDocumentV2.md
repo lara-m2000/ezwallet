@@ -236,7 +236,7 @@ He has set up his own start-up company and needs an easy way to track the expens
 | FR2   | x    |   x   | x   |           |
 | FR3   | x    |   x   | x   |           |
 | FR4   | x    |   x   | x   |           |
-| FR4.2 |      |       | x   |           |
+| FR4.2 | x    |       | x   |           |
 | FR4   | x    |   x   | x   |           |
 | FR5   | x    |   x   | x   |           |
 | FR6   | x    |   x   | x   |   x       | <!-- Da rivedere -->
