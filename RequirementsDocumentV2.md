@@ -45,7 +45,7 @@ Version: V2 - description of EZWallet
 				- [Scenario 3.4](#scenario-34)
 		- [Registration, UC4](#registration-uc4)
 				- [Scenario 4.1](#scenario-41)
-			- [Scenario 4.2](#scenario-42)
+				- [Scenario 4.2](#scenario-42)
 		- [Login, UC5](#login-uc5)
 				- [Scenario 5.1](#scenario-51)
 				- [Scenario 5.2](#scenario-52)
@@ -70,9 +70,6 @@ Version: V2 - description of EZWallet
 		- [Manage Ads, UC13](#manage-ads-uc13)
 				- [Scenario 13.1](#scenario-131)
 				- [Scenario 13.2](#scenario-132)
-		- [Add credit card for payment, UC14](#add-credit-card-for-payment-uc14)
-				- [Scenario 14.1](#scenario-141)
-				- [Scenario 14.2](#scenario-142)
 		- [Create new group, UC15](#create-new-group-uc15)
 				- [Scenario 15.1](#scenario-151)
 		- [Add new member to a group, UC16](#add-new-member-to-a-group-uc16)
@@ -99,9 +96,12 @@ Version: V2 - description of EZWallet
 - [Deployment Diagram](#deployment-diagram)
 
 # Informal description
+
 EZWallet (read EaSy Wallet) is a software application designed to help individuals and families keep track of their expenses. Users can enter and categorize their expenses, allowing them to quickly see where their money is going. EZWallet is a powerful tool for those looking to take control of their finances and make informed decisions about their spending. 
 EzWallet also provides an easy way to categorise different types of transactions and easy to understand expense reports. Users can also create groups, which can be useful for families who want to track their spending, or for businesses who want to track transactions made by employees using the company credit card. Group expense reports are also available.
+
 # Business model
+
 Startup company developing an application. Revenue comes from ads, using an external service (google ads).
 
 
@@ -124,9 +124,6 @@ Startup company developing an application. Revenue comes from ads, using an exte
 # Context Diagram and interfaces
 
 ## Context Diagram
-\<Define here Context diagram using UML use case diagram>
-
-\<actors are a subset of stakeholders>
 
 ```plantuml
 @startuml
@@ -148,9 +145,6 @@ EzWallet -- GoogleAds
 ```
 
 ## Interfaces
-\<describe here each interface in the context diagram>
-
-\<GUIs will be described graphically in a separate document>
 
 | Actor |  Logical Interface  | Physical Interface |
 | ----- | :-----------------: | -----------------: |
@@ -160,38 +154,37 @@ EzWallet -- GoogleAds
 |Google ads|API (see https://developers.google.com/google-ads/api/docs/start)|Internet|
 
 # Stories and personas
-\<A Persona is a realistic impersonation of an actor. Define here a few personas and describe in plain text how a persona interacts with the system>
 
-\<Persona is-an-instance-of actor>
-
-\<stories will be formalized later as scenarios in use cases>
 ## Persona1
 Persona1: male, middle-age, low income, father, married with children 																					
 
 Persona1, work day: wake up, breakfast, drive children to school, return home for smart working 
 
 Persona1, week end day: wake up, prepare breakfast for family, go out with its family, hang out with friends at night 
+
 ### Story
+
 He realises he is spending more money than he expected and needs an easy-to-use app to keep track of his spending so he can provide for his family and continue to enjoy his hobbies
 
 ## Persona2
+
 Persona2: female, young, just graduated, high income, no children, no husband.
 
 ### Story
+
 Finds herself with a high income just after graduation, needs a way to manage the great unexpected amount of money she is gaining.
 
 ## Persona3
+
 Persona3: male, young, CEO of a startup company, medium income, no children, not married
+
 ### Story
+
 He has set up his own start-up company and needs an easy way to track the expenses incurred by his employees using the corporate credit cards issued to them by the company for work-related expenses.
 
 # Functional and non functional requirements
 
 ## Functional Requirements
-
-\<In the form DO SOMETHING, or VERB NOUN, describe high level capabilities of the system>
-
-\<they match to high level use cases>
 
 | ID      |         Description         |
 | ------- | :-------------------------: |
@@ -234,7 +227,7 @@ He has set up his own start-up company and needs an easy way to track the expens
 
 <!-- START CORRECTING FROM HERE -->
 ## Non Functional Requirements
-\<Describe constraints on functional requirements>
+
 | ID   | Type (efficiency, reliability, ..) |                                                      Description                                                      |   Refers to |
 | ---- | :--------------------------------: | :-------------------------------------------------------------------------------------------------------------------: | ----------: |
 | NFR1 |Usability|Should be used with no training by users with at least 6 months experience with computers|All functionalities (exception for FR3.4)|
@@ -249,7 +242,7 @@ He has set up his own start-up company and needs an easy way to track the expens
 # Use case diagram and use cases
 
 ## Use case diagram
-\<define here UML Use case diagram UCD summarizing all use cases, and their relationships>
+
 ```plantuml
 @startuml
 left to right direction
@@ -309,7 +302,6 @@ The goal must be of value to the (primary) actor:
 (Don't go in implementation details e.g. touch pinpad screen)
 -->
 
-\<next describe here each use case in the UCD>
 ### Add transaction, UC1
 | Actors Involved  |            User             |
 | ---------------- | :-------------------------: |
@@ -443,7 +435,7 @@ The goal must be of value to the (primary) actor:
 | 4              | System checks if (username, password, email) are valid |
 | 5              |                    User is registered                    |
 
-#### Scenario 4.2
+##### Scenario 4.2
 
 | Scenario 4.2   |                       (Exception)                        |
 | -------------- | :------------------------------------------------------: |
@@ -957,9 +949,6 @@ The goal must be of value to the (primary) actor:
 
 
 # Glossary
-\<use UML class diagram to define important terms, or concepts in the domain of the application, and their relationships> 
-
-\<concepts must be used consistently all over the document, ex in use cases, requirements etc>
 
 ```plantuml
 @startuml
@@ -1043,9 +1032,6 @@ Transaction "1..*" --  Chart
 ```
 
 # System Design
-\<describe here system design>
-
-\<must be consistent with Context diagram>
 
 ```plantuml
 @startuml
