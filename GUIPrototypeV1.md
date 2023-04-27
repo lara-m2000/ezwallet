@@ -8,19 +8,21 @@ Version:
 
 \<Report here the GUI that you propose for EZWallet in CURRENT form, as received by teachers. You are free to organize it as you prefer. A suggested presentation matches the Use cases and scenarios defined in the Requirement document. The GUI can be shown as a sequence of graphical files (jpg, png)  >
 # Contents
+- [Graphical User Interface Prototype  - CURRENT](#graphical-user-interface-prototype----current)
+- [Contents](#contents)
 - [Website home page](#website-home-page)
 - [Manage user](#manage-user)
-    - [Registration](#registration-uc4)
-    - [Login](#login-uc5)
-    - [User profile page](#user-profile-page-uc10)
-    - [Logout](#logout-uc6)
+  - [Registration (UC4)](#registration-uc4)
+  - [Login (UC5)](#login-uc5)
+  - [User profile page (UC10)](#user-profile-page-uc10)
+  - [Logout (UC6)](#logout-uc6)
 - [Manage transactions](#manage-transactions)
-    - [Show transactions](#show-transactions-uc3)
-    - [Add transaction](#add-transaction-uc1)
-    - [Delete transaction](#delete-transaction-uc2)
+  - [Show transactions (UC3)](#show-transactions-uc3)
+  - [Add transaction (UC1)](#add-transaction-uc1)
+  - [Delete transaction (UC2)](#delete-transaction-uc2)
 - [Manage categories](#manage-categories)
-    - [Show categories](#show-categories-uc8)
-    - [Add category](#add-category-uc7)
+  - [Show categories (UC8)](#show-categories-uc8)
+  - [Add category (UC7)](#add-category-uc7)
 
 # Website home page
 ![home_page](./img/Home%20page.png)
