@@ -218,7 +218,7 @@ He has set up his own start-up company and needs an easy way to track the expens
 |FR4.3.1|Filter by type of transaction, date, amount exchanged, users|
 |FR5|Manage groups of users|
 |FR5.1|Manage users rights|
-|FR5.1.1|Show/Hide other users' transactions|
+|FR5.1.1|Give/Remove user's permission to see transactions of other group members|
 |FR5.2|Create group|
 |FR5.3|Add/remove user to group|
 |FR5.4|Show group info|
@@ -712,41 +712,6 @@ The goal must be of value to the (primary) actor:
 |    3                | Ad is shown to the user |
 |	 4				  | The user does not click on the ad |
 
-### Add credit card for payment, UC14	
-| Actors Involved        |User, Payment Service|
-| ------------- |:-------------:| 
-|  Precondition     | User has performed the registration with (email, pwd, username) |
-|  Post condition     | Card is set as method of payment |
-|  Nominal Scenario     | User inserts correct credentials of the credit card intended for the monthly payment |
-|  Variants     |  |
-|  Exceptions     |Credentials not valid|
-
-##### Scenario 14.1
-
-| Scenario 14.1| Add credit card for payment (nominal)|
-| ------------- |:-------------:| 
-|  Precondition     |User has performed the registration with (email, pwd, username) |
-|  Post condition     | Card is set as method of payment |
-| Step#        | Description  |
-|  1     | User asks to insert credit card credentials|  
-|  2     | System redirect user to payment service |
-|3|User inserts his credentials|
-|4|Payment service checks credentials|
-|5|Credentials correct, card is set as method of payment|
-
-##### Scenario 14.2
-
-| Scenario 14.2| Add credit card for payment (exception)|
-| ------------- |:-------------:| 
-|  Precondition     |User has performed the registration with (email, pwd, username) |
-|  Post condition     | User is asked to insert again the credentials |
-| Step#        | Description  |
-|  1     | User asks to insert credit card credentials|  
-|  2     | System redirect user to payment service |
-|3|User inserts his credentials|
-|4|Payment service checks credentials|
-|5|Credentials not correct, user is asked to try again|
-
 ### Create new group, UC15
 
 | Actors Involved   |User|
@@ -816,7 +781,7 @@ The goal must be of value to the (primary) actor:
 
 | Actors Involved        |User|
 | ------------- |:-------------:| 
-|  Precondition     | User is logged in  |
+|  Precondition     | User is logged in and is group owner |
 |  Post condition     | Member is removed |
 |  Nominal Scenario     | A member is deleted from the group |
 |  Variants     |  |
@@ -826,7 +791,7 @@ The goal must be of value to the (primary) actor:
 
 | Scenario 17.1| Delete a member from a group (nominal) |
 | ------------- |:-------------:| 
-|  Precondition     |User is logged in |
+|  Precondition     |User is logged in and is group owner |
 |  Post condition     | Member is removed |
 | Step#        | Description  |
 |  1     | User selects the group|  
