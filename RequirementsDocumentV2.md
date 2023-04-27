@@ -29,6 +29,7 @@ Version: V2 - description of EZWallet
 		- [Story](#story-2)
 - [Functional and non functional requirements](#functional-and-non-functional-requirements)
 	- [Functional Requirements](#functional-requirements)
+	- [Table of rights](#table-of-rights)
 	- [Non Functional Requirements](#non-functional-requirements)
 - [Use case diagram and use cases](#use-case-diagram-and-use-cases)
 	- [Use case diagram](#use-case-diagram)
@@ -224,6 +225,21 @@ He has set up his own start-up company and needs an easy way to track the expens
 <!-- Add budget on categories -->
 
 <!--Think about adding functionalities proper only of Admin and COO, then consider also adding some use cases about them!-->
+
+## Table of rights
+
+| Actor | User | Admin | COO | GoogleAds |
+| - | :-: | :-: | :-: | :-: |
+| FR1   | x    |   x   |  x  |           |
+| FR1.7 |      |   x   |     |           |
+| FR1.7.1 | x    |   x   | x   |           |
+| FR2   | x    |   x   | x   |           |
+| FR3   | x    |   x   | x   |           |
+| FR4   | x    |   x   | x   |           |
+| FR4.2 |      |       | x   |           |
+| FR4   | x    |   x   | x   |           |
+| FR5   | x    |   x   | x   |           |
+| FR6   | x    |   x   | x   |   x       | <!-- Da rivedere -->
 
 <!-- START CORRECTING FROM HERE -->
 ## Non Functional Requirements
