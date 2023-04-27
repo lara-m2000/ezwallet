@@ -68,9 +68,8 @@ Version: V2 - description of EZWallet
 		- [Get group analytics, UC12](#get-group-analytics-uc12)
 				- [Scenario 12.1](#scenario-121)
 				- [Scenario 12.2](#scenario-122)
-		- [Manage Ads, UC13](#manage-ads-uc13)
+		- [Show Ads, UC13](#show-ads-uc13)
 				- [Scenario 13.1](#scenario-131)
-				- [Scenario 13.2](#scenario-132)
 		- [Manage permissions of users inside group, UC14](#manage-permissions-of-users-inside-group-uc14)
 				- [Scenario 14.1](#scenario-141)
 				- [Scenario 14.2](#scenario-142)
@@ -83,7 +82,6 @@ Version: V2 - description of EZWallet
 		- [Delete a member from a group, UC17](#delete-a-member-from-a-group-uc17)
 				- [Scenario 17.1](#scenario-171)
 		- [Get group info, UC18](#get-group-info-uc18)
-		- [Get group info, UC18](#get-group-info-uc18-1)
 				- [Scenario 18.1](#scenario-181)
 		- [Update transaction, UC19](#update-transaction-uc19)
 				- [Scenario 19.1](#scenario-191)
@@ -94,6 +92,8 @@ Version: V2 - description of EZWallet
 				- [Scenario 21.1](#scenario-211)
 		- [Get analytics on application usage, UC22](#get-analytics-on-application-usage-uc22)
 				- [Scenario 22.1](#scenario-221)
+		- [Interact with the ads, UC23](#interact-with-ads-uc23)
+				- [Scenario 23.1](#scenario-231)
 - [Glossary](#glossary)
 - [System Design](#system-design)
 - [Deployment Diagram](#deployment-diagram)
@@ -222,8 +222,8 @@ He has set up his own start-up company and needs an easy way to track the expens
 |FR5.4|Show group info|
 |FR5.5|CRUD group description|
 |FR6|Manage ads| 
-|FR6.1|Receive ad|
-|FR6.2|Show ad|
+|FR6.1|Interact with ads|
+|FR6.2|Show ads|
 <!-- Add budget on categories -->
 
 <!--Think about adding functionalities proper only of Admin and COO, then consider also adding some use cases about them!-->
@@ -268,6 +268,7 @@ left to right direction
 actor User
 actor COO
 actor Admin
+actor "Google Ads" as GAds
 
 Admin --|> User
 COO --|> User
@@ -289,6 +290,10 @@ rectangle "EzWallet System" as System {
 
 	usecase "Get personal analytics" as PAnalytics
 	usecase "Get group analytics" as GAnalytics
+
+	usecase "Manage ads" as ManAds
+	usecase "Show ads" as ShowAds
+	usecase "Interact with ad" as InteractAd
 }
 
 User -> Transaction
@@ -299,6 +304,8 @@ User --> ShowAnalytics
 User --> CreateGroup
 User --> AddDeleteToGroup
 User --> ManageMemberRights
+User --> ManAds
+ManAds --> GAds
 Admin --> ManageAccounts
 Admin --> UsageAnalytics
 COO --> UsageAnalytics
@@ -306,8 +313,8 @@ COO --> UsageAnalytics
 
 ShowAnalytics ..> PAnalytics : include >
 ShowAnalytics ..> GAnalytics : include >
-
-
+ManAds ..> ShowAds : include >
+ManAds ..> ShowAds : include >
 
 @enduml
 ```
@@ -689,40 +696,26 @@ The goal must be of value to the (primary) actor:
 |    2                | User asks for group A transactions statistics |
 |    3                | System retrieves the information, filters, elaborates and return them as report charts|
 
-### Manage Ads, UC13
+### Show Ads, UC13
 
 | Actors Involved        |User, Google ads|
 | ------------- |:-------------:| 
 |  Precondition     | User is logged in |
-|  Post condition     | User is redirected to ad website |
-|  Nominal Scenario     | User interacts with the shown ad |
+|  Post condition     | Ad is shown to the user |
+|  Nominal Scenario     | Ad is shown to the user while browsing |
 |  Variants     ||
-|  Exceptions     | User does not interact with the shown ad |
+|  Exceptions     ||
 
 ##### Scenario 13.1
 
-| Scenario 13.1     | User interacts with the shown ad (nominal) |
+| Scenario 13.1     | Ad is shown to the user while browsing (nominal) |
 | ------------         |:--------------:|
 | Precondition        | User is logged in |
-| Post condition     | User is redirected to ad website |
+| Post condition     | Ad is shown to the user |
 | Step#                | Description |
 |    1                | User browses the application page |
 |    2                | System retrieves ads from Google ads |
 |    3                | Ad is shown to the user |
-|	 4				  | The user clicks on the ad |
-|    5                | The user is redirected to the ad website |
-
-##### Scenario 13.2
-
-| Scenario 13.1     | User interacts with the shown ad (exception) |
-| ------------         |:--------------:|
-| Precondition        | User is logged in |
-| Post condition     | User is not redirected to ad website |
-| Step#                | Description |
-|    1                | User browses the application page |
-|    2                | System retrieves ads from Google ads |
-|    3                | Ad is shown to the user |
-|	 4				  | The user does not click on the ad |
 
 ### Manage permissions of users inside group, UC14
 
@@ -966,23 +959,28 @@ The goal must be of value to the (primary) actor:
 |  1     |Admin/COO asks for analytics on application usage|  
 |  2     |System retrieves and show the analytics|
 
+### Interact with Ads, UC23
 
+| Actors Involved        |User, Google ads|
+| ------------- |:-------------:| 
+|  Precondition     | User is logged in |
+|  Post condition     | User is redirected to the ad website |
+|  Nominal Scenario     | User interacts with the shown ad |
+|  Variants     ||
+|  Exceptions     ||
 
+##### Scenario 23.1
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+| Scenario 23.1     | User interacts with the shown ad (nominal) |
+| ------------         |:--------------:|
+| Precondition        | User is logged in |
+| Post condition     | User is redirected to the ad website |
+| Step#                | Description |
+|    1                | User browses the application page |
+|    2                | System retrieves ads from Google ads |
+|    3                | Ad is shown to the user |
+|	 4				  | The user clicks on the ad |
+|    5                | The systems redirects the user to the ad website |
 
 
 # Glossary
