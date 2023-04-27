@@ -314,7 +314,7 @@ COO --> UsageAnalytics
 ShowAnalytics ..> PAnalytics : include >
 ShowAnalytics ..> GAnalytics : include >
 ManAds ..> ShowAds : include >
-ManAds ..> ShowAds : include >
+ManAds ..> InteractAd : include >
 
 @enduml
 ```
