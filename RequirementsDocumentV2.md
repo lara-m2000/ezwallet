@@ -34,6 +34,7 @@ Version: V2 - description of EZWallet
 	- [Use case diagram](#use-case-diagram)
 		- [Add transaction, UC1](#add-transaction-uc1)
 				- [Scenario 1.1](#scenario-11)
+				- [Scenario 1.2](#scenario-12)
 		- [Delete transaction, UC2](#delete-transaction-uc2)
 				- [Scenario 2.1](#scenario-21)
 				- [Scenario 2.2](#scenario-22)
@@ -55,11 +56,12 @@ Version: V2 - description of EZWallet
 		- [Show categories, UC8](#show-categories-uc8)
 				- [Scenario 8.1](#scenario-81)
 				- [Scenario 8.2](#scenario-82)
+				- [Scenario 8.2](#scenario-82-1)
 		- [Update category, UC9](#update-category-uc9)
 				- [Scenario 9.1](#scenario-91)
 		- [Get info about account, UC10](#get-info-about-account-uc10)
 				- [Scenario 10.1](#scenario-101)
-		- [Get Analytics, UC11](#get-personal-analytics-uc11)
+		- [Get Personal Analytics, UC11](#get-personal-analytics-uc11)
 				- [Scenario 11.1](#scenario-111)
 				- [Scenario 11.2](#scenario-112)
 		- [Get group analytics, UC12](#get-group-analytics-uc12)
@@ -1042,7 +1044,7 @@ class Group {
 	+ name
 	+ description
 }
-note bottom of Group
+note top of Group
 Group of users that can be used for example 
 to track the expenses of a family
 endnote
@@ -1057,17 +1059,17 @@ endnote
 Transaction "0..*" - Category : labelled >
 
 
-User - "0..*" Transaction
+User --- "0..*" Transaction
 
 
 User "1..*" - "0..*" Group : made of <
 User - "0..*" Group : owned by <
 
-Admin -|> User
+User <|-- Admin
 
-User - "0..*" Category
+User --- "0..*" Category
 
-Chart - "1..*" Transaction
+Transaction "1..*" --  Chart
 
 
 
