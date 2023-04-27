@@ -220,14 +220,14 @@ He has set up his own start-up company and needs an easy way to track the expens
 |FR5.1.1|Give/Remove user's permission to see transactions of other group members|
 |FR5.2|Create group|
 |FR5.3|Add/remove user to group|
-|FR5.4|Show group info|
+|FR5.4|Show groups|
+|FR5.4.1|Show group info|
 |FR5.5|CRUD group description|
 |FR6|Manage ads| 
 |FR6.1|Interact with ads|
 |FR6.2|Show ads|
-<!-- Add budget on categories -->
+|FR6.3|Receive ads|
 
-<!--Think about adding functionalities proper only of Admin and COO, then consider also adding some use cases about them!-->
 
 ## Table of rights
 
@@ -244,7 +244,7 @@ He has set up his own start-up company and needs an easy way to track the expens
 | FR5   | x    |   x   | x   |           |
 | FR6   | x    |   x   | x   |   x       |
 
-<!-- START CORRECTING FROM HERE -->
+
 ## Non Functional Requirements
 
 | ID   | Type (efficiency, reliability, ..) |                                                      Description                                                      |   Refers to |
@@ -983,6 +983,38 @@ The goal must be of value to the (primary) actor:
 |    3                | Ad is shown to the user |
 |	 4				  | The user clicks on the ad |
 |    5                | The systems redirects the user to the ad website |
+
+### Show groups, UC24
+
+| Actors Involved        |User|
+| ------------- |:-------------:| 
+|  Precondition     | User is logged in |
+|  Post condition     | The groups to which the user belongs are showed |
+|  Nominal Scenario     | User asks the groups he belongs to |
+|  Variants     ||
+|  Exceptions     ||
+
+##### Scenario 24.1
+
+| Scenario 24.1     | Show groups (nominal) |
+| ------------         |:--------------:|
+| Precondition        | User is logged in |
+| Post condition     | The groups to which the user belongs are showed |
+| Step#                | Description |
+|    1                | User asks the system the groups he belongs to |
+|2| Groups are showed|
+
+##### Scenario 24.1
+
+| Scenario 24.1     | Show groups (exception) |
+| ------------         |:--------------:|
+| Precondition        | User is logged in |
+| Post condition     | The groups to which the user belongs are showed |
+| Step#                | Description |
+|    1                | User asks the system the groups he belongs to |
+|2| System detects user is not member of any group|
+|3| System notifies the user with an error message|
+
 
 
 # Glossary
