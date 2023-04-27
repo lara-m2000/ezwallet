@@ -197,6 +197,7 @@ He has set up his own start-up company and needs an easy way to track the expens
 | FR1.3   |           Logout            |
 | FR1.4   |          Authorize          |
 | FR1.5   | Register (name, email, pwd) |
+|FR1.5.1|Email verification|
 | FR1.6   |   Manage access rights      |
 | FR1.7   |    Show registered users    |
 | FR1.7.1 |     Get info about user account      |
@@ -293,7 +294,6 @@ rectangle "EzWallet System" as System {
 	usecase "Show ads" as ShowAds
 	usecase "Interact with ad" as InteractAd
 }
-'controllare connessione tra UC ads e google ads
 User -> Transaction
 User -> Category
 User -> Auth
@@ -441,7 +441,7 @@ The goal must be of value to the (primary) actor:
 | Post condition   |       User is registered and authorized        |
 | Nominal Scenario | User registers to the EzWallet system |
 | Variants         |                                               |
-| Exceptions       |    A User with the same credentials exists    |
+| Exceptions       |    A User with the same credentials exists, user inserts wrong verification code    |
 
 ##### Scenario 4.1 
 
@@ -454,7 +454,9 @@ The goal must be of value to the (primary) actor:
 | 2              |             System asks for credentials                |
 |3|User inserts credentials|
 | 4              | System checks if (username, password, email) are valid |
-| 5              |                    User is registered                    |
+|5|System sends verification code to user's email|
+| 6              |                    User inserts verification code        |
+|7|User is registered|
 
 ##### Scenario 4.2
 
@@ -466,8 +468,23 @@ The goal must be of value to the (primary) actor:
 | 1              |               User asks the system to register              |
 | 2              |             System asks for his credentials			    |
 |3|User inserts credentials|
-| 4              | System checks if (username, password, email) are correct |
+| 4              | System checks if (username, password, email) are valid |
 | 5              |  Email is already used, an error is showed to the user   |
+
+##### Scenario 4.3 
+
+| Scenario 4.3   |                        (Nominal)                         |
+| -------------- | :------------------------------------------------------: |
+| Precondition   |                                                          |
+| Post condition |                    User is registered                    |
+| Step#          |                       Description                        |
+| 1              |               User asks the system to register              |
+| 2              |             System asks for credentials                |
+|3|User inserts credentials|
+| 4              | System checks if (username, password, email) are valid |
+|5|System sends verification code to user's email|
+| 6              |                    User inserts wrong verification code        |
+|7|System asks to user to insert the verification code again|
 
 
 ### Login, UC5
@@ -1074,6 +1091,7 @@ class EzWalletWebClient
 EzWalletSystem o-- EzWalletServer
 EzWalletSystem o-- DataBaseServer
 EzWalletSystem o-- EzWalletWebClient
+EzWalletSystem o-- EzWalletMailServer
 
 
 @enduml
@@ -1086,12 +1104,12 @@ EzWalletSystem o-- EzWalletWebClient
 ```plantuml
 @startuml
 
-
+artifact EzWalletMailServer
 artifact EzWalletServer
 node ServerMachine
 
 EzWalletServer ..> ServerMachine : deploy
-
+EzWalletMailServer ..> ServerMachine : deploy
 
 artifact DataBaseServer
 database DBMachine
