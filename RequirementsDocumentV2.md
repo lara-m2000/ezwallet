@@ -1038,6 +1038,10 @@ class Admin {
 
 }
 
+class COO {
+
+}
+
 
 class Transaction {
 	+ name
@@ -1089,6 +1093,7 @@ User "1..*" - "0..*" Group : made of <
 User - "0..*" Group : owned by <
 
 User <|-- Admin
+User <|-- COO
 
 User --- "0..*" Category
 
