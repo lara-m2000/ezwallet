@@ -1050,8 +1050,7 @@ class Transaction {
 }
 
 note bottom of Transaction
-Money transaction created by a User,
-or retrieved from a credit card of the user
+Money transaction created by a User
 endnote
 
 
@@ -1076,12 +1075,14 @@ Group of users that can be used for example
 to track the expenses of a family
 endnote
 
-class Chart {
+class AnalyticsChart {
 
 }
-note bottom of Chart
-Report chart that can be shown to the user
-to give them visual feedback on their spending
+
+
+note bottom of AnalyticsChart
+Report chart that can be shown 
+to give visual feedback of analytics
 endnote
 Transaction "0..*" - Category : labelled >
 
@@ -1097,7 +1098,7 @@ User <|-- COO
 
 User --- "0..*" Category
 
-Transaction "1..*" --  Chart
+Transaction "1..*" --  AnalyticsChart
 
 
 
