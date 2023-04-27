@@ -1164,19 +1164,3 @@ ServerMachine --- GoogleAdsServer : internet
 
 @enduml
 ```
-
-
-
-<!-- CHIDERE:
-  - Chiedere se le exceptions vanno solo scritte, o va messo uno scenario apposta
-  - Add something in informal description about the app (?)
-  - Chiedere che attore mettere per le API di yoodle
-  - Chiedere se va bene lasciare UC separati per add, delete, update, o se bisogna metterli tutti insieme sotto manage ... 
-
-  ---DEFECTS:
-  -No admin implementation
-  -Transactions and categories are not tied to the users, everyone can see all transactions and categories
-  -Get label does not return transaction with attached label
-  -Getusers can be done also by users who are not logged in
-  -Getuserbyusername works only if done on the user that is the same of the one who is performing the research
-  - -->
