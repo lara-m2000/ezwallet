@@ -27,10 +27,10 @@ Version:
 
 # Manage user
 ## Registration (UC4)
-![register_nominal](./img/Login%20(nominal).png)
+![register_nominal](./img/Register%20(nominal).png)
 *Scenario 4.1: nominal case*
 
-![register_exception](./img/Login%20(exception).png)
+![register_exception](./img/Register%20(exception).png)
 *Scenario 4.2: exception*
 
 ## Login (UC5)
