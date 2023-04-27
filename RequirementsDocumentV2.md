@@ -862,12 +862,11 @@ The goal must be of value to the (primary) actor:
 
 | Scenario 18.1| Get group info (nominal) |
 | ------------- |:-------------:| 
-|  Precondition     |User is logged in, user is in a group |
+|  Precondition     |User is logged in, user is in  group C |
 |  Post condition     |  Member's rights are updated |
 | Step#        | Description  |
-|  1     | User selects the group|  
-|  2     | User clicks on the info button|  
-|  3     | Group info are shown to the user |
+|  1     | User asks the system info about group C|  
+|2|Group C info are showed to the user|
 
 ### Update transaction, UC19
 
