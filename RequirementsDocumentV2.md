@@ -71,6 +71,9 @@ Version: V2 - description of EZWallet
 		- [Manage Ads, UC13](#manage-ads-uc13)
 				- [Scenario 13.1](#scenario-131)
 				- [Scenario 13.2](#scenario-132)
+		- [Manage permissions of users inside group, UC14](#manage-permissions-of-users-inside-group-uc14)
+				- [Scenario 14.1](#scenario-141)
+				- [Scenario 14.2](#scenario-142)
 		- [Create new group, UC15](#create-new-group-uc15)
 				- [Scenario 15.1](#scenario-151)
 		- [Add new member to a group, UC16](#add-new-member-to-a-group-uc16)
@@ -79,8 +82,8 @@ Version: V2 - description of EZWallet
 				- [Scenario 16.3](#scenario-163)
 		- [Delete a member from a group, UC17](#delete-a-member-from-a-group-uc17)
 				- [Scenario 17.1](#scenario-171)
-				- [Scenario 17.2](#scenario-172)
 		- [Get group info, UC18](#get-group-info-uc18)
+		- [Get group info, UC18](#get-group-info-uc18-1)
 				- [Scenario 18.1](#scenario-181)
 		- [Update transaction, UC19](#update-transaction-uc19)
 				- [Scenario 19.1](#scenario-191)
@@ -235,10 +238,10 @@ He has set up his own start-up company and needs an easy way to track the expens
 | FR2   | x    |   x   | x   |           |
 | FR3   | x    |   x   | x   |           |
 | FR4   | x    |   x   | x   |           |
-| FR4.2 | x    |       | x   |           |
+| FR4.2 |      |   x   | x   |           |
 | FR4   | x    |   x   | x   |           |
 | FR5   | x    |   x   | x   |           |
-| FR6   | x    |   x   | x   |   x       | <!-- Da rivedere -->
+| FR6   | x    |   x   | x   |   x       |
 
 <!-- START CORRECTING FROM HERE -->
 ## Non Functional Requirements
@@ -721,6 +724,36 @@ The goal must be of value to the (primary) actor:
 |    3                | Ad is shown to the user |
 |	 4				  | The user does not click on the ad |
 
+### Manage permissions of users inside group, UC14
+
+| Actors Involved   |User|
+| ------------- |:-------------:| 
+|  Precondition     | User is logged in and is group owner |
+|  Post condition   | User of group has/hasn't the permission to see other group's users transactions |
+|  Nominal Scenario | User gives/removes permission |
+|  Variants         ||
+|  Exceptions       | The user already has/does not have the permission |
+
+##### Scenario 14.1
+
+| Scenario 14.1     | User gives/removes permission (nominal) |
+| ------------         |:--------------:|
+| Precondition        | User is logged in and is group owner |
+| Post condition     | User of group has/hasn't the permission to see other group's users transactions |
+| Step#                | Description |
+|    1                | User give/remove the permission to a user in the group |
+|    2                | System updates the selected user permissions |
+
+##### Scenario 14.2
+
+| Scenario 14.1       | User gives/removes permission (exception) |
+| ------------        |:--------------:|
+| Precondition        | User is logged in and is group owner |
+| Post condition      | User of group has/hasn't the permission to see other group's users transactions |
+| Step#               | Description |
+|    1                | User give/remove the permission to a user in the group |
+|    2                | An error is returned to the user |
+
 ### Create new group, UC15
 
 | Actors Involved   |User|
@@ -807,7 +840,8 @@ The goal must be of value to the (primary) actor:
 |  2     | User selects the member to be removed|
 |3|Member is removed from the group|
 
-##### Scenario 17.2
+
+### Get group info, UC18
 
 | Scenario 17.2| Delete a member from a group (exception1) |
 | ------------- |:-------------:| 
