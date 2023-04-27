@@ -161,9 +161,9 @@ EzWallet -- GoogleAds
 ## Persona1
 Persona1: male, middle-age, low income, father, married with children 																					
 
-Persona1, work day: wake up, breakfast, drive children to school, return home for smart working 
+Work day: wake up, breakfast, drive children to school, return home for smart working 
 
-Persona1, week end day: wake up, prepare breakfast for family, go out with its family, hang out with friends at night 
+Week end day: wake up, prepare breakfast for family, go out with its family, hang out with friends at night 
 
 ### Story
 
@@ -173,6 +173,10 @@ He realises he is spending more money than he expected and needs an easy-to-use 
 
 Persona2: female, young, just graduated, high income, no children, no husband.
 
+Work day: wakes up, breakfast, works at home, lunch, back to work until late, dinner
+
+Week end day: wakes up late, finishes work left from the week, hangs out with friends at night
+
 ### Story
 
 Finds herself with a high income just after graduation, needs a way to manage the great unexpected amount of money she is gaining.
@@ -181,9 +185,20 @@ Finds herself with a high income just after graduation, needs a way to manage th
 
 Persona3: male, young, CEO of a startup company, medium income, no children, not married
 
+Work day: wakes up, breakfast, goes to office, lunch, back to work until late, dinner
+
+Week end day: wakes up early, finishes work left from the week, goes for a walk outside in the afternoon, hangs out with friends at night
+
 ### Story
 
 He has set up his own start-up company and needs an easy way to track the expenses incurred by his employees using the corporate credit cards issued to them by the company for work-related expenses.
+
+## Persona4
+
+Persona4: female, 30s, mother of 1 year old child, medium-low income, married
+
+### Story
+She is the mother of a newborn child and would like to keep track of her expenses so that she can better manage her money and provide for her child's future needs.
 
 # Functional and non functional requirements
 
