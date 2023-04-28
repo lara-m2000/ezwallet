@@ -36,7 +36,7 @@ Version: V2
   - [Delete member from a group (UC17)](#delete-member-from-a-group-uc17)
   - [Manage invitations to groups (UC13)](#manage-invitations-to-groups-uc13)
 - [Manage ads](#manage-ads)
-  - [Show ads (UC13)](#show-ads-uc13)
+  - [Show ads (UC24)](#show-ads-uc24)
 - [Manage application](#manage-application)
   - [Manage accounts (UC21)](#manage-accounts-uc21)
   - [Application usage analytics (UC22)](#application-usage-analytics-uc22)
@@ -165,7 +165,7 @@ Version: V2
 
 # Manage ads
 
-## Show ads (UC13)
+## Show ads (UC24)
 ![show_ads](./img/Show%20transactions%20V2%20(nominal).png)
 
 # Manage application
