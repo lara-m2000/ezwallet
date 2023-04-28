@@ -14,12 +14,12 @@ Consider the EZWallet project in CURRENT version (as received by the teachers), 
 
 |                                                                                                         | Estimate |
 | ------------------------------------------------------------------------------------------------------- | -------- |
-| NC = Estimated number of modules to be developed                                                        | 50       |
-| A = Estimated average size per class, in LOC                                                            | 600      |
-| S = Estimated size of project, in LOC (= NC \* A)                                                       | 30000    |
-| E = Estimated effort, in person hours (here use productivity 10 LOC per person hour)                    | 3000ph   |
-| C = Estimated cost, in euro (here use 1 person hour cost = 30 euro)                                     | 90000€   |
-| Estimated calendar time, in calendar weeks (Assume team of 4 people, 8 hours per day, 5 days per week ) | 19 week  |
+| NC = Estimated number of modules to be developed                                                        | 30       |
+| A = Estimated average size per class, in LOC                                                            | 400      |
+| S = Estimated size of project, in LOC (= NC \* A)                                                       | 12000    |
+| E = Estimated effort, in person hours (here use productivity 10 LOC per person hour)                    | 1200ph   |
+| C = Estimated cost, in euro (here use 1 person hour cost = 30 euro)                                     | 36000€   |
+| Estimated calendar time, in calendar weeks (Assume team of 4 people, 8 hours per day, 5 days per week ) | 8 weeks  |
 
 # Estimate by product decomposition
 
@@ -27,12 +27,12 @@ Consider the EZWallet project in CURRENT version (as received by the teachers), 
 
 | component name       | Estimated effort (person hours) |
 | -------------------- | ------------------------------- |
-| requirement document | 200 ph                          |
-| GUI prototype        | 100 ph                          |
-| design document      | 350 ph                          |
-| code                 | 1600 ph                         |
-| unit tests           | 500 ph                          |
-| api tests            | 400 ph                          |
+| requirement document | 150 ph                          |
+| GUI prototype        | 80 ph                          |
+| design document      | 200 ph                          |
+| code                 | 1000 ph                         |
+| unit tests           | 250 ph                          |
+| api tests            | 250 ph                          |
 | management documents | 80 ph                           |
 
 # Estimate by activity decomposition
@@ -43,16 +43,16 @@ Consider the EZWallet project in CURRENT version (as received by the teachers), 
 | --------------------------------- | ------------------------------- |
 | Identify Stakeholders             | 10ph                            |
 | Market analisys on competitors    | 40ph                            |
-| Define requirements document      | 200ph                           |
-| Contract with external ad service | 300ph                           |
-| Get bansks CSV transaction format | 600ph                           |
+| Define requirements document      | 150ph                           |
+| Contract with external ad service | 100ph                           |
+| Get banks CSV transaction formats | 100ph                           |
 | Middle review                     | 40ph                            |
-| Design GUI prototype              | 100ph                           |
-| Define design document            | 350ph                           |
-| Code implementation               | 1600ph                          |
-| Define Unit test                  | 500ph                           |
-| Define API test cases             | 400ph                           |
-| Final project review              | 150ph                           |
+| Design GUI prototype              | 80ph                           |
+| Define design document            | 200ph                           |
+| Code implementation               | 1000ph                          |
+| Define Unit test                  | 250ph                           |
+| Define API test cases             | 250ph                           |
+| Final project review              | 100ph                           |
 
 ###
 
@@ -69,17 +69,17 @@ sunday are closed
 
 [Identify Stakeholders] as [stake] lasts 1 day
 [Market analisys on competitors] as [market] lasts 2 day
-[Define requirements document] as [req] lasts 6 day
-[Design GUI prototype] as [gui] lasts 4 day
-[Define design document] as [design] lasts 11 day
+[Define requirements document] as [req] lasts 5 day
+[Design GUI prototype] as [gui] lasts 3 day
+[Define design document] as [design] lasts 7 day
 [Middle review] as [mrev] lasts 2 day
 
 -- Coding Phase --
 
-[Code implementation] as [code] lasts 50 day
-[Define Unit test] as [unit] lasts 16 day
-[Define API test cases] as [api] lasts 12 day
-[Final project review] as [rev] lasts 5 day
+[Code implementation] as [code] lasts 32 day
+[Define Unit test] as [unit] lasts 8 day
+[Define API test cases] as [api] lasts 8 day
+[Final project review] as [rev] lasts 4 day
 
 
 [stake] -> [market]
@@ -99,8 +99,8 @@ sunday are closed
 
 -- External Services --
 
-[Contract with external ad service] as [adc] lasts 10 day
-[Get bansks CSV transaction format] as [csv] lasts 20 day
+[Contract with external ad service] as [adc] lasts 3 day
+[Get bansks CSV transaction format] as [csv] lasts 3 day
 
 [market] -> [adc]
 [market] -> [csv]
@@ -119,6 +119,8 @@ Report here the results of the three estimation approaches. The estimates may di
 
 |                                    | Estimated effort | Estimated duration |
 | ---------------------------------- | ---------------- | ------------------ |
-| estimate by size                   | 3000 ph          | 18 week            |
-| estimate by product decomposition  | 3230 ph          | 20 week            |
-| estimate by activity decomposition | 4290 ph          | 17 weeks           |
+| estimate by size                   | 1200 ph          | 8 weeks            |
+| estimate by product decomposition  | 2010 ph          | 13 week            |
+| estimate by activity decomposition | 2320 ph          | 15 weeks           |
+
+The estimation by size is lower than the others, since it take into account only hours spent on writing effective code, and not other activities such as definig the requirements document or collecting the banks CSV formats.
