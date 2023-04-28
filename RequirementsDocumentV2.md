@@ -247,7 +247,7 @@ She is the mother of a newborn child and would like to keep track of her expense
 |FR5.2|Create group|
 |FR5.3|Add/remove user to group|
 |FR5.3.1|Search user by username|
-|FR5.4|Accept | <!-- MISSING-->
+|FR5.4|Accept invitation to group|
 |FR5.4|Show groups|
 |FR5.4.1|Show group info|
 |FR5.5|CRUD group description|
