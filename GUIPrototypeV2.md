@@ -1,12 +1,14 @@
 # Graphical User Interface Prototype  - FUTURE
 
-Authors:
+Authors: F. Dente, M. Fragassi, B. Mendicino, L. Moresco
 
-Date:
+Date: 2023-04-28
 
-Version:
+Version: V2
 
 # Contents
+- [Graphical User Interface Prototype  - FUTURE](#graphical-user-interface-prototype---future)
+- [Contents](#contents)
 - [Website home page](#website-home-page)
 - [Manage user](#manage-user)
   - [Registration (UC4)](#registration-uc4)
