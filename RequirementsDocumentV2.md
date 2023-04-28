@@ -516,6 +516,17 @@ COO --> UsageAnalytics
 | 2              |          User asks the system to show the transactions	       |
 | 3              | System retrieves and shows filtered transactions to the user    |
 
+##### Scenario 3.5
+| Scenario 3.5   |                 Show transactions (variant3)                    |
+| -------------- | :--------------------------------------------------------------:|
+| Precondition   |                      User is logged in                          |
+| Post condition |         Filtered transactions are showed to the user            |
+| Step#          |                         Description                             |
+| 1				 | User sets up the filter (by category, time period, amount)      |
+| 2              |          User asks the system to show the transactions	       |
+| 3              | System retrieves and shows filtered transactions to the user    |
+| 4              |User changes currency in which transactions are showed           |
+
 
 ### Registration, UC4
 
