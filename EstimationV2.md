@@ -28,7 +28,7 @@ Consider the EZWallet project in CURRENT version (as received by the teachers), 
 | component name       | Estimated effort (person hours) |
 | -------------------- | ------------------------------- |
 | requirement document | 150 ph                          |
-| GUI prototype        | 80 ph                          |
+| GUI prototype        | 80 ph                           |
 | design document      | 200 ph                          |
 | code                 | 1000 ph                         |
 | unit tests           | 250 ph                          |
@@ -123,4 +123,4 @@ Report here the results of the three estimation approaches. The estimates may di
 | estimate by product decomposition  | 2010 ph          | 13 week            |
 | estimate by activity decomposition | 2320 ph          | 15 weeks           |
 
-The estimation by size is lower than the others, since it take into account only hours spent on writing effective code, and not other activities such as definig the requirements document or collecting the banks CSV formats.
+The estimation by size is lower than the others, since it takes into account only hours spent on writing effective code, and not other activities such as definig the requirements document or collecting the banks CSV formats.
