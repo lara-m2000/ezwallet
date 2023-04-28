@@ -256,7 +256,8 @@ She is the mother of a newborn child and would like to keep track of her expense
 |FR3.1|CRUD transactions|
 |FR3.2| Show labelled transactions|
 |FR3.3|Show filtered transactions (by category, time period, amount)|
-|FR3.4|Import transactions from CSV file|
+|FR3.4|Import transactions from CSV file (downloaded from bank)|
+|FR3.4.1|Detect CSV file format (supported banks: Intesa San Paolo, Unicredit, Monte dei Paschi)|
 |FR3.5|Import transactions from receipt scanning|
 |FR3.6|Manage currency conversion (5 most important currencies)|
 |FR3.6.1|Retrieve daily exchange rates|
