@@ -1212,9 +1212,7 @@ class COO {
 
 class Transaction {
 	+ name
-	+ amount
 	+ date
-	+ currency
 }
 
 note bottom of Transaction
