@@ -795,7 +795,7 @@ COO --> UsageAnalytics
 
 | Actors Involved        |User|
 | ------------- |:-------------:| 
-|  Precondition     | User is logged in, user has been added to a group  |
+|  Precondition     | User is logged in, user has been invited to a group  |
 |  Post condition     | User becomes member of group |
 |  Nominal Scenario     | User accepts to join group |
 |  Variants     | User does not accept to join group |
@@ -807,10 +807,9 @@ COO --> UsageAnalytics
 | ------------- |:-------------:| 
 |  Precondition     |User is logged in, user has been added to  group C |
 |  Post condition     | User becomes member of group C |
-| Step#        | Description  |
-|  1     | User receives invitation to group C|  
-|  2     | User accepts to join group C|
-|3|User is part of group C|
+| Step#        | Description  |  
+|  1     | User accepts to join group C|
+|2|User is part of group C|
 
 ##### Scenario 13.2
 
@@ -819,9 +818,8 @@ COO --> UsageAnalytics
 |  Precondition     |User is logged in, user has been added to  group C |
 |  Post condition     | User becomes member of group C |
 | Step#        | Description  |
-|  1     | User receives invitation to group C|  
-|  2     | User declines to join group C|
-|3|User is not part of group C|
+|  1     | User declines to join group C|
+|2|User is not part of group C|
 
 ### Manage permissions of users inside group, UC14
 
@@ -1076,7 +1074,7 @@ COO --> UsageAnalytics
 |  Post condition     | The groups to which the user belongs are showed |
 |  Nominal Scenario     | User asks to show the groups he belongs to |
 |  Variants     ||
-|  Exceptions     ||
+|  Exceptions     | User isn't a member of any group |
 
 ##### Scenario 25.1
 
