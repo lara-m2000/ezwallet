@@ -92,8 +92,8 @@ Version: V2 - description of EZWallet
 				- [Scenario 16.3](#scenario-163)
 		- [Delete a member from a group, UC17](#delete-a-member-from-a-group-uc17)
 				- [Scenario 17.1](#scenario-171)
+				- [Scenario 17.2](#scenario-172)
 		- [Get group info, UC18](#get-group-info-uc18)
-		- [Get group info, UC18](#get-group-info-uc18-1)
 				- [Scenario 18.1](#scenario-181)
 		- [Update transaction, UC19](#update-transaction-uc19)
 				- [Scenario 19.1](#scenario-191)
@@ -925,7 +925,7 @@ The goal must be of value to the (primary) actor:
 |3|Member is removed from the group|
 
 
-### Get group info, UC18
+##### Scenario 17.2
 
 | Scenario 17.2| Delete a member from a group (exception1) |
 | ------------- |:-------------:| 
