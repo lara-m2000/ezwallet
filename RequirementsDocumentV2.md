@@ -766,7 +766,7 @@ The goal must be of value to the (primary) actor:
 ### Get group analytics, UC12
 | Actors Involved    | User    |
 | ------------- |:-------------:|
-|    Precondition    | User is logged in, user is owner of group A | 
+|    Precondition    | User is logged in, user has rights to see group A transactions | 
 |    Post condition    | Charts report on group A expenses are shown |
 |    Nominal Scenario    | Graphs and statistics of all transactions are shown    |
 |    Variants    | Graphs and statistics are shown based on filters |
@@ -775,7 +775,7 @@ The goal must be of value to the (primary) actor:
 
 | Scenario 12.1     | Show analytics of all transactions (nominal) |
 | ------------      |:--------------:|
-| Precondition        | User is logged in, user is owner of group A |
+| Precondition        | User is logged in, user has rights to see group A transactions |
 | Post condition    |    Graphs and statistics of all transactions of group A are shown    |
 | Step#                | Description    |
 |    1                |    User asks for group A transactions statistics    | 
@@ -785,7 +785,7 @@ The goal must be of value to the (primary) actor:
 
 | Scenario 12.2     | Show analytics of filtered transactions (variant) |
 | ------------         |:--------------:|
-| Precondition        |     User is logged in, user is owner of group A |
+| Precondition        |     User is logged in, user has rights to see group A transactions |
 | Post condition     |     Graphs and statistics of filtered transactions of group A are shown    |
 | Step#                |    Description |
 |    1                | User sets up the filter (type of transactions, amount exchanged, time period) |
@@ -841,18 +841,10 @@ The goal must be of value to the (primary) actor:
 | Precondition        | User is logged in and is group owner |
 | Post condition     | User of group has/hasn't the permission to see other group's users transactions |
 | Step#                | Description |
-|    1                | User give/remove the permission to a user in the group |
+|    1                | User gives/removes the permission to a user in the group |
 |    2                | System updates the selected user permissions |
 
-##### Scenario 14.2
 
-| Scenario 14.1       | User gives/removes permission (exception) |
-| ------------        |:--------------:|
-| Precondition        | User is logged in and is group owner |
-| Post condition      | Permissions are not changed |
-| Step#               | Description |
-|    1                | User give/remove the permission to a user in the group |
-|    2                | An error is returned to the user |
 
 ### Create new group, UC15
 
@@ -879,17 +871,17 @@ The goal must be of value to the (primary) actor:
 
 | Actors Involved        |User|
 | ------------- |:-------------:| 
-|  Precondition     | User is logged in  |
+|  Precondition     | User is logged in, user is group owner  |
 |  Post condition     | New member is added |
 |  Nominal Scenario     | User adds a new member to the group |
 |  Variants     |  |
-|  Exceptions     |User doesn't have the rights; User to be added is not found|
+|  Exceptions     |User to be added is not found|
 
 ##### Scenario 16.1
 
 | Scenario 16.1| Add new member to a group (nominal) |
 | ------------- |:-------------:| 
-|  Precondition     |User is logged in |
+|  Precondition     |User is logged in, user is group owner |
 |  Post condition     | New member is added |
 | Step#        | Description  |
 |  1     | User selects the group|  
@@ -897,22 +889,11 @@ The goal must be of value to the (primary) actor:
 |3|User selects the rights to give to the new member|
 |4|New member is added|
 
+
 ##### Scenario 16.2
-
-| Scenario 16.2| Add new member to a group (exception1) |
+| Scenario 16.2| Add new member to a group (exception) |
 | ------------- |:-------------:| 
-|  Precondition     |User is logged in |
-|  Post condition     | New member is not added |
-| Step#        | Description  |
-|  1     | User selects the group|  
-|  2     | User inserts the username of the user to be added|
-|3|User doesn't have the rights to add a new member|
-
-##### Scenario 16.3
-
-| Scenario 16.3| Add new member to a group (exception2) |
-| ------------- |:-------------:| 
-|  Precondition     |User is logged in |
+|  Precondition     |User is logged in, user is group owner |
 |  Post condition     | New member is not added |
 | Step#        | Description  |
 |  1     | User selects the group|  
@@ -940,17 +921,6 @@ The goal must be of value to the (primary) actor:
 |  2     | User selects the member to be removed|
 |3|Member is removed from the group|
 
-
-##### Scenario 17.2
-
-| Scenario 17.2| Delete a member from a group (exception1) |
-| ------------- |:-------------:| 
-|  Precondition     |User is logged in |
-|  Post condition     | Member is not removed|
-| Step#        | Description  |
-|  1     | User selects the group|  
-|  2     | User selects the member to be removed|
-|3|User doesn't have the rights to remove the member|
 
 ### Get group info, UC18
 
@@ -1153,8 +1123,8 @@ The goal must be of value to the (primary) actor:
 | Actors Involved  |            User             |
 | ---------------- | :-------------------------: |
 | Precondition     |      User is logged in      |
-| Post condition   |    Reminder is added     |
-| Nominal Scenario | User adds a new reminder |
+| Post condition   |    Reminder is deleted     |
+| Nominal Scenario | User deletes a reminder |
 | Variants         |  |
 | Exceptions       |                             |
 
@@ -1191,7 +1161,7 @@ The goal must be of value to the (primary) actor:
 | Actors Involved  |                     User                     |
 | ---------------- | :------------------------------------------: |
 | Precondition     |              User is logged in               |
-| Post condition   |      Reminders are shown to the user      |
+| Post condition   |      Reminders are showed to the user      |
 | Nominal Scenario |     Reminders are showed to the user      |
 | Variants         |  |
 | Exceptions       |    There are no reminders inserted yet    |
