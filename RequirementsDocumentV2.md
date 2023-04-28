@@ -271,7 +271,6 @@ She is the mother of a newborn child and would like to keep track of her expense
 | FR3   | x    |   x   | x   |           |
 | FR4.1/4.3   | x    |   x   | x   |           |
 | FR4.2 |      |   x   | x   |           |
-| FR4   | x    |   x   | x   |           |
 | FR5   | x    |   x   | x   |           |
 | FR6   | x    |   x   | x   |   x       |
 | FR7   | x    |   x   | x   |          |
