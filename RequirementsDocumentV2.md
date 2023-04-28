@@ -212,13 +212,14 @@ She is the mother of a newborn child and would like to keep track of her expense
 | FR1.3   |           Logout            |
 | FR1.4   |          Authorize          |
 | FR1.5   | Register (name, email, pwd) |
-|FR1.5.1|Email verification|
+|FR1.5.1|Send verification code via email|
+|FR1.5.2|Verify code sent via email|
 | FR1.6   |   Manage access rights      |
 | FR1.7   |    Show registered users    |
 | FR1.7.1 |     Get info about user account      |
 |FR2|Manage categories|
 |FR2.1|CRUD categories|
-|FR2.2|Detect when budget has exceeded|
+|FR2.2|Detect when category budget has exceeded|
 |FR3| Manage transactions|
 |FR3.1|CRUD transactions|
 |FR3.2| Show labelled transactions|
@@ -687,7 +688,7 @@ The goal must be of value to the (primary) actor:
 ### Get group analytics, UC12
 | Actors Involved    | User    |
 | ------------- |:-------------:|
-|    Precondition    | User is logged in, user is owner of group A | <!-- CHECK -->
+|    Precondition    | User is logged in, user is owner of group A | 
 |    Post condition    | Charts report on group A expenses are shown |
 |    Nominal Scenario    | Graphs and statistics of all transactions are shown    |
 |    Variants    | Graphs and statistics are shown based on filters |
@@ -759,7 +760,7 @@ The goal must be of value to the (primary) actor:
 | Scenario 14.1       | User gives/removes permission (exception) |
 | ------------        |:--------------:|
 | Precondition        | User is logged in and is group owner |
-| Post condition      | User of group has/hasn't the permission to see other group's users transactions |
+| Post condition      | Permissions are not changed |
 | Step#               | Description |
 |    1                | User give/remove the permission to a user in the group |
 |    2                | An error is returned to the user |
