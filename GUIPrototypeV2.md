@@ -7,7 +7,7 @@ Date: 2023-04-28
 Version: V2
 
 # Contents
-- [Graphical User Interface Prototype  - FUTURE](#graphical-user-interface-prototype---future)
+- [Graphical User Interface Prototype  - FUTURE](#graphical-user-interface-prototype----future)
 - [Contents](#contents)
 - [Website home page](#website-home-page)
 - [Manage user](#manage-user)
@@ -29,22 +29,22 @@ Version: V2
 - [Manage groups of users](#manage-groups-of-users)
   - [Create new group (UC15)](#create-new-group-uc15)
   - [Show groups (UC24)](#show-groups-uc24)
-  - [Group analytics (UC12)](#group-analytics-uc12)
+  - [Group analytics (UC10)](#group-analytics-uc10)
   - [Add user to group (UC16)](#add-user-to-group-uc16)
   - [Show group info (UC18)](#show-group-info-uc18)
-  - [Manage users rights (UC14)](#manage-users-rights)
+  - [Manage users rights (UC14)](#manage-users-rights-uc14)
   - [Delete member from a group (UC17)](#delete-member-from-a-group-uc17)
   - [Manage invitations to groups (UC13)](#manage-invitations-to-groups-uc13)
 - [Manage ads](#manage-ads)
-  - [Show ads (UC24)](#show-ads-uc13)
+  - [Show ads (UC13)](#show-ads-uc13)
 - [Manage application](#manage-application)
   - [Manage accounts (UC21)](#manage-accounts-uc21)
   - [Application usage analytics (UC22)](#application-usage-analytics-uc22)
 - [Manage reminders](#manage-reminders)
-  - [Show reminders (UC28)](#show-reminders-uc28)
-  - [Add reminder (UC25)](#add-reminder-uc25)
-  - [Delete reminder (UC26)](#delete-reminder-uc26)
-  - [Update reminder (UC27)](#update-reminder-uc27)
+  - [Show reminders (UC29)](#show-reminders-uc29)
+  - [Add reminder (UC26)](#add-reminder-uc26)
+  - [Delete reminder (UC27)](#delete-reminder-uc27)
+  - [Update reminder (UC28)](#update-reminder-uc28)
 
 # Website home page
 ![home_page](./img/Home%20page.png)
@@ -173,18 +173,18 @@ Version: V2
 ![application_usage_analytics](./img/Application%20usage%20analytics%20%5BADMIN%5D.png)
 
 # Manage reminders
-## Show reminders (UC28)
+## Show reminders (UC29)
 ![show_reminders](./img/Show%20reminders.png)
-*Scenario 28.1: nominal case*
+*Scenario 29.1: nominal case*
 
 ![show_reminders](./img/Show%20reminders%20exception.png)
-*Scenario 28.2: exception*
+*Scenario 29.2: exception*
 
-## Add reminder (UC25)
+## Add reminder (UC26)
 ![add_reminder](./img/Add%20reminder.png)
 
-## Delete reminder (UC26)
+## Delete reminder (UC27)
 ![delete_reminder](./img/Delete%20reminder.png)
 
-## Update reminder (UC27)
+## Update reminder (UC28)
 ![update_reminder](./img/Update%20reminder.png)
