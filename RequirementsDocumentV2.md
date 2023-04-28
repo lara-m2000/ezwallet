@@ -225,6 +225,7 @@ She is the mother of a newborn child and would like to keep track of her expense
 |FR3.2| Show labelled transactions|
 |FR3.3|Show filtered transactions (by category, time period, amount)|
 |FR3.4|Import transactions from CSV file|
+|FR3.5|Manage currency conversion|
 |FR4|Analytics|
 |FR4.1|Show charts about personal expenses|
 |FR4.1.1|Filter by type of transaction, date, amount exchanged|
@@ -878,7 +879,7 @@ The goal must be of value to the (primary) actor:
 | Scenario 18.1| Get group info (nominal) |
 | ------------- |:-------------:| 
 |  Precondition     |User is logged in, user is in  group C |
-|  Post condition     |  Member's rights are updated |
+|  Post condition     |  Group info are showed |
 | Step#        | Description  |
 |  1     | User asks the system info about group C|  
 |2|Group C info are showed to the user|
@@ -902,7 +903,7 @@ The goal must be of value to the (primary) actor:
 | Step#        | Description  |
 |  1     | User selects the transaction to be updated|  
 |  2     | User inserts the new transaction information|
-|3|System updated the transaction's informations|
+|3|System updates the transaction's informations|
 
 
 ### Delete category, UC20
@@ -911,9 +912,9 @@ The goal must be of value to the (primary) actor:
 | ------------- |:-------------:| 
 |  Precondition     | User is logged in  |
 |  Post condition     | Category is deleted |
-|  Nominal Scenario     | The category is deleted|
+|  Nominal Scenario     | User deletes a category|
 |  Variants     |  |
-|  Exceptions     |The category is not found|
+|  Exceptions     ||
 
 ##### Scenario 20.1
 
@@ -922,19 +923,9 @@ The goal must be of value to the (primary) actor:
 |  Precondition     |User is logged in |
 |  Post condition     | Category is deleted |
 | Step#        | Description  |
-|  1     | User selects the category to be removed|  
+|  1     | User asks the system to delete a category|  
 |  2     |System deletes the category|
 
-##### Scenario 20.2
-
-| Scenario 20.1| Delete category (exception) |
-| ------------- |:-------------:| 
-|  Precondition     |User is logged in |
-|  Post condition     | Category is not deleted |
-| Step#        | Description  |
-|  1     | User selects the category to be removed|  
-|  2     |System cannot find the category to be removed|
-|3|No category is removed|
 
 ### Manage accounts, UC21
 
@@ -1005,7 +996,7 @@ The goal must be of value to the (primary) actor:
 | ------------- |:-------------:| 
 |  Precondition     | User is logged in |
 |  Post condition     | The groups to which the user belongs are showed |
-|  Nominal Scenario     | User asks the groups he belongs to |
+|  Nominal Scenario     | User asks to show the groups he belongs to |
 |  Variants     ||
 |  Exceptions     ||
 
@@ -1062,6 +1053,7 @@ class Transaction {
 	+ name
 	+ amount
 	+ date
+	+ currency
 }
 
 note bottom of Transaction
