@@ -641,9 +641,9 @@ The goal must be of value to the (primary) actor:
 | 2              | System retrieves the list of categories |
 | 3              |   The list of categories is returned with categories over budget highlighted  |
 
-##### Scenario 8.2
+##### Scenario 8.3
 
-| Scenario 8.2   |   Show categories (exception)    |
+| Scenario 8.3   |   Show categories (exception)    |
 | -------------- | :------------------------------: |
 | Precondition   |        User is logged in         |
 | Post condition |            Empty list            |
