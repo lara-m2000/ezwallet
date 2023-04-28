@@ -351,7 +351,7 @@ The goal must be of value to the (primary) actor:
 | Precondition     |      User is logged in      |
 | Post condition   |    Transaction is added     |
 | Nominal Scenario | User adds a new transaction |
-| Variants         |  Add transactions from CSV            |
+| Variants         |  Add transactions from CSV, receipt scanning|
 | Exceptions       |                             |
 
 ##### Scenario 1.1 
@@ -373,6 +373,28 @@ The goal must be of value to the (primary) actor:
 | Step#          |                     Description                      |
 | 1              | User asks to import a list of transactions from a CSV file of a certain format |
 | 2              |             System adds transactions from imported CSV              |
+
+##### Scenario 1.3 
+
+| Scenario 1.3   |              Add transaction from receipt scanning (variant)|
+| -------------- | :--------------------------------------------------: |
+| Precondition   |                  User is logged in                   |
+| Post condition |               Transaction is added              |
+| Step#          |                     Description                      |
+| 1              | User asks to import a transaction from a receipt photo|
+| 2              |             System infers transaction data and asks the user if he wants to modify them|
+|3|User does not modify transaction and confirms|
+|4|System adds transaction|
+
+##### Scenario 1.4 
+
+| Scenario 1.4   |              Add transaction from receipt scanning (exception)|
+| -------------- | :--------------------------------------------------: |
+| Precondition   |                  User is logged in                   |
+| Post condition |               Transaction is not added              |
+| Step#          |                     Description                      |
+| 1              | User asks to import a transaction from a receipt photo|
+| 2              |             System cannot infer transaction data and asks the user to insert a better photo|
 
 
 ### Delete transaction, UC2
