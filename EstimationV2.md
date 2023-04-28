@@ -47,7 +47,7 @@ Consider the EZWallet project in CURRENT version (as received by the teachers), 
 | Contract with external ad service | 100ph                           |
 | Get banks CSV transaction formats | 100ph                           |
 | Middle review                     | 40ph                            |
-| Design GUI prototype              | 80ph                           |
+| Design GUI prototype              | 80ph                            |
 | Define design document            | 200ph                           |
 | Code implementation               | 1000ph                          |
 | Define Unit test                  | 250ph                           |
