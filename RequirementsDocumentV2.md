@@ -1,13 +1,19 @@
 # Requirements Document - current EZWallet
 
-Date: 
+Date: 2023-04-28
 
 Version: V2 - description of EZWallet
 
  
 | Version number | Change |
 | -------------- | :----- |
-|                |        |
+|1.0|Added stakeholders, context diagram and stories and personas|
+|1.1|Added interfaces|
+|2.0|Added FR and NF     |
+|3.0|Added Glossary, System design and Deployment diagram|
+|4.0|Added use cases|
+|5.0|Added use case diagram|
+|6.0|Added table of rights|
 
 
 # Contents
