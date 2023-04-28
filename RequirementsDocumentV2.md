@@ -1260,7 +1260,6 @@ EzWalletSystem o-- EzWalletMailServer
 
 # Deployment Diagram 
 
-\<describe here deployment diagram >
 
 ```plantuml
 @startuml
