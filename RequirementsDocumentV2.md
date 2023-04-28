@@ -298,10 +298,10 @@ Admin --|> User
 COO --|> User
 
 rectangle "EzWallet System" as System {
-	usecase "Add, Delete, Update, Show, Show labelled transaction" as Transaction
+	usecase "Add, Delete, Update, Show, Show labelled transactions" as Transaction
 	usecase "Register, Login, Logout" as Auth
 
-	usecase "Add, Delete, Update, Show category" as Category
+	usecase "Add, Delete, Update, Show categories" as Category
 
 	usecase "Get info about account" as UUsers
 	usecase "Create new group" as CreateGroup
@@ -316,6 +316,8 @@ rectangle "EzWallet System" as System {
 
 	usecase "Show ads" as ShowAds
 	usecase "Interact with ad" as InteractAd
+
+	usecase "Add, Delete, Update, Show reminders" as ManageReminders
 }
 User -> Transaction
 User -> Category
@@ -328,6 +330,7 @@ User --> AddDeleteToGroup
 User --> ManageMemberRights
 User <-- ShowAds
 User --> InteractAd
+User --> ManageReminders
 ShowAds --> GAds
 InteractAd --> GAds
 Admin --> ManageAccounts
@@ -1050,7 +1053,90 @@ The goal must be of value to the (primary) actor:
 |2| System detects user is not member of any group|
 |3| System notifies the user with an error message|
 
+### Add reminder, UC25
+| Actors Involved  |            User             |
+| ---------------- | :-------------------------: |
+| Precondition     |      User is logged in      |
+| Post condition   |    Reminder is added     |
+| Nominal Scenario | User adds a new reminder |
+| Variants         |  |
+| Exceptions       |                             |
 
+##### Scenario 25.1 
+
+| Scenario 25.1   |              Add transaction (nominal)               |
+| -------------- | :--------------------------------------------------: |
+| Precondition   |                  User is logged in                   |
+| Post condition |               New reminder is added               |
+| Step#          |                     Description                      |
+| 1              | User asks to create a new reminder with certain attributes |
+| 2              |             System adds new reminder              |
+
+### Delete reminder, UC26
+| Actors Involved  |            User             |
+| ---------------- | :-------------------------: |
+| Precondition     |      User is logged in      |
+| Post condition   |    Reminder is added     |
+| Nominal Scenario | User adds a new reminder |
+| Variants         |  |
+| Exceptions       |                             |
+
+##### Scenario 26.1 
+
+| Scenario 26.1   |              Delete reminder (nominal)               |
+| -------------- | :--------------------------------------------------: |
+| Precondition   |                  User is logged in                   |
+| Post condition |               Reminder is deleted               |
+| Step#          |                     Description                      |
+| 1              | User asks to delete a reminder with certain attributes |
+| 2              |             System deletes reminder              |
+
+### Update reminder, UC27
+| Actors Involved  |            User             |
+| ---------------- | :-------------------------: |
+| Precondition     |      User is logged in      |
+| Post condition   |    Reminder is updated     |
+| Nominal Scenario | User updates reminder |
+| Variants         |  |
+| Exceptions       |                             |
+
+##### Scenario 27.1 
+
+| Scenario 27.1   |              Delete reminder (nominal)               |
+| -------------- | :--------------------------------------------------: |
+| Precondition   |                  User is logged in                   |
+| Post condition |               Reminder is updated               |
+| Step#          |                     Description                      |
+| 1              | User asks to update a reminder with certain attributes |
+| 2              |             System updates reminder              |
+
+### Show reminders, UC28
+| Actors Involved  |                     User                     |
+| ---------------- | :------------------------------------------: |
+| Precondition     |              User is logged in               |
+| Post condition   |      Reminders are shown to the user      |
+| Nominal Scenario |     Reminders are showed to the user      |
+| Variants         |  |
+| Exceptions       |    There are no reminders inserted yet    |
+
+##### Scenario 28.1 
+
+| Scenario 28.1   |               Show reminders (nominal)               |
+| -------------- | :-----------------------------------------------------: |
+| Precondition   |                    User is logged in                    |
+| Post condition |           Reminders are showed to the user            |
+| Step#          |                       Description                       |
+| 1              |      User asks the system to show the reminders      |
+| 2              | System retrieves and shows the reminders to the user |
+
+##### Scenario 28.2
+| Scenario 28.2   |             Show reminders (exception1)             |
+| -------------- | :----------------------------------------------------: |
+| Precondition   |    User is logged in, no reminders inserted yet     |
+| Post condition |    Empty list of reminders is showed to the user     |
+| Step#          |                      Description                       |
+| 1              |     User asks the system to show the reminders      |
+| 2              | System shows an empty list of reminders to the user |
 
 # Glossary
 
