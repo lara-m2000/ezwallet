@@ -249,7 +249,7 @@ She is the mother of a newborn child and would like to keep track of her expense
 |FR6.3|Receive ads|
 |FR7|Manage reminders|
 |FR7.1|CRUD reminders|
-|FR7.2|Sends email when near the event| <!-- class in glossary-->
+|FR7.2|Sends email when near the event| 
 
 
 
