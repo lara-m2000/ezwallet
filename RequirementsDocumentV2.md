@@ -239,6 +239,7 @@ She is the mother of a newborn child and would like to keep track of her expense
 |FR5.1.1|Give/Remove user's permission to see transactions of other group members|
 |FR5.2|Create group|
 |FR5.3|Add/remove user to group|
+|FR5.3.1|Search user by username|
 |FR5.4|Show groups|
 |FR5.4.1|Show group info|
 |FR5.5|CRUD group description|
