@@ -148,6 +148,7 @@ Startup company developing an application. Revenue comes from ads, using an exte
 | COO              |          Manages analytics and market analyis          |
 |Google ads		   | 				Advertisement service					|
 |AI domain expert|For importing transactions with receipt scanning|
+|ExchangeRateService|For managing different currencies in the application|
 
 
 
@@ -162,12 +163,14 @@ usecase EzWallet
 actor User
 actor Admin
 actor COO
+actor "Exchange rate service" as ExchangeRateService
 
 actor "Google ads" as GoogleAds
 
 User -- EzWallet
 Admin -- EzWallet
 COO -- EzWallet
+ExchangeRateService -- EzWallet
 
 EzWallet -- GoogleAds
 
@@ -182,6 +185,7 @@ EzWallet -- GoogleAds
 | Admin | GUI/Shell| Keyboard, Screen|
 | COO | GUI | Keyboard, Screen|
 |Google ads|API (see https://developers.google.com/google-ads/api/docs/start)|Internet|
+|ExchangeRateService|API (see https://exchangeratesapi.io/)|Internet|
 
 # Stories and personas
 
@@ -252,9 +256,12 @@ She is the mother of a newborn child and would like to keep track of her expense
 |FR3.1|CRUD transactions|
 |FR3.2| Show labelled transactions|
 |FR3.3|Show filtered transactions (by category, time period, amount)|
-|FR3.4|Import transactions from CSV file|
+|FR3.4|Import transactions from CSV file (downloaded from bank)|
+|FR3.4.1|Detect CSV file format (supported banks: Intesa San Paolo, Unicredit, Monte dei Paschi)|
 |FR3.5|Import transactions from receipt scanning|
-|FR3.6|Manage currency conversion|
+|FR3.6|Manage currency conversion (5 most important currencies)|
+|FR3.6.1|Retrieve daily exchange rates|
+|FR3.6.2|Convert amount based on currency|
 |FR4|Analytics|
 |FR4.1|Show charts about personal expenses|
 |FR4.1.1|Filter by type of transaction, date, amount exchanged|
@@ -304,8 +311,9 @@ She is the mother of a newborn child and would like to keep track of her expense
 | NFR2 |Efficiency|Response time lower than 100ms in optimal condition|All functionalities|
 | NFR3 |Availability|Available for the 99.999% in a year|All functionalities|
 | NFR4 |Reliability|Less than 4 minor/medium defects per month. Less than 1 severe defect per year. 0 killer defects per year|All functionalities (except for F3.5)|
-| NFR5 |Security|GDPR.Legislative requirements of the country in which the application will be used. Only authorized users can access.|All functionalities|
-|NFR6|Maintanibility|2 person hours to add/modify/cancel a software function. 4 person hours to fix a minor/medium defect, 15 person hours to fix a severe defect|All functionalities|
+| NFR5|Reliability|Less than 25 minor/medium defects per month|F3.5|
+| NFR6 |Security|GDPR.Legislative requirements of the country in which the application will be used. Only authorized users can access.|All functionalities|
+|NFR7|Maintanibility|2 person hours to add/modify/cancel a software function. 4 person hours to fix a minor/medium defect, 15 person hours to fix a severe defect|All functionalities|
 
 
 
@@ -374,6 +382,7 @@ COO --> UsageAnalytics
 
 @enduml
 ```
+
 
 ### Add transaction, UC1
 | Actors Involved  |            User             |
@@ -506,6 +515,17 @@ COO --> UsageAnalytics
 | 1				 | User sets up the filter (by category, time period, amount)|
 | 2              |          User asks the system to show the transactions	       |
 | 3              | System retrieves and shows filtered transactions to the user    |
+
+##### Scenario 3.5
+| Scenario 3.5   |                 Show transactions (variant3)                    |
+| -------------- | :--------------------------------------------------------------:|
+| Precondition   |                      User is logged in                          |
+| Post condition |         Filtered transactions are showed to the user            |
+| Step#          |                         Description                             |
+| 1				 | User sets up the filter (by category, time period, amount)      |
+| 2              |          User asks the system to show the transactions	       |
+| 3              | System retrieves and shows filtered transactions to the user    |
+| 4              |User changes currency in which transactions are showed           |
 
 
 ### Registration, UC4
@@ -1205,9 +1225,7 @@ class COO {
 
 class Transaction {
 	+ name
-	+ amount
 	+ date
-	+ currency
 }
 
 note bottom of Transaction
@@ -1226,6 +1244,13 @@ Category that can refer to many
 transactions.
 endnote
 
+class Currency{
+	+amount
+	+type
+}
+note left of Currency
+Currency can be EUR, USD, JPY, GBP, CHF
+endnote
 
 class Group {
 	+ name
@@ -1272,6 +1297,7 @@ User --- "0..*" Category
 
 Transaction "1..*" --  AnalyticsChart
 
+Transaction "1..*" -- "1..4" Currency
 
 
 
@@ -1323,7 +1349,7 @@ node UserMachine
 
 EzWalletWebClient ..> UserMachine : deploy
 
-UserMachine - ServerMachine : internet link
+UserMachine - ServerMachine : internet
 
 artifact GoogleAds
 node GoogleAdsServer
@@ -1331,6 +1357,13 @@ node GoogleAdsServer
 GoogleAds ..> GoogleAdsServer : deploy
 
 ServerMachine --- GoogleAdsServer : internet
+
+artifact ExchangeRateService
+node ExchangeRateServer
+
+ServerMachine --- ExchangeRateServer : internet
+
+ExchangeRateService ..> ExchangeRateServer : deploy 
 
 
 @enduml
