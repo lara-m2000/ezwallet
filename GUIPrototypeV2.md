@@ -98,11 +98,14 @@ Version: V2
 ![add_transaction](./img/Add%20transaction%20v2.png)
 *Scenario 1.1 & 1.2*
 
+![add_transaction_ex1](./img/Add%20transaction%20CSV%20exception.png)
+*Scenarin 1.3: CSV exception*
+
 ![add_transaction](./img/Add%20transaction%20(photo%20variant).png)
-*Scenario 1.3: photo variant*
+*Scenario 1.4: photo variant*
 
 ![add_transaction](./img/Add%20transaction%20(photo%20exception).png)
-*Scenario 1.4: photo exception*
+*Scenario 1.5: photo exception*
 
 ## Delete transaction (UC2)
 ![add_transaction](./img/Delete%20transaction%20V2.png)

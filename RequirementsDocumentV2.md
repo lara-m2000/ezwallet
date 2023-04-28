@@ -46,6 +46,7 @@ Version: V2 - description of EZWallet
 				- [Scenario 1.2](#scenario-12)
 				- [Scenario 1.3](#scenario-13)
 				- [Scenario 1.4](#scenario-14)
+				- [Scenario 1.5](#scenario-15)
 		- [Delete transaction, UC2](#delete-transaction-uc2)
 				- [Scenario 2.1](#scenario-21)
 		- [Show transactions, UC3](#show-transactions-uc3)
