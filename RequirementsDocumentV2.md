@@ -688,7 +688,7 @@ The goal must be of value to the (primary) actor:
 | Step#          |           Description            |
 | 1              |      User requests the list of categories     |
 | 2              |    No categories are present     |
-| 3              | The system returns an empty list |
+| 3              | The system returns an empty list with an error message |
 
 ### Update category, UC9
 
