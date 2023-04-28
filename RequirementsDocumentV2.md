@@ -284,7 +284,7 @@ She is the mother of a newborn child and would like to keep track of her expense
 | NFR2 |Efficiency|Response time lower than 100ms in optimal condition|All functionalities|
 | NFR3 |Availability|Available for the 99.999% in a year|All functionalities|
 | NFR4 |Reliability|Less than 4 minor/medium defects per month. Less than 1 severe defect per year. 0 killer defects per year|All functionalities (except for F3.5)|
-| NFR5 |Security|GDPR.Legislative requirements of the country in which the application will be used. Only authorized users can access.|FR1,FR2,FR3,FR4,FR5|
+| NFR5 |Security|GDPR.Legislative requirements of the country in which the application will be used. Only authorized users can access.|All functionalities|
 |NFR6|Maintanibility|2 person hours to add/modify/cancel a software function. 4 person hours to fix a minor/medium defect, 15 person hours to fix a severe defect|All functionalities|
 
 
