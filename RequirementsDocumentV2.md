@@ -1,13 +1,19 @@
 # Requirements Document - current EZWallet
 
-Date: 
+Date: 2023-04-28
 
 Version: V2 - description of EZWallet
 
  
 | Version number | Change |
 | -------------- | :----- |
-|                |        |
+|1.0|Added stakeholders, context diagram and stories and personas|
+|1.1|Added interfaces|
+|2.0|Added FR and NF     |
+|3.0|Added Glossary, System design and Deployment diagram|
+|4.0|Added use cases|
+|5.0|Added use case diagram|
+|6.0|Added table of rights|
 
 
 # Contents
@@ -221,6 +227,7 @@ She is the mother of a newborn child and would like to keep track of her expense
 |FR2|Manage categories|
 |FR2.1|CRUD categories|
 |FR2.2|Detect when category budget has exceeded|
+|FR2.3|Manage currency conversion|
 |FR3| Manage transactions|
 |FR3.1|CRUD transactions|
 |FR3.2| Show labelled transactions|
@@ -240,6 +247,7 @@ She is the mother of a newborn child and would like to keep track of her expense
 |FR5.2|Create group|
 |FR5.3|Add/remove user to group|
 |FR5.3.1|Search user by username|
+|FR5.4|Accept | <!-- MISSING-->
 |FR5.4|Show groups|
 |FR5.4.1|Show group info|
 |FR5.5|CRUD group description|
@@ -307,6 +315,7 @@ rectangle "EzWallet System" as System {
 	usecase "Get info about account" as UUsers
 	usecase "Create new group" as CreateGroup
 	usecase "Add/delete member to/from group" as AddDeleteToGroup
+	usecase "Manage invitations to groups" as ManageInvitations
 	usecase "Manage group members rights" as ManageMemberRights
 	usecase "Manage accounts" as ManageAccounts
 
@@ -328,6 +337,7 @@ User --> PAnalytics
 User --> GAnalytics
 User --> CreateGroup
 User --> AddDeleteToGroup
+User --> ManageInvitations
 User --> ManageMemberRights
 User <-- ShowAds
 User --> InteractAd
@@ -635,9 +645,9 @@ The goal must be of value to the (primary) actor:
 | 2              | System retrieves the list of categories |
 | 3              |   The list of categories is returned with categories over budget highlighted  |
 
-##### Scenario 8.2
+##### Scenario 8.3
 
-| Scenario 8.2   |   Show categories (exception)    |
+| Scenario 8.3   |   Show categories (exception)    |
 | -------------- | :------------------------------: |
 | Precondition   |        User is logged in         |
 | Post condition |            Empty list            |
@@ -748,26 +758,37 @@ The goal must be of value to the (primary) actor:
 |    2                | User asks for group A transactions statistics |
 |    3                | System retrieves the information, filters, elaborates and return them as report charts|
 
-### Show Ads, UC13
+### Manage invitations to groups, UC13
 
-| Actors Involved        |User, Google ads|
+| Actors Involved        |User|
 | ------------- |:-------------:| 
-|  Precondition     | User is logged in |
-|  Post condition     | Ad is shown to the user |
-|  Nominal Scenario     | Ad is shown to the user while browsing |
-|  Variants     ||
+|  Precondition     | User is logged in, user has been added to a group  |
+|  Post condition     | User becomes member of group |
+|  Nominal Scenario     | User accepts to join group |
+|  Variants     | User does not accept to join group |
 |  Exceptions     ||
 
 ##### Scenario 13.1
 
-| Scenario 13.1     | Ad is shown to the user while browsing (nominal) |
-| ------------         |:--------------:|
-| Precondition        | User is logged in |
-| Post condition     | Ad is shown to the user |
-| Step#                | Description |
-|    1                | User browses the application page |
-|    2                | System retrieves ads from Google ads |
-|    3                | Ad is shown to the user |
+| Scenario 13.1| Manage invitations to group (nominal) |
+| ------------- |:-------------:| 
+|  Precondition     |User is logged in, user has been added to  group C |
+|  Post condition     | User becomes member of group C |
+| Step#        | Description  |
+|  1     | User receives invitation to group C|  
+|  2     | User accepts to join group C|
+|3|User is part of group C|
+
+##### Scenario 13.2
+
+| Scenario 13.2| Manage invitations to group (variant) |
+| ------------- |:-------------:| 
+|  Precondition     |User is logged in, user has been added to  group C |
+|  Post condition     | User becomes member of group C |
+| Step#        | Description  |
+|  1     | User receives invitation to group C|  
+|  2     | User declines to join group C|
+|3|User is not part of group C|
 
 ### Manage permissions of users inside group, UC14
 
@@ -1023,7 +1044,28 @@ The goal must be of value to the (primary) actor:
 |	 4				  | The user clicks on the ad |
 |    5                | The systems redirects the user to the ad website |
 
-### Show groups, UC24
+### Show Ads, UC24
+
+| Actors Involved        |User, Google ads|
+| ------------- |:-------------:| 
+|  Precondition     | User is logged in |
+|  Post condition     | Ad is shown to the user |
+|  Nominal Scenario     | Ad is shown to the user while browsing |
+|  Variants     ||
+|  Exceptions     ||
+
+##### Scenario 24.1
+
+| Scenario 24.1     | Ad is shown to the user while browsing (nominal) |
+| ------------         |:--------------:|
+| Precondition        | User is logged in |
+| Post condition     | Ad is shown to the user |
+| Step#                | Description |
+|    1                | User browses the application page |
+|    2                | System retrieves ads from Google ads |
+|    3                | Ad is shown to the user |
+
+### Show groups, UC25
 
 | Actors Involved        |User|
 | ------------- |:-------------:| 
@@ -1033,9 +1075,9 @@ The goal must be of value to the (primary) actor:
 |  Variants     ||
 |  Exceptions     ||
 
-##### Scenario 24.1
+##### Scenario 25.1
 
-| Scenario 24.1     | Show groups (nominal) |
+| Scenario 25.1     | Show groups (nominal) |
 | ------------         |:--------------:|
 | Precondition        | User is logged in |
 | Post condition     | The groups to which the user belongs are showed |
@@ -1043,9 +1085,9 @@ The goal must be of value to the (primary) actor:
 |    1                | User asks the system the groups he belongs to |
 |2| Groups are showed|
 
-##### Scenario 24.1
+##### Scenario 25.2
 
-| Scenario 24.1     | Show groups (exception) |
+| Scenario 25.2     | Show groups (exception) |
 | ------------         |:--------------:|
 | Precondition        | User is logged in |
 | Post condition     | The groups to which the user belongs are showed |
@@ -1054,26 +1096,7 @@ The goal must be of value to the (primary) actor:
 |2| System detects user is not member of any group|
 |3| System notifies the user with an error message|
 
-### Add reminder, UC25
-| Actors Involved  |            User             |
-| ---------------- | :-------------------------: |
-| Precondition     |      User is logged in      |
-| Post condition   |    Reminder is added     |
-| Nominal Scenario | User adds a new reminder |
-| Variants         |  |
-| Exceptions       |                             |
-
-##### Scenario 25.1 
-
-| Scenario 25.1   |              Add reminder (nominal)               |
-| -------------- | :--------------------------------------------------: |
-| Precondition   |                  User is logged in                   |
-| Post condition |               New reminder is added               |
-| Step#          |                     Description                      |
-| 1              | User asks to create a new reminder with certain attributes |
-| 2              |             System adds new reminder              |
-
-### Delete reminder, UC26
+### Add reminder, UC26
 | Actors Involved  |            User             |
 | ---------------- | :-------------------------: |
 | Precondition     |      User is logged in      |
@@ -1084,20 +1107,20 @@ The goal must be of value to the (primary) actor:
 
 ##### Scenario 26.1 
 
-| Scenario 26.1   |              Delete reminder (nominal)               |
+| Scenario 26.1   |              Add reminder (nominal)               |
 | -------------- | :--------------------------------------------------: |
 | Precondition   |                  User is logged in                   |
-| Post condition |               Reminder is deleted               |
+| Post condition |               New reminder is added               |
 | Step#          |                     Description                      |
-| 1              | User asks to delete a reminder with certain attributes |
-| 2              |             System deletes reminder              |
+| 1              | User asks to create a new reminder with certain attributes |
+| 2              |             System adds new reminder              |
 
-### Update reminder, UC27
+### Delete reminder, UC27
 | Actors Involved  |            User             |
 | ---------------- | :-------------------------: |
 | Precondition     |      User is logged in      |
-| Post condition   |    Reminder is updated     |
-| Nominal Scenario | User updates reminder |
+| Post condition   |    Reminder is added     |
+| Nominal Scenario | User adds a new reminder |
 | Variants         |  |
 | Exceptions       |                             |
 
@@ -1106,12 +1129,31 @@ The goal must be of value to the (primary) actor:
 | Scenario 27.1   |              Delete reminder (nominal)               |
 | -------------- | :--------------------------------------------------: |
 | Precondition   |                  User is logged in                   |
+| Post condition |               Reminder is deleted               |
+| Step#          |                     Description                      |
+| 1              | User asks to delete a reminder with certain attributes |
+| 2              |             System deletes reminder              |
+
+### Update reminder, UC28
+| Actors Involved  |            User             |
+| ---------------- | :-------------------------: |
+| Precondition     |      User is logged in      |
+| Post condition   |    Reminder is updated     |
+| Nominal Scenario | User updates reminder |
+| Variants         |  |
+| Exceptions       |                             |
+
+##### Scenario 28.1 
+
+| Scenario 28.1   |              Delete reminder (nominal)               |
+| -------------- | :--------------------------------------------------: |
+| Precondition   |                  User is logged in                   |
 | Post condition |               Reminder is updated               |
 | Step#          |                     Description                      |
 | 1              | User asks to update a reminder with certain attributes |
 | 2              |             System updates reminder              |
 
-### Show reminders, UC28
+### Show reminders, UC29
 | Actors Involved  |                     User                     |
 | ---------------- | :------------------------------------------: |
 | Precondition     |              User is logged in               |
@@ -1120,9 +1162,9 @@ The goal must be of value to the (primary) actor:
 | Variants         |  |
 | Exceptions       |    There are no reminders inserted yet    |
 
-##### Scenario 28.1 
+##### Scenario 29.1 
 
-| Scenario 28.1   |               Show reminders (nominal)               |
+| Scenario 29.1   |               Show reminders (nominal)               |
 | -------------- | :-----------------------------------------------------: |
 | Precondition   |                    User is logged in                    |
 | Post condition |           Reminders are showed to the user            |
@@ -1130,14 +1172,16 @@ The goal must be of value to the (primary) actor:
 | 1              |      User asks the system to show the reminders      |
 | 2              | System retrieves and shows the reminders to the user |
 
-##### Scenario 28.2
-| Scenario 28.2   |             Show reminders (exception1)             |
+##### Scenario 29.2
+| Scenario 29.2   |             Show reminders (exception1)             |
 | -------------- | :----------------------------------------------------: |
 | Precondition   |    User is logged in, no reminders inserted yet     |
 | Post condition |    Empty list of reminders is showed to the user     |
 | Step#          |                      Description                       |
 | 1              |     User asks the system to show the reminders      |
 | 2              | System shows an empty list of reminders to the user |
+
+
 
 # Glossary
 

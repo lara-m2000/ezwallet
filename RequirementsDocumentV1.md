@@ -6,13 +6,13 @@ Version: V6 - description of EZWallet in CURRENT form
 
 | Version number | Change |
 | -------------- | :----- |
-|1.0|With stakeholders, context diagram and stories and personas|
-|1.1|With interfaces|
-|2.0|With FR and NF     |
-|3.0|With Glossary, System design and Deployment diagram|
-|4.0|With use cases|
-|5.0|With use case diagram|
-|6.0|With defects|
+|1.0|Added stakeholders, context diagram and stories and personas|
+|1.1|Added interfaces|
+|2.0|Added FR and NF     |
+|3.0|Added Glossary, System design and Deployment diagram|
+|4.0|Added use cases|
+|5.0|Added use case diagram|
+|6.0|Added defects|
 
 # Contents
 
