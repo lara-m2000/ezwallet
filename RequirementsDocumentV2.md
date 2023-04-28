@@ -227,6 +227,7 @@ She is the mother of a newborn child and would like to keep track of her expense
 |FR2|Manage categories|
 |FR2.1|CRUD categories|
 |FR2.2|Detect when category budget has exceeded|
+|FR2.3|Manage currency conversion|
 |FR3| Manage transactions|
 |FR3.1|CRUD transactions|
 |FR3.2| Show labelled transactions|
