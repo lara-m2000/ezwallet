@@ -7,7 +7,7 @@ Date: 2023-04-28
 Version: V2
 
 # Contents
-- [Graphical User Interface Prototype  - FUTURE](#graphical-user-interface-prototype---future)
+- [Graphical User Interface Prototype  - FUTURE](#graphical-user-interface-prototype----future)
 - [Contents](#contents)
 - [Website home page](#website-home-page)
 - [Manage user](#manage-user)
@@ -29,14 +29,14 @@ Version: V2
 - [Manage groups of users](#manage-groups-of-users)
   - [Create new group (UC15)](#create-new-group-uc15)
   - [Show groups (UC24)](#show-groups-uc24)
-  - [Group analytics (UC12)](#group-analytics-uc12)
+  - [Group analytics (UC10)](#group-analytics-uc10)
   - [Add user to group (UC16)](#add-user-to-group-uc16)
   - [Show group info (UC18)](#show-group-info-uc18)
-  - [Manage users rights (UC14)](#manage-users-rights)
+  - [Manage users rights (UC14)](#manage-users-rights-uc14)
   - [Delete member from a group (UC17)](#delete-member-from-a-group-uc17)
   - [Manage invitations to groups (UC13)](#manage-invitations-to-groups-uc13)
 - [Manage ads](#manage-ads)
-  - [Show ads (UC24)](#show-ads-uc13)
+  - [Show ads (UC13)](#show-ads-uc13)
 - [Manage application](#manage-application)
   - [Manage accounts (UC21)](#manage-accounts-uc21)
   - [Application usage analytics (UC22)](#application-usage-analytics-uc22)
