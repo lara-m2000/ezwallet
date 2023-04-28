@@ -148,6 +148,7 @@ Startup company developing an application. Revenue comes from ads, using an exte
 | COO              |          Manages analytics and market analyis          |
 |Google ads		   | 				Advertisement service					|
 |AI domain expert|For importing transactions with receipt scanning|
+|ExchangeRateService|For managing different currencies in the application|
 
 
 
@@ -162,12 +163,14 @@ usecase EzWallet
 actor User
 actor Admin
 actor COO
+actor "Exchange rate service as" ExchangeRateService
 
 actor "Google ads" as GoogleAds
 
 User -- EzWallet
 Admin -- EzWallet
 COO -- EzWallet
+ExchangeRateService -- EzWallet
 
 EzWallet -- GoogleAds
 
@@ -182,6 +185,7 @@ EzWallet -- GoogleAds
 | Admin | GUI/Shell| Keyboard, Screen|
 | COO | GUI | Keyboard, Screen|
 |Google ads|API (see https://developers.google.com/google-ads/api/docs/start)|Internet|
+|ExchangeRateService|API (see https://exchangeratesapi.io/)|Internet|
 
 # Stories and personas
 
@@ -254,7 +258,9 @@ She is the mother of a newborn child and would like to keep track of her expense
 |FR3.3|Show filtered transactions (by category, time period, amount)|
 |FR3.4|Import transactions from CSV file|
 |FR3.5|Import transactions from receipt scanning|
-|FR3.6|Manage currency conversion|
+|FR3.6|Manage currency conversion (5 most important currencies)|
+|FR3.6.1|Retrieve daily exchange rates|
+|FR3.6.2|Convert amount based on currency|
 |FR4|Analytics|
 |FR4.1|Show charts about personal expenses|
 |FR4.1.1|Filter by type of transaction, date, amount exchanged|
@@ -374,14 +380,7 @@ COO --> UsageAnalytics
 
 @enduml
 ```
-<!-- 
-Check the use case by making attention to this statement taken from the slides: 
-The use case cares only what is the relationship of the actor to the system.
-The goal must be of value to the (primary) actor:
--Enter PIN code is not
--Withdraw cash is
-(Don't go in implementation details e.g. touch pinpad screen)
--->
+
 
 ### Add transaction, UC1
 | Actors Involved  |            User             |
@@ -1236,6 +1235,13 @@ Category that can refer to many
 transactions.
 endnote
 
+class Currency{
+	+amount
+	+type
+}
+note left of Currency
+Currency can be EUR, USD, JPY, GBP, CHF
+endnote
 
 class Group {
 	+ name
@@ -1282,6 +1288,7 @@ User --- "0..*" Category
 
 Transaction "1..*" --  AnalyticsChart
 
+Transaction "1..*" -- "1..4" Currency
 
 
 
@@ -1333,7 +1340,7 @@ node UserMachine
 
 EzWalletWebClient ..> UserMachine : deploy
 
-UserMachine - ServerMachine : internet link
+UserMachine - ServerMachine : internet
 
 artifact GoogleAds
 node GoogleAdsServer
@@ -1341,6 +1348,13 @@ node GoogleAdsServer
 GoogleAds ..> GoogleAdsServer : deploy
 
 ServerMachine --- GoogleAdsServer : internet
+
+artifact ExchangeRateService
+node ExchangeRateServer
+
+ServerMachine --- ExchangeRateServer : internet
+
+ExchangeRateService ..> ExchangeRateServer : deploy 
 
 
 @enduml
