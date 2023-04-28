@@ -46,11 +46,14 @@ Version:
 
 # Manage user
 ## Registration (UC4)
-![register_nominal](./img/Register%20(nominal).png)
+![register_nominal](./img/Register%20v2.png)
 *Scenario 4.1: nominal case*
 
-![register_exception](./img/Register%20(exception).png)
-*Scenario 4.2: exception*
+![register_exception1](./img/Register%20v2%20(exception1).png)
+*Scenario 4.2: email exception*
+
+![register_exception2](./img/Register%20v2%20(exception2).png)
+*Scenario 4.3: code exception*
 
 ## Login (UC5)
 ![login_nominal](./img/Login%20(nominal).png)
@@ -81,6 +84,13 @@ Version:
 
 ## Add transaction (UC1)
 ![add_transaction](./img/Add%20transaction%20v2.png)
+*Scenario 1.1 & 1.2*
+
+![add_transaction](./img/Add%20transaction%20(photo%20variant).png)
+*Scenario 1.3: photo variant*
+
+![add_transaction](./img/Add%20transaction%20(photo%20exception).png)
+*Scenario 1.4: photo exception*
 
 ## Delete transaction (UC2)
 ![add_transaction](./img/Delete%20transaction%20V2.png)
@@ -114,7 +124,11 @@ Version:
 ![create_group](img/Group%20create.png)
 
 ## Show groups (UC24)
+![show_groups](img/Show%20groups.png)
+*Scenario 24.1: nominal*
 
+![show_groups](img/Show%20groups%20(exception).png)
+*Scenario 24.2: exception*
 
 ## Group analytics (UC10)
 ![group_analytics](img/Group%20Analitics.png)
@@ -144,3 +158,20 @@ Version:
 
 ## Application usage analytics (UC22)
 ![application_usage_analytics](./img/Application%20usage%20analytics%20%5BADMIN%5D.png)
+
+# Manage reminders
+## Show reminders (UC28)
+![show_reminders](./img/Show%20reminders.png)
+*Scenario 28.1: nominal*
+
+![show_reminders](./img/Show%20reminders%20exception.png)
+*Scenario 28.2: exception*
+
+## Add reminder (UC25)
+![add_reminder](./img/Add%20reminder.png)
+
+## Delete reminder (UC26)
+![delete_reminder](./img/Delete%20reminder.png)
+
+## Update reminder (UC27)
+![update_reminder](./img/Update%20reminder.png)
