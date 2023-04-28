@@ -7,8 +7,6 @@ Date:
 Version:
 
 # Contents
-- [Graphical User Interface Prototype  - FUTURE](#graphical-user-interface-prototype----future)
-- [Contents](#contents)
 - [Website home page](#website-home-page)
 - [Manage user](#manage-user)
   - [Registration (UC4)](#registration-uc4)
@@ -34,12 +32,17 @@ Version:
   - [Show group info (UC18)](#show-group-info-uc18)
   - [Manage users rights (UC14)](#manage-users-rights)
   - [Delete member from a group (UC17)](#delete-member-from-a-group-uc17)
+  - [Manage invitations to groups (UC13)](#manage-invitations-to-groups-uc13)
 - [Manage ads](#manage-ads)
-  - [Show ads (UC13)](#show-ads-uc13)
-  - [Interact with ad (UC23)](#interact-with-ad-uc23)
+  - [Show ads (UC24)](#show-ads-uc13)
 - [Manage application](#manage-application)
   - [Manage accounts (UC21)](#manage-accounts-uc21)
   - [Application usage analytics (UC22)](#application-usage-analytics-uc22)
+- [Manage reminders](#manage-reminders)
+  - [Show reminders (UC28)](#show-reminders-uc28)
+  - [Add reminder (UC25)](#add-reminder-uc25)
+  - [Delete reminder (UC26)](#delete-reminder-uc26)
+  - [Update reminder (UC27)](#update-reminder-uc27)
 
 # Website home page
 ![home_page](./img/Home%20page.png)
@@ -70,6 +73,10 @@ Version:
 
 ## Personal analytics (UC11)
 ![personal_analytics](./img/Personal%20analytics.png)
+*Scenario 11.1: nominal case*
+
+![Filter_analytics](./img/Transaction%20filters.png)
+*Scenario 11.2: variant filter transactions*
 
 # Manage transactions
 ## Show transactions (UC3)
@@ -81,6 +88,9 @@ Version:
 
 ![labelled_transaction](./img/Labelled%20transactions%20V2.png)
 *Scenario 3.3: variant labelled transactions*
+
+![filter_transaction](./img/Transaction%20filters.png)
+*Scenario 3.4: variant filter transactions*
 
 ## Add transaction (UC1)
 ![add_transaction](./img/Add%20transaction%20v2.png)
@@ -104,10 +114,10 @@ Version:
 *Scenario 8.1: nominal case*
 
 ![categories_variant](./img/Show%20categories%20v2%20(variant).png)
-*Scenario 8.1: overbudget variant*
+*Scenario 8.2: overbudget variant*
 
 ![categories_exception](./img/Show%20categories%20v2%20(exception).png)
-*Scenario 8.2: exception*
+*Scenario 8.3: exception*
 
 ## Add category (UC7)
 ![add_category](./img/Add%20category%20v2.png)
@@ -125,7 +135,7 @@ Version:
 
 ## Show groups (UC24)
 ![show_groups](img/Show%20groups.png)
-*Scenario 24.1: nominal*
+*Scenario 24.1: nominal case*
 
 ![show_groups](img/Show%20groups%20(exception).png)
 *Scenario 24.2: exception*
@@ -144,13 +154,14 @@ Version:
 
 ## Delete member from a group (UC17)
 ![delete_member_from_a_group](./img/Group%20users%20options.png)
+
+## Manage invitations to groups (UC13)
+![group_invitation](./img/Group%20request.png)
+
 # Manage ads
 
 ## Show ads (UC13)
 ![show_ads](./img/Show%20transactions%20V2%20(nominal).png)
-
-## Interact with ads (UC23)
-![interact_with_ads]()
 
 # Manage application
 ## Manage accounts (UC21)
@@ -162,7 +173,7 @@ Version:
 # Manage reminders
 ## Show reminders (UC28)
 ![show_reminders](./img/Show%20reminders.png)
-*Scenario 28.1: nominal*
+*Scenario 28.1: nominal case*
 
 ![show_reminders](./img/Show%20reminders%20exception.png)
 *Scenario 28.2: exception*
