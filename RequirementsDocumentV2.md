@@ -413,7 +413,18 @@ The goal must be of value to the (primary) actor:
 
 ##### Scenario 1.3 
 
-| Scenario 1.3   |              Add transaction from receipt scanning (variant)|
+| Scenario 1.3   |              Add transaction from CSV (variant-exception)               |
+| -------------- | :--------------------------------------------------: |
+| Precondition   |                  User is logged in                   |
+| Post condition |               List of transactions is not added               |
+| Step#          |                     Description                      |
+| 1              | User asks to import a list of transactions from a CSV file of a certain format |
+| 2              |             System detects that CSV format is not supported              |
+|3|System tells user that CSV format is not supported|
+
+##### Scenario 1.4 
+
+| Scenario 1.4   |              Add transaction from receipt scanning (variant)|
 | -------------- | :--------------------------------------------------: |
 | Precondition   |                  User is logged in                   |
 | Post condition |               Transaction is added              |
@@ -423,9 +434,9 @@ The goal must be of value to the (primary) actor:
 |3|User does not modify transaction and confirms|
 |4|System adds transaction|
 
-##### Scenario 1.4 
+##### Scenario 1.5 
 
-| Scenario 1.4   |              Add transaction from receipt scanning (exception)|
+| Scenario 1.5   |              Add transaction from receipt scanning (variant-exception)|
 | -------------- | :--------------------------------------------------: |
 | Precondition   |                  User is logged in                   |
 | Post condition |               Transaction is not added              |
