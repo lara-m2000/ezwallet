@@ -1107,7 +1107,7 @@ The goal must be of value to the (primary) actor:
 |  Post condition     | The groups to which the user belongs are showed |
 |  Nominal Scenario     | User asks to show the groups he belongs to |
 |  Variants     ||
-|  Exceptions     ||
+|  Exceptions     | User isn't a member of any group |
 
 ##### Scenario 25.1
 
