@@ -163,7 +163,7 @@ usecase EzWallet
 actor User
 actor Admin
 actor COO
-actor "Exchange rate service as" ExchangeRateService
+actor "Exchange rate service" as ExchangeRateService
 
 actor "Google ads" as GoogleAds
 
