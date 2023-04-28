@@ -226,7 +226,7 @@ She is the mother of a newborn child and would like to keep track of her expense
 |FR3.2| Show labelled transactions|
 |FR3.3|Show filtered transactions (by category, time period, amount)|
 |FR3.4|Import transactions from CSV file|
-|FR3.5|Import transactions from receipt scanning| <!-- Aggiungi UC -->
+|FR3.5|Import transactions from receipt scanning|
 |FR3.6|Manage currency conversion|
 |FR4|Analytics|
 |FR4.1|Show charts about personal expenses|
@@ -248,7 +248,7 @@ She is the mother of a newborn child and would like to keep track of her expense
 |FR6.3|Receive ads|
 |FR7|Manage reminders|
 |FR7.1|CRUD reminders|
-|FR7.2|Sends email when near the event| <!-- Add UC, class in glossary -->
+|FR7.2|Sends email when near the event| <!-- Add UC, class in glossary-->
 
 
 
@@ -265,16 +265,17 @@ She is the mother of a newborn child and would like to keep track of her expense
 | FR4   | x    |   x   | x   |           |
 | FR5   | x    |   x   | x   |           |
 | FR6   | x    |   x   | x   |   x       |
+| FR7   | x    |   x   | x   |          |
 
 
 ## Non Functional Requirements
 
 | ID   | Type (efficiency, reliability, ..) |                                                      Description                                                      |   Refers to |
 | ---- | :--------------------------------: | :-------------------------------------------------------------------------------------------------------------------: | ----------: |
-| NFR1 |Usability|Should be used with no training by users with at least 6 months experience with computers|All functionalities (exception for FR3.4)|
+| NFR1 |Usability|Should be used with no training by users with at least 6 months experience with computers|All functionalities (except for FR3.4)|
 | NFR2 |Efficiency|Response time lower than 100ms in optimal condition|All functionalities|
 | NFR3 |Availability|Available for the 99.999% in a year|All functionalities|
-| NFR4 |Reliability|Less than 4 minor/medium defects per month. Less than 1 severe defect per year. 0 killer defects per year|All functionalities|
+| NFR4 |Reliability|Less than 4 minor/medium defects per month. Less than 1 severe defect per year. 0 killer defects per year|All functionalities (except for F3.5)|
 | NFR5 |Security|GDPR.Legislative requirements of the country in which the application will be used. Only authorized users can access.|FR1,FR2,FR3,FR4,FR5|
 |NFR6|Maintanibility|2 person hours to add/modify/cancel a software function. 4 person hours to fix a minor/medium defect, 15 person hours to fix a severe defect|All functionalities|
 
