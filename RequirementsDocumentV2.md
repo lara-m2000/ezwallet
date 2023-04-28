@@ -335,7 +335,8 @@ rectangle "EzWallet System" as System {
 	usecase "Add/delete member to/from group" as AddDeleteToGroup
 	usecase "Manage invitations to groups" as ManageInvitations
 	usecase "Show groups" as ShowGroups
-	usecase "Manage group members rights" as ManageMemberRights
+	usecase "Get group info" as GroupInfo
+	usecase "Manage permissions of users inside group" as ManageMemberRights
 	usecase "Manage accounts" as ManageAccounts
 
 	usecase "Get analytics on application usage" as UsageAnalytics
@@ -358,6 +359,7 @@ User --> CreateGroup
 User --> AddDeleteToGroup
 User --> ManageInvitations
 User --> ShowGroups
+User --> GroupInfo
 User --> ManageMemberRights
 User <-- ShowAds
 User --> InteractAd
