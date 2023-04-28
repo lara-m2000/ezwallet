@@ -121,6 +121,7 @@ Startup company developing an application. Revenue comes from ads, using an exte
 | Admin            |              User with special privileges              |
 | COO              |          Manages analytics and market analyis          |
 |Google ads		   | 				Advertisement service					|
+|AI domain expert|For importing transactions with receipt scanning|
 
 
 
@@ -225,7 +226,8 @@ She is the mother of a newborn child and would like to keep track of her expense
 |FR3.2| Show labelled transactions|
 |FR3.3|Show filtered transactions (by category, time period, amount)|
 |FR3.4|Import transactions from CSV file|
-|FR3.5|Manage currency conversion|
+|FR3.5|Import transactions from receipt scanning| <!-- Aggiungi UC -->
+|FR3.6|Manage currency conversion|
 |FR4|Analytics|
 |FR4.1|Show charts about personal expenses|
 |FR4.1.1|Filter by type of transaction, date, amount exchanged|
@@ -244,6 +246,11 @@ She is the mother of a newborn child and would like to keep track of her expense
 |FR6.1|Interact with ads|
 |FR6.2|Show ads|
 |FR6.3|Receive ads|
+|FR7|Manage reminders|
+|FR7.1|Define reminder|
+|FR7.2|Modify reminder|
+|FR7.3|Sends email when near the event| <!-- Add UC, class in glossary -->
+
 
 
 ## Table of rights
