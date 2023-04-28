@@ -2,11 +2,17 @@
 
 Date: 2023-04-26
 
-Version: V1 - description of EZWallet in CURRENT form (as received by teachers)
+Version: V6 - description of EZWallet in CURRENT form
 
 | Version number | Change |
 | -------------- | :----- |
-| 1.0            |        |
+|1.0|With stakeholders, context diagram and stories and personas|
+|1.1|With interfaces|
+|2.0|With FR and NF     |
+|3.0|With Glossary, System design and Deployment diagram|
+|4.0|With use cases|
+|5.0|With use case diagram|
+|6.0|With defects|
 
 # Contents
 
