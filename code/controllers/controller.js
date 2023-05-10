@@ -1,3 +1,4 @@
+import { Model, model, models } from "mongoose";
 import { categories, transactions } from "../models/model.js";
 import { Group, User } from "../models/User.js";
 import { handleDateFilterParams, handleAmountFilterParams, verifyAuth } from "./utils.js";
@@ -33,7 +34,20 @@ export const createCategory = (req, res) => {
  */
 export const updateCategory = async (req, res) => {
     try {
-
+        const cookie = req.cookies
+        if (!cookie.accessToken) {
+            return res.status(401).json({ message: "Unauthorized" }) // unauthorized
+        }
+        // TODO: Add check on admin
+        const { type, color } = req.body;
+        const existCategory = await categories.findOne({ type:type });
+        if (!existCategory) return res.status(401).json({ message: "The specified category does not exist"});
+        await categories.updateOne({type:type}, {$set: {color:color}});  // Update
+        /* TODO: ASK
+            Changing the category's type does not make sense since the type is the catagory id
+            If the type is not changed the transactions are not modified so the "count" value is not returned
+        */
+        return res.status(200).json({message: "Succesfully updated"});
     } catch (error) {
         res.status(400).json({ error: error.message })
     }
@@ -48,7 +62,17 @@ export const updateCategory = async (req, res) => {
  */
 export const deleteCategory = async (req, res) => {
     try {
-
+        const cookie = req.cookies
+        if (!cookie.accessToken) {
+            return res.status(401).json({ message: "Unauthorized" }) // unauthorized
+        }
+        // TODO: Add check on admin
+        const typeArray = req.body;
+        if(!Array.isArray(typeArray)) 
+            res.status(401).json({message: "Bad data format"});
+        typeArray.forEach(async (element) => {
+            await categories.deleteOne({type:element});
+        }); 
     } catch (error) {
         res.status(400).json({ error: error.message })
     }
