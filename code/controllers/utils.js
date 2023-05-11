@@ -9,23 +9,24 @@ import jwt from 'jsonwebtoken'
  * @throws an error if the query parameters include `date` together with at least one of `from` or `upTo`
  */
 export const handleDateFilterParams = (req) => {
-    const queryParams=req.query;
-    if(queryParams.date && (query.from || query.upTo))
+    const {date, from, upTo}=req.query;
+    if(date && (from || upTo))
             throw new Error("Cannot set a date filter with a from or upTo filter");
     let matchObj;
     const dayStart="T00:00:00.000Z";
     const dayEnd="T23:59:59.999Z";
     //TODO: check date comparison
-    if(queryParams.date){
+    if(date){
         // selects transactions with this specific date
-        return matchObj.date={$gte: queryParams.date+dayStart, 
-                            $lte: queryParams.date+dayEnd};
+        matchObj.date={$gte: date+dayStart, 
+                            $lte: date+dayEnd};
+        return matchObj;
     }
-    if(queryParams.from){
-        matchObj.date.$gte=queryParams.from+dayStart;
+    if(from){
+        matchObj.date.$gte=from+dayStart;
     }
-    if(queryParams.upTo){
-        matchObj.date.$lte=queryParams.upTo+dayEnd;
+    if(upTo){
+        matchObj.date.$lte=upTo+dayEnd;
     }
     return matchObj;    
 }
@@ -113,13 +114,15 @@ export const verifyAuth = (req, res, info) => {
  *  Example: {amount: {$gte: 100}} returns all transactions whose `amount` parameter is greater or equal than 100
  */
 export const handleAmountFilterParams = (req) => {
-    const queryParams=req.query;
-    let matchObj;
-    if(queryParams.min){
-        matchObj.amount.$gte=queryParams.min;
+    const {max, min}=req.query;
+    if(!max && !min)
+        return;
+    let matchObj={amount:{}};
+    if(min){
+        matchObj.amount.$gte=Number(min);
     }
-    if(queryParams.max){
-        matchObj.amount.$lte=queryParams.max;
+    if(max){
+        matchObj.amount.$lte=Number(max);
     }
-    return matchObj; 
+    return matchObj
 }
