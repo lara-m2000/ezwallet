@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken'
+import { Group, User } from "../models/User.js"
 
 /**
  * Handle possible date filtering options in the query parameters for getTransactionsByUser when called by a Regular user.
@@ -36,7 +37,7 @@ export const handleDateFilterParams = (req) => {
  * @returns true if the user satisfies all the conditions of the specified `authType` and false if at least one condition is not satisfied
  *  Refreshes the accessToken if it has expired and the refreshToken is still valid
  */
-export const verifyAuth = (req, res, info) => {
+export const verifyAuth = async (req, res, info) => {
     const cookie = req.cookies
     if (!cookie.accessToken || !cookie.refreshToken) {
         res.status(401).json({ message: "Unauthorized" });
@@ -55,6 +56,15 @@ export const verifyAuth = (req, res, info) => {
             const username = req.params.username;
             if (decodedAccessToken.username !== username || decodedRefreshToken.username !== username){
                 res.status(401).json({ message: "You cannot request info about another user"})
+                return false;
+            }
+        }
+        if (info.authType === "Group"){
+            const name = req.params.name;
+            const group = await Group.findOne({ name : name});
+            const user = group.members.find(e => e.email === decodedAccessToken.email) && group.members.find(e => e.email === decodedRefreshToken.email);
+            if (!user){
+                res.status(401).json({ message: "You cannot request info about a group you don't belong to"});
                 return false;
             }
         }
