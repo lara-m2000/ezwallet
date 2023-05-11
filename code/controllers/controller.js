@@ -230,6 +230,18 @@ export const deleteTransaction = async (req, res) => {
  */
 export const deleteTransactions = async (req, res) => {
     try {
+        const cookie = req.cookies
+        if (!cookie.accessToken) {
+            return res.status(401).json({ message: "Unauthorized" }) // unauthorized
+        }
+        const ids=req.body._ids;
+        let count= await transactions.countDocuments({_id: {$in: ids}});
+        if(count!==ids.length){
+            return res.status(401).json({error: "Not every ids could be found"});
+        }
+
+        let data = await transactions.deleteMany({_id: {$in: ids}});
+        return res.json("deleted");
     } catch (error) {
         res.status(400).json({ error: error.message })
     }
