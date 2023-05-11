@@ -45,6 +45,29 @@ export const verifyAuth = (req, res, info) => {
     try {
         const decodedAccessToken = jwt.verify(cookie.accessToken, process.env.ACCESS_KEY);
         const decodedRefreshToken = jwt.verify(cookie.refreshToken, process.env.ACCESS_KEY);
+        if (info.authType === "Admin"){
+            if (decodedAccessToken.role !== "Admin" || decodedRefreshToken.role !== "Admin"){
+                res.status(401).json({ message: "You need to be admin to perform this action"})
+                return false;
+            }
+        }
+        if (info.authType === "User"){
+            const username = req.params.username;
+            if (decodedAccessToken.username !== username || decodedRefreshToken.username !== username){
+                res.status(401).json({ message: "You cannot request info about another user"})
+                return false;
+            }
+        }
+        if (info.authType === "Admin||User"){
+            const username = req.params.username;
+            if (decodedAccessToken.role !== "Admin" || decodedRefreshToken.role !== "Admin"){
+                if (decodedAccessToken.username !== username || decodedRefreshToken.username !== username){
+                    res.status(401).json({ message: "You cannot request info about another user"})
+                    return false;
+                }
+            }
+        }
+        //missing authType === "Group"
         if (!decodedAccessToken.username || !decodedAccessToken.email || !decodedAccessToken.role) {
             res.status(401).json({ message: "Token is missing information" })
             return false
