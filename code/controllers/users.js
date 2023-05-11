@@ -435,7 +435,7 @@ const findExistingUsers = async (emails) => {
     {
       $project: { _id: 0, email: "$email" },
     },
-  ]).map((m) => m.email);
+  ]).then( e => e.map((m) => m.email));
 
   if (existingMembers.length !== emails.length) {
     membersNotFound = arrayDifference(emails, existingMembers);
