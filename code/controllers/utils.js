@@ -13,20 +13,19 @@ export const handleDateFilterParams = (req) => {
     if(date && (from || upTo))
             throw new Error("Cannot set a date filter with a from or upTo filter");
     let matchObj;
-    const dayStart="T00:00:00.000Z";
     const dayEnd="T23:59:59.999Z";
     //TODO: check date comparison
     if(date){
         // selects transactions with this specific date
-        matchObj.date={$gte: date+dayStart, 
-                            $lte: date+dayEnd};
+        matchObj.date={$gte: new Date(date), 
+                        $lte: new Date(date+dayEnd)};
         return matchObj;
     }
     if(from){
-        matchObj.date.$gte=from+dayStart;
+        matchObj.date.$gte=new Date(from);
     }
     if(upTo){
-        matchObj.date.$lte=upTo+dayEnd;
+        matchObj.date.$lte=new Date(upTo+dayEnd);
     }
     return matchObj;    
 }
