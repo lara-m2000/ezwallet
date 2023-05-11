@@ -204,6 +204,39 @@ export const getTransactionsByUser = async (req, res) => {
  */
 export const getTransactionsByUserByCategory = async (req, res) => {
     try {
+        const {username, category}=req.params;
+        const cookie = req.cookies
+        if (!cookie.accessToken || !cookie.refreshToken) {
+            return res.status(401).json({ message: "Unauthorized" }) // unauthorized
+        }
+        const user = await User.findOne({ refreshToken: cookie.refreshToken });
+        if (!user) 
+            return res.status(401).json({ message: "User not found" });
+        if (user.username !== username) // the requested user is not the one logged in
+            return res.status(401).json({ message: "Unauthorized" });
+        const cat = await categories.findOne({type: category});
+        if (!cat) 
+            return res.status(401).json({ message: "Category not found" });
+            transactions.aggregate([
+                {
+                    $match: {
+                        username:username,
+                        type:category
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "categories",
+                        localField: "type",
+                        foreignField: "type",
+                        as: "categories_info"
+                    }
+                },
+                { $unwind: "$categories_info" }
+            ]).then((result) => {
+                let data = result.map(v => Object.assign({}, { _id: v._id, username: v.username, amount: v.amount, type: v.type, color: v.categories_info.color, date: v.date }))
+                res.json(data);
+            }).catch(error => { throw (error) })
     } catch (error) {
         res.status(400).json({ error: error.message })
     }
@@ -219,6 +252,31 @@ export const getTransactionsByUserByCategory = async (req, res) => {
  */
 export const getTransactionsByGroup = async (req, res) => {
     try {
+        const group= await Group.findOne({name:req.params.name});
+        if(!group){
+            res.status(401).json({error: "Group not found"})
+        }
+        // Array with group members' usernames
+        const groupMembers=group.members.map((m)=>m.user.username);
+        transactions.aggregate([
+            {
+                $match: {
+                    username:{$in: groupMembers}
+                }
+            },
+            {
+                $lookup: {
+                    from: "categories",
+                    localField: "type",
+                    foreignField: "type",
+                    as: "categories_info"
+                }
+            },
+            { $unwind: "$categories_info" }
+        ]).then((result) => {
+            let data = result.map(v => Object.assign({}, { _id: v._id, username: v.username, amount: v.amount, type: v.type, color: v.categories_info.color, date: v.date }))
+            res.json(data);
+        }).catch(error => { throw (error) })
     } catch (error) {
         res.status(400).json({ error: error.message })
     }
@@ -234,6 +292,36 @@ export const getTransactionsByGroup = async (req, res) => {
  */
 export const getTransactionsByGroupByCategory = async (req, res) => {
     try {
+        const group= await Group.findOne({name:req.params.name});
+        if(!group){
+            res.status(401).json({error: "Group not found"})
+        }
+        const cat= await categories.findOne({type:req.params.category});
+        if(!cat){
+            res.status(401).json({error: "Category not found"})
+        }
+        // Array with group members' usernames
+        const groupMembers=group.members.map((m)=>m.user.username);
+        transactions.aggregate([
+            {
+                $match: {
+                    username:{$in: groupMembers},
+                    type:req.params.category
+                }
+            },
+            {
+                $lookup: {
+                    from: "categories",
+                    localField: "type",
+                    foreignField: "type",
+                    as: "categories_info"
+                }
+            },
+            { $unwind: "$categories_info" }
+        ]).then((result) => {
+            let data = result.map(v => Object.assign({}, { _id: v._id, username: v.username, amount: v.amount, type: v.type, color: v.categories_info.color, date: v.date }))
+            res.json(data);
+        }).catch(error => { throw (error) })
     } catch (error) {
         res.status(400).json({ error: error.message })
     }
