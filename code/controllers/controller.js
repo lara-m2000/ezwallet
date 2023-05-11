@@ -257,7 +257,7 @@ export const getTransactionsByGroup = async (req, res) => {
             res.status(401).json({error: "Group not found"})
         }
         // Array with group members' usernames
-        const groupMembers=group.members.map((m)=>m.user.username);
+        const groupMembers=await findGroupUsernames(req.params.name);
         transactions.aggregate([
             {
                 $match: {
@@ -301,7 +301,7 @@ export const getTransactionsByGroupByCategory = async (req, res) => {
             res.status(401).json({error: "Category not found"})
         }
         // Array with group members' usernames
-        const groupMembers=group.members.map((m)=>m.user.username);
+        const groupMembers=await findGroupUsernames(req.params.name);
         transactions.aggregate([
             {
                 $match: {
@@ -371,4 +371,40 @@ export const deleteTransactions = async (req, res) => {
     } catch (error) {
         res.status(400).json({ error: error.message })
     }
+}
+/** Retrieves the usernames of the members of a group
+ * 
+ * @param {String} groupName the name of the group
+ * @returns {string[]} an array of the usernames 
+ */
+const findGroupUsernames= async(groupName)=>{
+    const members=await Group.aggregate([
+        {
+            $match: {name:groupName}
+        },
+        {
+            $unwind:"$members"
+        },
+        {
+            $project:{'_id':0,
+                'user_id': '$members.user'}
+        },
+        {
+            $lookup: {
+              from: 'users',
+              localField: "user_id",
+              foreignField: "_id",
+              as:"user_info"
+            }
+        },
+        {
+            $unwind:"$user_info"
+        },
+        {
+            $project: {
+              'username': '$user_info.username'
+            }
+        }
+    ])
+    return members.map(m=>m.username)
 }
