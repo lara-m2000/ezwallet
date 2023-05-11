@@ -146,11 +146,49 @@ export const getAllTransactions = async (req, res) => {
  */
 export const getTransactionsByUser = async (req, res) => {
     try {
+        const cookie = req.cookies
+        if (!cookie.accessToken || !cookie.refreshToken) {
+            return res.status(401).json({ message: "Unauthorized" }) // unauthorized
+        }
+        const username = req.params.username;
+        let matchObj = {username: username};
         //Distinction between route accessed by Admins or Regular users for functions that can be called by both
         //and different behaviors and access rights
         if (req.url.indexOf("/transactions/users/") >= 0) {
+            //ADMIN
+            //TODO: auth type
+            const user = await User.findOne({username: username });
+            if (!user) 
+                return res.status(401).json({ message: "User not found" });
+                
         } else {
+            //SIMPLE USER
+            //TODO: auth type
+            const user = await User.findOne({ refreshToken: cookie.refreshToken });
+            if (!user) return res.status(401).json({ message: "User not found" });
+            if (user.username !== username) // the requested user is not the one logged in
+                return res.status(401).json({ message: "Unauthorized" });
+            const dateFilter=handleDateFilterParams(req);
+            const amountFilter=handleAmountFilterParams(req);
+            Object.assign(matchObj, dateFilter, amountFilter);
         }
+        transactions.aggregate([
+            {
+                $match: matchObj
+            },
+            {
+                $lookup: {
+                    from: "categories",
+                    localField: "type",
+                    foreignField: "type",
+                    as: "categories_info"
+                }
+            },
+            { $unwind: "$categories_info" }
+        ]).then((result) => {
+            let data = result.map(v => Object.assign({}, { _id: v._id, username: v.username, amount: v.amount, type: v.type, color: v.categories_info.color, date: v.date }))
+            res.json(data);
+        }).catch(error => { throw (error) })
     } catch (error) {
         res.status(400).json({ error: error.message })
     }
