@@ -34,6 +34,11 @@ export const handleDateFilterParams = (req) => {
  *              - the accessToken is expired and the refreshToken has a `email` which is not in the requested group => error 401
  *              - both the accessToken and the refreshToken have a `email` which is in the requested group => success
  *              - the accessToken is expired and the refreshToken has a `email` which is in the requested group => success
+ *          -NOT PRESENT IN DOCS GIVEN BY PROFs (added by Francesco)
+ *          - authType === "Admin||Group"
+ *              - detect if the user is authenticated either as admin or is asking info about the group he belongs to
+ *          - authType === "Admin||User"
+ *              - detect if the user is authenticated either as admin or is asking info about his own account
  * @returns true if the user satisfies all the conditions of the specified `authType` and false if at least one condition is not satisfied
  *  Refreshes the accessToken if it has expired and the refreshToken is still valid
  */
