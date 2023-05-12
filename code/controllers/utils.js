@@ -14,6 +14,7 @@ export const handleDateFilterParams = (req) => {
 
 /**
  * Handle possible authentication modes depending on `authType`
+ * Async function, due to the fact that there is a Group.find that needs to be awaited
  * @param req the request object that contains cookie information
  * @param res the result object of the request
  * @param info an object that specifies the `authType` and that contains additional information, depending on the value of `authType`
