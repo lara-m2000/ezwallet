@@ -71,6 +71,7 @@ export const createGroup = async (req, res) => {
       return res.status(401).json({ message: "Group already exists" });
     }
 
+    debugger;
     // find existing users
     const [membersFound, membersNotFound] = await findExistingUsers(
       membersEmails
@@ -83,14 +84,16 @@ export const createGroup = async (req, res) => {
 
     // check if every user is non-existing or if is part of a group
     if (membersFound.length === membersInGroup.length) {
-      return res
-        .status(401)
-        .json({ message: "Users don't exist or already in a group" });
+      return res.status(401).json({
+        data: { alreadyInGroup: membersInGroup, notInGroup: membersNotInGroup },
+        message: "Users don't exist or already in a group",
+      });
     }
 
-    const members = getUserReference(membersNotInGroup);
-    const newGroup = new Group({ name: name, members: members });
-    const savedGroup = await newGroup.save();
+    const members = await getUserReference(membersNotInGroup);
+    const savedGroup = await Group.insertMany([
+      { name: name, members: members },
+    ]);
 
     res.status(200).json({
       data: {
@@ -370,20 +373,15 @@ export const deleteGroup = async (req, res) => {
 /**
  *
  * @param {string[]} emails find if email belongs to a group
- * @param {?string} excludeGroup group to exclude
  * @returns {Promise.<string[][]>} returns `[usersNotInGroups, usersInGroups]` partitioning of `emails`
  */
-const findUsersGroup = async (emails, excludeGroup = null) => {
-  const usersNotInGroups = emails;
-  const usersInGroups = await Group.aggregate([
+const findUsersGroup = async (emails) => {
+  debugger;
+  let usersNotInGroups = emails;
+  let usersInGroups = await Group.aggregate([
     {
       $project: { members: 1 },
     },
-    excludeGroup
-      ? {
-          $match: { $not: { $eq: excludeGroup } },
-        }
-      : {},
     {
       $unwind: {
         path: "$members",
@@ -396,10 +394,12 @@ const findUsersGroup = async (emails, excludeGroup = null) => {
     {
       $match: { _id: { $in: emails } },
     },
-  ]).map((u) => u._id);
+  ]);
+
+  // usersInGroups = usersInGroups.map((u) => u._id);
 
   if (usersInGroups.length !== 0) {
-    usersNotInGroups = arrayDifference(emails, usersInGroups);
+    usersNotInGroups = arrayDifference(usersNotInGroups, usersInGroups);
   }
 
   return [usersNotInGroups, usersInGroups];
@@ -408,7 +408,7 @@ const findUsersGroup = async (emails, excludeGroup = null) => {
 /**
  *
  * @param {string[]} emails
- * @returns {{email: string, user: string}[]}
+ * @returns {Promise.<{email: string, user: string}[]>}
  */
 const getUserReference = async (emails) => {
   return await User.aggregate([
@@ -427,15 +427,18 @@ const getUserReference = async (emails) => {
  * @returns returns a tuple with [foundUsers, notFoundUser]
  */
 const findExistingUsers = async (emails) => {
-  const membersNotFound = [];
-  const existingMembers = await User.aggregate([
+  debugger;
+  let membersNotFound = [];
+  let existingMembers = await User.aggregate([
     {
       $match: { email: { $in: emails } },
     },
     {
       $project: { _id: 0, email: "$email" },
     },
-  ]).then( e => e.map((m) => m.email));
+  ]);
+
+  existingMembers = existingMembers.map((m) => m.email);
 
   if (existingMembers.length !== emails.length) {
     membersNotFound = arrayDifference(emails, existingMembers);
