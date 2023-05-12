@@ -1,4 +1,4 @@
-import { Model, model, models } from "mongoose";
+import { Model, model} from "mongoose";
 import { categories, transactions } from "../models/model.js";
 import { Group, User } from "../models/User.js";
 import { handleDateFilterParams, handleAmountFilterParams, verifyAuth } from "./utils.js";
@@ -39,6 +39,7 @@ export const updateCategory = async (req, res) => {
             return res.status(401).json({ message: "Unauthorized" }) // unauthorized
         }
         // TODO: Add check on admin
+        // TODO: there is no check on the match between URL category type value and category type value passed in the body
         const { type, color } = req.body;
         const existCategory = await categories.findOne({ type:type });
         if (!existCategory) return res.status(401).json({ message: "The specified category does not exist"});
@@ -47,7 +48,7 @@ export const updateCategory = async (req, res) => {
             Changing the category's type does not make sense since the type is the catagory id
             If the type is not changed the transactions are not modified so the "count" value is not returned
         */
-        return res.status(200).json({message: "Succesfully updated"});
+        return res.status(200).json({message: "Successfully updated"});
     } catch (error) {
         res.status(400).json({ error: error.message })
     }
@@ -67,12 +68,19 @@ export const deleteCategory = async (req, res) => {
             return res.status(401).json({ message: "Unauthorized" }) // unauthorized
         }
         // TODO: Add check on admin
-        const typeArray = req.body;
-        if(!Array.isArray(typeArray)) 
-            res.status(401).json({message: "Bad data format"});
-        typeArray.forEach(async (element) => {
-            await categories.deleteOne({type:element});
-        }); 
+        let numUpdTrans = 0, resp, type;
+        let types = req.body.types;
+        while(types.length > 0){
+            type = types.pop();
+            resp = await categories.deleteOne({type:type});
+            if(!resp.deletedCount){
+                // With this implementation all types until the not existent one are deleted.
+                return res.status(401).json({message: `Type '${type}' does not exist, some other types may not have been deleted`});
+            }
+            resp = await transactions.updateMany({type:type}, {$set: {type: "investment"}});
+            numUpdTrans += resp.modifiedCount;
+        }
+        return res.status(200).json({message: "Successfully deleted", count: numUpdTrans});
     } catch (error) {
         res.status(400).json({ error: error.message })
     }
@@ -92,7 +100,6 @@ export const getCategories = async (req, res) => {
             return res.status(401).json({ message: "Unauthorized" }) // unauthorized
         }
         let data = await categories.find({})
-
         let filter = data.map(v => Object.assign({}, { type: v.type, color: v.color }))
 
         return res.json(filter)
