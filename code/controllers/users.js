@@ -5,6 +5,7 @@ import {
   findExistingUsers,
   findUsersGroup,
   getUserReference,
+  groupSchemaMapper,
 } from "./group.utils.js";
 import { verifyAuth } from "./utils.js";
 
@@ -96,13 +97,13 @@ export const createGroup = async (req, res) => {
     }
 
     const members = await getUserReference(membersNotInGroup);
-    const savedGroup = await Group.insertMany([
+    const savedGroup = await Group.create([
       { name: name, members: members },
     ]);
 
     res.status(200).json({
       data: {
-        group: savedGroup,
+        group: groupSchemaMapper(savedGroup[0]),
         alreadyInGroup: membersInGroup,
         membersNotFound: membersNotFound,
       },
@@ -143,7 +144,7 @@ export const getGroups = async (req, res) => {
     ]);
 
     res.status(200).json({
-      data: { groups: groups },
+      data: { groups: groups.map((g) => groupSchemaMapper(g)) },
       message: "All groups information",
     });
   } catch (err) {
@@ -172,7 +173,7 @@ export const getGroup = async (req, res) => {
     }
 
     res.status(200).json({
-      data: { name: group.name, members: group.members },
+      data: groupSchemaMapper(group),
       message: "Group information",
     });
   } catch (err) {
@@ -236,7 +237,7 @@ export const addToGroup = async (req, res) => {
 
     res.status(200).json({
       data: {
-        group: updatedGroup,
+        group: groupSchemaMapper(updatedGroup),
         alreadyInGroup: membersInGroup,
         membersNotFound: membersNotFound,
       },
@@ -307,7 +308,7 @@ export const removeFromGroup = async (req, res) => {
 
     res.status(200).json({
       data: {
-        group: updatedGroup,
+        group: groupSchemaMapper(updatedGroup),
         notInGroup: membersNotInGroup,
         membersNotFound: membersNotFound,
       },

@@ -11,6 +11,7 @@ import {
 } from "../controllers/users";
 import groupStub from "./stubs/group.stub";
 import { Document } from "mongoose";
+import { groupSchemaMapper } from "../controllers/group.utils";
 
 /**
  * In order to correctly mock the calls to external modules it is necessary to mock them using the following line.
@@ -82,7 +83,7 @@ describe("Group", () => {
   /**
    * Insert a group
    */
-  const GroupInsertMany = jest.spyOn(Group, "insertMany");
+  const GroupCreate = jest.spyOn(Group, "create");
   /**
    * Update a group
    */
@@ -117,7 +118,7 @@ describe("Group", () => {
       );
       GroupAggregate.mockResolvedValueOnce([]);
       UserAggregate.mockResolvedValueOnce(groupStub().members);
-      GroupInsertMany.mockResolvedValueOnce(groupStub());
+      GroupCreate.mockResolvedValueOnce([groupStub()]);
 
       const res = mockRes();
       await createGroup(reqStub(), res);
@@ -125,14 +126,14 @@ describe("Group", () => {
       expect(res.status).toBeCalledWith(200);
       expect(res.json).toBeCalledWith({
         data: {
-          group: groupStub(),
+          group: groupSchemaMapper(groupStub()),
           alreadyInGroup: [],
           membersNotFound: [],
         },
         message: "Group added successfully",
       });
       expect(GroupFindOne).toHaveBeenCalledWith({ name: groupStub().name });
-      expect(GroupInsertMany).toHaveBeenCalledWith([groupStub()]);
+      expect(GroupCreate).toHaveBeenCalledWith([groupStub()]);
     });
 
     test("result status should be 401 when group already exists", async () => {
@@ -191,7 +192,7 @@ describe("Group", () => {
       UserAggregate.mockResolvedValueOnce(existingUsers);
       GroupAggregate.mockResolvedValueOnce([{ _id: userInGroup }]);
       UserAggregate.mockResolvedValueOnce(groupStub().members);
-      GroupInsertMany.mockResolvedValueOnce(groupStub());
+      GroupCreate.mockResolvedValueOnce([groupStub()]);
 
       let req = reqStub();
       req.body.memberEmails.push(userNotExist, userInGroup);
@@ -201,7 +202,7 @@ describe("Group", () => {
       expect(res.status).toBeCalledWith(200);
       expect(res.json).toBeCalledWith({
         data: {
-          group: groupStub(),
+          group: groupSchemaMapper(groupStub()),
           alreadyInGroup: [userInGroup],
           membersNotFound: [userNotExist],
         },
@@ -224,7 +225,7 @@ describe("Group", () => {
       expect(GroupAggregate).toBeCalled();
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
-        data: { groups: [groupStub()] },
+        data: { groups: [groupSchemaMapper(groupStub())] },
         message: "All groups information",
       });
     });
@@ -262,7 +263,7 @@ describe("Group", () => {
       expect(GroupFindOne).toHaveBeenCalled();
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
-        data: { name: groupStub().name, members: groupStub().members },
+        data: groupSchemaMapper(groupStub()),
         message: "Group information",
       });
     });
@@ -311,7 +312,7 @@ describe("Group", () => {
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
         data: {
-          group: updatedGroup,
+          group: groupSchemaMapper(updatedGroup),
           alreadyInGroup: [],
           membersNotFound: [],
         },
@@ -384,7 +385,7 @@ describe("Group", () => {
       expect(res.status).toBeCalledWith(200);
       expect(res.json).toBeCalledWith({
         data: {
-          group: groupStub(),
+          group: groupSchemaMapper(groupStub()),
           alreadyInGroup: [userInGroup],
           membersNotFound: [userNotExist],
         },
@@ -434,7 +435,7 @@ describe("Group", () => {
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
         data: {
-          group: updatedGroup,
+          group: groupSchemaMapper(updatedGroup),
           notInGroup: [],
           membersNotFound: [],
         },
@@ -509,7 +510,7 @@ describe("Group", () => {
       expect(res.status).toBeCalledWith(200);
       expect(res.json).toBeCalledWith({
         data: {
-          group: updatedGroup,
+          group: groupSchemaMapper(updatedGroup),
           notInGroup: [userNotInGroup],
           membersNotFound: [userNotExist],
         },
