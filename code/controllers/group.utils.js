@@ -75,3 +75,15 @@ export const findExistingUsers = async (emails) => {
 
   return [existingMembers, membersNotFound];
 };
+
+/**
+ *
+ * @param {*} group
+ * @returns {{ name: string, members: string[]}}
+ */
+export const groupSchemaMapper = (group) => {
+  return {
+    name: group.name,
+    members: group.members.map((m) => m.email),
+  };
+};
