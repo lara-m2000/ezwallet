@@ -1,5 +1,11 @@
 import { Group, User } from "../models/User.js";
 import { transactions } from "../models/model.js";
+import {
+  arrayIntersection,
+  findExistingUsers,
+  findUsersGroup,
+  getUserReference,
+} from "./group.utils.js";
 import { verifyAuth } from "./utils.js";
 
 /**
@@ -71,7 +77,6 @@ export const createGroup = async (req, res) => {
       return res.status(401).json({ message: "Group already exists" });
     }
 
-    debugger;
     // find existing users
     const [membersFound, membersNotFound] = await findExistingUsers(
       membersEmails
@@ -97,12 +102,9 @@ export const createGroup = async (req, res) => {
 
     res.status(200).json({
       data: {
-        group: {
-          name: name,
-          members: savedGroup.members.map((m) => m.email),
-          alreadyInGroup: membersInGroup,
-          membersNotFound: membersNotFound,
-        },
+        group: savedGroup,
+        alreadyInGroup: membersInGroup,
+        membersNotFound: membersNotFound,
       },
       message: "Group added successfully",
     });
@@ -140,10 +142,6 @@ export const getGroups = async (req, res) => {
       },
     ]);
 
-    if (!groups) {
-      groups = [];
-    }
-
     res.status(200).json({
       data: { groups: groups },
       message: "All groups information",
@@ -173,10 +171,8 @@ export const getGroup = async (req, res) => {
       return res.status(401).json({ message: "Group does not exists" });
     }
 
-    const members = group.members.map((m) => m.email);
-
     res.status(200).json({
-      data: { name: name, members: members },
+      data: { name: group.name, members: group.members },
       message: "Group information",
     });
   } catch (err) {
@@ -240,12 +236,9 @@ export const addToGroup = async (req, res) => {
 
     res.status(200).json({
       data: {
-        group: {
-          name: name,
-          members: updatedGroup.members.map((m) => m.email),
-          alreadyInGroup: membersInGroup,
-          membersNotFound: membersNotFound,
-        },
+        group: updatedGroup,
+        alreadyInGroup: membersInGroup,
+        membersNotFound: membersNotFound,
       },
       message: "Users added successfully to a group",
     });
@@ -314,12 +307,9 @@ export const removeFromGroup = async (req, res) => {
 
     res.status(200).json({
       data: {
-        group: {
-          name: name,
-          members: updatedGroup.members.map((m) => m.email),
-          notInGroup: membersNotInGroup,
-          membersNotFound: membersNotFound,
-        },
+        group: updatedGroup,
+        notInGroup: membersNotInGroup,
+        membersNotFound: membersNotFound,
       },
       message: "Users removed successfully from a group",
     });
@@ -368,114 +358,4 @@ export const deleteGroup = async (req, res) => {
   } catch (err) {
     res.status(500).json(err.message);
   }
-};
-
-/**
- *
- * @param {string[]} emails find if email belongs to a group
- * @returns {Promise.<string[][]>} returns `[usersNotInGroups, usersInGroups]` partitioning of `emails`
- */
-const findUsersGroup = async (emails) => {
-  debugger;
-  let usersNotInGroups = emails;
-  let usersInGroups = await Group.aggregate([
-    {
-      $project: { members: 1 },
-    },
-    {
-      $unwind: {
-        path: "$members",
-        preserveNullAndEmptyArrays: false,
-      },
-    },
-    {
-      $project: { _id: "$email" },
-    },
-    {
-      $match: { _id: { $in: emails } },
-    },
-  ]);
-
-  // usersInGroups = usersInGroups.map((u) => u._id);
-
-  if (usersInGroups.length !== 0) {
-    usersNotInGroups = arrayDifference(usersNotInGroups, usersInGroups);
-  }
-
-  return [usersNotInGroups, usersInGroups];
-};
-
-/**
- *
- * @param {string[]} emails
- * @returns {Promise.<{email: string, user: string}[]>}
- */
-const getUserReference = async (emails) => {
-  return await User.aggregate([
-    {
-      $match: { email: { $in: emails } },
-    },
-    {
-      $project: { _id: 0, email: "$email", user: "$_id" },
-    },
-  ]);
-};
-
-/**
- *
- * @param {string[]} emails emails to find in the db
- * @returns returns a tuple with [foundUsers, notFoundUser]
- */
-const findExistingUsers = async (emails) => {
-  debugger;
-  let membersNotFound = [];
-  let existingMembers = await User.aggregate([
-    {
-      $match: { email: { $in: emails } },
-    },
-    {
-      $project: { _id: 0, email: "$email" },
-    },
-  ]);
-
-  existingMembers = existingMembers.map((m) => m.email);
-
-  if (existingMembers.length !== emails.length) {
-    membersNotFound = arrayDifference(emails, existingMembers);
-  }
-
-  return [existingMembers, membersNotFound];
-};
-
-/**
- * Computes the difference between two arrays
- * ```
- * const a = [1, 2, 3];
- * const b = [3, 4, 5];
- * arrayDifference(a, b); // [1, 2]
- * arrayDifference(b, a); // [4, 5]
- * ```
- *
- * @param {*[]} a
- * @param {*[]} b
- * @returns {*[]}
- */
-const arrayDifference = (a, b) => {
-  return a.filter((x) => !b.includes(x));
-};
-
-/**
- * Computes the intersection between two arrays
- * ```
- * const a = [1, 2, 3];
- * const b = [3, 4, 5];
- * arrayIntersection(a, b); // [3]
- * ```
- *
- * @param {*[]} a
- * @param {*[]} b
- * @returns {*[]}
- */
-const arrayIntersection = (a, b) => {
-  return a.filter((x) => b.includes(x));
 };
