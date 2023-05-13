@@ -1,7 +1,7 @@
 import { Group, User } from "../models/User.js";
 import { transactions } from "../models/model.js";
+import { arrayIntersection } from "./array.utils.js";
 import {
-  arrayIntersection,
   findExistingUsers,
   findUsersGroup,
   getUserReference,
