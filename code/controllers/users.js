@@ -64,10 +64,10 @@ export const createGroup = async (req, res) => {
     // TODO: check for auth
     // ...
 
-    const { name, membersEmails } = req.body;
+    const { name, memberEmails } = req.body;
 
     // bad formatting
-    if (!name || !membersEmails) {
+    if (!name || !memberEmails) {
       return res.status(401).json({ message: "Bad formatting" });
     }
 
@@ -79,7 +79,7 @@ export const createGroup = async (req, res) => {
 
     // find existing users
     const [membersFound, membersNotFound] = await findExistingUsers(
-      membersEmails
+      memberEmails
     );
 
     // find users in a group
