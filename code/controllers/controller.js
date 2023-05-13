@@ -8,7 +8,7 @@ import { handleDateFilterParams, handleAmountFilterParams, verifyAuth } from "./
   - Request Body Content: An object having attributes `type` and `color`
   - Response `data` Content: An object having attributes `type` and `color`
  */
-export const createCategory = (req, res) => {
+export const createCategory = async (req, res) => {
     try {
         const cookie = req.cookies
         if (!cookie.accessToken) {
@@ -16,9 +16,8 @@ export const createCategory = (req, res) => {
         }
         const { type, color } = req.body;
         const new_categories = new categories({ type, color });
-        new_categories.save()
-            .then(data => res.json(data))
-            .catch(err => { throw err })
+        const data = await new_categories.save();
+        return res.status(200).json({data:data});
     } catch (error) {
         res.status(400).json({ error: error.message })
     }
@@ -60,6 +59,10 @@ export const updateCategory = async (req, res) => {
   - Response `data` Content: An object with parameter `message` that confirms successful deletion and a parameter `count` that is equal to the count of affected transactions (deleting a category sets all transactions with that category to have `investment` as their new category)
   - Optional behavior:
     - error 401 is returned if the specified category does not exist
+    
+    - Implementation: 
+    -   The existence of all categories is checker, if at least one the passed category does not exist nothing is deleted; 
+    -   All non existent categories are specified in the error message.
  */
 export const deleteCategory = async (req, res) => {
     try {
@@ -70,13 +73,19 @@ export const deleteCategory = async (req, res) => {
         // TODO: Add check on admin
         let numUpdTrans = 0, resp, type;
         let types = req.body.types;
+
+        // Check if types exists
+        let NotExistArray = [];
+        for (let i=0; i < types.length; i++)
+            if(!(await categories.findOne({type:types[i]})))
+                NotExistArray.push(types[i]);
+        if(NotExistArray.length > 0)
+            return res.status(401).json({message: `The following categories do not exist: ${NotExistArray.join(", ")}`})
+
+        // Actual deletion
         while(types.length > 0){
             type = types.pop();
-            resp = await categories.deleteOne({type:type});
-            if(!resp.deletedCount){
-                // With this implementation all types until the not existent one are deleted.
-                return res.status(401).json({message: `Type '${type}' does not exist, some other types may not have been deleted`});
-            }
+            await categories.deleteOne({type:type});
             resp = await transactions.updateMany({type:type}, {$set: {type: "investment"}});
             numUpdTrans += resp.modifiedCount;
         }
