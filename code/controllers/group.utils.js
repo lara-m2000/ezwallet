@@ -19,7 +19,7 @@ export const findUsersGroup = async (emails) => {
       },
     },
     {
-      $project: { _id: "$email" },
+      $project: { _id: "$members.email" },
     },
     {
       $match: { _id: { $in: emails } },

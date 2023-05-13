@@ -229,10 +229,11 @@ export const addToGroup = async (req, res) => {
         .json({ message: "Users don't exist or already in a group" });
     }
 
-    const members = getUserReference(membersNotInGroup);
+    const members = await getUserReference(membersNotInGroup);
     const updatedGroup = await Group.findOneAndUpdate(
       { name: name },
-      { $push: { members: { $each: members } } }
+      { $push: { members: { $each: members } } },
+      { new: true }
     );
 
     res.status(200).json({
@@ -303,7 +304,8 @@ export const removeFromGroup = async (req, res) => {
 
     const updatedGroup = await Group.findOneAndUpdate(
       { name: name },
-      { $pull: { members: { email: { $in: membersToRemove } } } }
+      { $pull: { members: { email: { $in: membersToRemove } } } },
+      { new: true }
     );
 
     res.status(200).json({

@@ -72,6 +72,8 @@ describe("Group", () => {
     };
   };
 
+  // TODO: substitu aggregate calls with the ones in `group.utils.js`
+
   /**
    * Find the group
    */
@@ -217,7 +219,7 @@ describe("Group", () => {
     });
 
     test("should return a list of all groups", async () => {
-      GroupAggregate.mockResolvedValue([groupStub()]);
+      GroupAggregate.mockResolvedValue([groupSchemaMapper(groupStub())]);
 
       const res = mockRes();
       await getGroups({}, res);
