@@ -416,7 +416,39 @@ describe("Groups", () => {
     });
   });
 
-  describe("deleteGroup", () => {});
+  describe("deleteGroup", () => {
+    const sendRequest = async (body) => {
+      return await request(app)
+        .delete("/api/groups/")
+        .set("Content-Type", "application/json")
+        .send(body);
+    };
+
+    const usersToRemove = [newUser("bre").email, newUser("fra").email];
+
+    const groupStub = () => ({
+      name: "test",
+      members: usersToRemove.map((u) => ({ email: u })),
+    });
+
+    beforeEach(async () => {
+      await Promise.all([User.deleteMany({}), Group.deleteMany({})]);
+    });
+
+    test("group should be removed", async () => {
+      await Group.create({ name: "test" });
+
+      const res = await sendRequest({ name: "test" });
+
+      expect(res.status).toBe(200);
+    });
+
+    test("should return error if group does not exist", async () => {
+      const res = await sendRequest({ name: "test" });
+
+      expect(res.status).toBe(401);
+    });
+  });
 });
 
 describe("deleteUser", () => {});
