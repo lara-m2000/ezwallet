@@ -144,7 +144,7 @@ export const getGroups = async (req, res) => {
     ]);
 
     res.status(200).json({
-      data: { groups: groups.map((g) => groupSchemaMapper(g)) },
+      data: { groups: groups },
       message: "All groups information",
     });
   } catch (err) {
