@@ -188,7 +188,7 @@ describe('logout', () => {
 
     // Log out the user
     const response = await request(app)
-      .post('/api/logout')
+      .get('/api/logout')
       .set('Cookie', [`refreshToken=${refreshToken}`]);
 
     // Check the response status code and data content
@@ -201,7 +201,7 @@ describe('logout', () => {
     const refreshToken = 'invalid-token';
 
     const response = await request(app)
-      .post('/api/logout')
+      .get('/api/logout')
       .set('Cookie', [`refreshToken=${refreshToken}`]);
 
     // Check the response status code and error message
@@ -210,7 +210,7 @@ describe('logout', () => {
   });
 
   test('should return an error if the refresh token is not provided', async () => {
-    const response = await request(app).post('/api/logout');
+    const response = await request(app).get('/api/logout');
 
     // Check the response status code and error message
     expect(response.status).toBe(400);
