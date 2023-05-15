@@ -38,6 +38,7 @@ export const handleDateFilterParams = (req) => {
  *              - the accessToken is expired and the refreshToken has a `email` which is in the requested group => success
  * @returns true if the user satisfies all the conditions of the specified `authType` and false if at least one condition is not satisfied
  *  Refreshes the accessToken if it has expired and the refreshToken is still valid
+ *  It sets res.status to 401 and sends a json with a message error if the authentication fails.
  */
 export const verifyAuth = (req, res, info) => {
     const cookie = req.cookies
