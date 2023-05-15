@@ -108,8 +108,60 @@ describe("registerAdmin", () => {
 })
 
 describe('login', () => {
-  test('Dummy test, change it', () => {
-    expect(true).toBe(true);
+  test('should log in a user and return access and refresh tokens', async () => {
+    const userCredentials = {
+      email: 'test@example.com',
+      password: 'password123',
+    };
+
+    // Register the user first
+    await request(app)
+      .post('/api/register')
+      .send({
+        username: 'testuser',
+        email: userCredentials.email,
+        password: userCredentials.password,
+      });
+
+    // Log in the user
+    const response = await request(app)
+      .post('/api/login')
+      .send(userCredentials);
+
+    // Check the response status code and data content
+    expect(response.status).toBe(200);
+    expect(response.body.data).toHaveProperty('accessToken');
+    expect(response.body.data).toHaveProperty('refreshToken');
+  });
+
+  test('should return an error if the user does not exist', async () => {
+    const userCredentials = {
+      email: 'nonexistent@example.com',
+      password: 'password123',
+    };
+
+    const response = await request(app)
+      .post('/api/login')
+      .send(userCredentials);
+
+    // Check the response status code and error message
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual('please you need to register');
+  });
+
+  test('should return an error if the password is incorrect', async () => {
+    const userCredentials = {
+      email: 'test@example.com',
+      password: 'wrongpassword',
+    };
+
+    const response = await request(app)
+      .post('/api/login')
+      .send(userCredentials);
+
+    // Check the response status code and error message
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual('wrong credentials');
   });
 });
 
