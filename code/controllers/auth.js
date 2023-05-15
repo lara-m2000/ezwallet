@@ -64,9 +64,9 @@ export const registerAdmin = async (req, res) => {
 export const login = async (req, res) => {
     const { email, password } = req.body
     const cookie = req.cookies
-    const existingUser = await User.findOne({ email: email })
-    if (!existingUser) return res.status(400).json('please you need to register')
     try {
+        const existingUser = await User.findOne({ email: email })
+    if (!existingUser) return res.status(400).json('please you need to register')
         const match = await bcrypt.compare(password, existingUser.password)
         if (!match) return res.status(400).json('wrong credentials')
         //CREATE ACCESSTOKEN
