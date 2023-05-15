@@ -2,7 +2,7 @@ import request from 'supertest';
 import { app } from '../app';
 import { User } from '../models/User.js';
 import jwt from 'jsonwebtoken';
-import { register, registerAdmin, login } from '../controllers/auth';
+import { register, registerAdmin, login, logout } from '../controllers/auth';
 const bcrypt = require("bcryptjs")
 
 
@@ -302,8 +302,86 @@ describe('login', () => {
 
 
 describe('logout', () => {
-    test('Dummy test, change it', () => {
-        expect(true).toBe(true);
+    // Define the request and response objects
+    let req;
+    let res;
+
+    beforeEach(() => {
+        req = {
+            cookies: {
+                refreshToken: 'refreshToken123',
+            },
+        };
+        res = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn(),
+            cookie: jest.fn(),
+        };
+    });
+
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
+    it('should perform logout and clear cookies', async () => {
+        // Mock the findOne function to return an existing user
+        User.findOne.mockResolvedValue({
+            refreshToken: 'refreshToken123',
+            save: jest.fn(),
+        });
+
+        await logout(req, res);
+
+        // Check if the appropriate functions were called
+        expect(User.findOne).toHaveBeenCalledWith({ refreshToken: 'refreshToken123' });
+        expect(res.cookie).toHaveBeenCalledWith(
+            'accessToken',
+            '',
+            {
+                httpOnly: true,
+                path: '/api',
+                maxAge: 0,
+                sameSite: 'none',
+                secure: true,
+            }
+        );
+        expect(res.cookie).toHaveBeenCalledWith(
+            'refreshToken',
+            '',
+            {
+                httpOnly: true,
+                path: '/api',
+                maxAge: 0,
+                sameSite: 'none',
+                secure: true,
+            }
+        );
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith('logged out');
+    });
+
+    it('should return an error message if the user does not exist', async () => {
+        // Mock the findOne function to return null (user not found)
+        User.findOne.mockResolvedValue(null);
+
+        await logout(req, res);
+
+        // Check if the appropriate functions were called
+        expect(User.findOne).toHaveBeenCalledWith({ refreshToken: 'refreshToken123' });
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith('user not found');
+    });
+
+    it('should return an error if an exception occurs', async () => {
+        // Mock the findOne function to throw an error
+        User.findOne.mockRejectedValue(new Error('Database error'));
+
+        await logout(req, res);
+
+        // Check if the appropriate functions were called
+        expect(User.findOne).toHaveBeenCalledWith({ refreshToken: 'refreshToken123' });
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith(new Error('Database error'));
     });
 });
 
