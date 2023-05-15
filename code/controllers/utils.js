@@ -17,7 +17,8 @@ export const handleDateFilterParams = (req) => {
  * Async function, due to the fact that there is a Group.find that needs to be awaited
  * @param req the request object that contains cookie information
  * @param res the result object of the request
- * @param info an object that specifies the `authType` and that contains additional information, depending on the value of `authType`
+ * @param info an object that specifies the `authType` and that contains additional information, depending on the value of `authType`. In case of authType="Group", you have additional property (info.group), which contains a group object with a property group.members containing a list of group member emails.
+ *
  *      Example: {authType: "Simple"}
  *      Additional criteria:
  *          - authType === "User":
@@ -35,15 +36,10 @@ export const handleDateFilterParams = (req) => {
  *              - the accessToken is expired and the refreshToken has a `email` which is not in the requested group => error 401
  *              - both the accessToken and the refreshToken have a `email` which is in the requested group => success
  *              - the accessToken is expired and the refreshToken has a `email` which is in the requested group => success
- *          -NOT PRESENT IN DOCS GIVEN BY PROFs (added by Francesco)
- *          - authType === "Admin||Group"
- *              - detect if the user is authenticated either as admin or is asking info about the group he belongs to
- *          - authType === "Admin||User"
- *              - detect if the user is authenticated either as admin or is asking info about his own account
  * @returns true if the user satisfies all the conditions of the specified `authType` and false if at least one condition is not satisfied
  *  Refreshes the accessToken if it has expired and the refreshToken is still valid
  */
-export const verifyAuth = async (req, res, info) => {
+export const verifyAuth = (req, res, info) => {
     const cookie = req.cookies
     if (!cookie.accessToken || !cookie.refreshToken) {
         res.status(401).json({ message: "Unauthorized" });
@@ -66,35 +62,13 @@ export const verifyAuth = async (req, res, info) => {
             }
         }
         if (info.authType === "Group") {
-            const name = req.params.name;
-            const group = await Group.findOne({ name: name });
+            const group = info.group;
             const user = group.members.find(e => e.email === decodedAccessToken.email) && group.members.find(e => e.email === decodedRefreshToken.email);
             if (!user) {
                 res.status(401).json({ message: "You cannot request info about a group you don't belong to" });
                 return false;
             }
         }
-        if (info.authType === "Admin||Group") {
-            if (decodedAccessToken.role !== "Admin" || decodedRefreshToken.role !== "Admin") {
-                const name = req.params.name;
-                const group = await Group.findOne({ name: name });
-                const user = group.members.find(e => e.email === decodedAccessToken.email) && group.members.find(e => e.email === decodedRefreshToken.email);
-                if (!user) {
-                    res.status(401).json({ message: "You cannot request info about a group you don't belong to" });
-                    return false;
-                }
-            }
-        }
-        if (info.authType === "Admin||User") {
-            const username = req.params.username;
-            if (decodedAccessToken.role !== "Admin" || decodedRefreshToken.role !== "Admin") {
-                if (decodedAccessToken.username !== username || decodedRefreshToken.username !== username) {
-                    res.status(401).json({ message: "You cannot request info about another user" })
-                    return false;
-                }
-            }
-        }
-        //missing authType === "Group"
         if (!decodedAccessToken.username || !decodedAccessToken.email || !decodedAccessToken.role) {
             res.status(401).json({ message: "Token is missing information" })
             return false
