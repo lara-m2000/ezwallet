@@ -68,8 +68,42 @@ describe('register', () => {
 
 
 describe("registerAdmin", () => {
-  test('Dummy test, change it', () => {
-    expect(true).toBe(true);
+  test('should register a new admin and return success message', async () => {
+    const newAdmin = {
+      username: 'adminuser',
+      email: 'admin@example.com',
+      password: 'password123',
+    };
+
+    const response = await request(app)
+      .post('/api/admin')
+      .send(newAdmin);
+
+    // Check the response status code and message
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual('admin added succesfully');
+  });
+
+  test('should return an error if the admin is already registered', async () => {
+    const existingAdmin = {
+      username: 'existingadmin',
+      email: 'existingadmin@example.com',
+      password: 'password123',
+    };
+
+    // Register the existing admin first
+    await request(app)
+      .post('/api/admin')
+      .send(existingAdmin);
+
+    // Attempt to register the same admin again
+    const response = await request(app)
+      .post('/api/admin')
+      .send(existingAdmin);
+
+    // Check the response status code and error message
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ message: 'you are already registered' });
   });
 })
 
