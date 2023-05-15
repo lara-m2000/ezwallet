@@ -105,9 +105,9 @@ export const login = async (req, res) => {
 export const logout = async (req, res) => {
     const refreshToken = req.cookies.refreshToken
     if (!refreshToken) return res.status(400).json("user not found")
-    const user = await User.findOne({ refreshToken: refreshToken })
-    if (!user) return res.status(400).json('user not found')
     try {
+        const user = await User.findOne({ refreshToken: refreshToken })
+        if (!user) return res.status(400).json('user not found')
         user.refreshToken = null
         res.cookie("accessToken", "", { httpOnly: true, path: '/api', maxAge: 0, sameSite: 'none', secure: true })
         res.cookie('refreshToken', "", { httpOnly: true, path: '/api', maxAge: 0, sameSite: 'none', secure: true })

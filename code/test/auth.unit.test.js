@@ -323,7 +323,7 @@ describe('logout', () => {
         jest.clearAllMocks();
     });
 
-    it('should perform logout and clear cookies', async () => {
+    test('should perform logout and clear cookies', async () => {
         // Mock the findOne function to return an existing user
         User.findOne.mockResolvedValue({
             refreshToken: 'refreshToken123',
@@ -360,7 +360,7 @@ describe('logout', () => {
         expect(res.json).toHaveBeenCalledWith('logged out');
     });
 
-    it('should return an error message if the user does not exist', async () => {
+    test('should return an error message if the user does not exist', async () => {
         // Mock the findOne function to return null (user not found)
         User.findOne.mockResolvedValue(null);
 
@@ -372,7 +372,7 @@ describe('logout', () => {
         expect(res.json).toHaveBeenCalledWith('user not found');
     });
 
-    it('should return an error if an exception occurs', async () => {
+    test('should return an error if an exception occurs', async () => {
         // Mock the findOne function to throw an error
         User.findOne.mockRejectedValue(new Error('Database error'));
 
