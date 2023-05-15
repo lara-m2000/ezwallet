@@ -2,12 +2,13 @@ import request from 'supertest';
 import { app } from '../app';
 import { User } from '../models/User.js';
 import jwt from 'jsonwebtoken';
-import { register, registerAdmin } from '../controllers/auth';
+import { register, registerAdmin, login } from '../controllers/auth';
 const bcrypt = require("bcryptjs")
 
 
-jest.mock("bcryptjs")
+jest.mock("bcryptjs");
 jest.mock('../models/User.js');
+jest.mock('jsonwebtoken');
 
 beforeEach(() => {
     jest.clearAllMocks();
@@ -109,7 +110,7 @@ describe("registerAdmin", () => {
         jest.clearAllMocks();
     });
 
-    it('should register a new admin user and return a success message', async () => {
+    test('should register a new admin user and return a success message', async () => {
         // Mock the findOne function to return null (no existing user)
         User.findOne.mockResolvedValue(null);
         // Mock the hash function to return the hashed password
@@ -137,7 +138,7 @@ describe("registerAdmin", () => {
         expect(res.json).toHaveBeenCalledWith('admin added succesfully');
     });
 
-    it('should return an error message if the admin user is already registered', async () => {
+    test('should return an error message if the admin user is already registered', async () => {
         // Mock the findOne function to return an existing user
         User.findOne.mockResolvedValue({ username: 'testadmin', email: 'admin@example.com' });
 
@@ -149,7 +150,7 @@ describe("registerAdmin", () => {
         expect(res.json).toHaveBeenCalledWith({ message: 'you are already registered' });
     });
 
-    it('should return an error if an exception occurs', async () => {
+    test('should return an error if an exception occurs', async () => {
         // Mock the findOne function to throw an error
         User.findOne.mockRejectedValue(new Error('Database error'));
 
@@ -163,13 +164,146 @@ describe("registerAdmin", () => {
 })
 
 describe('login', () => {
-    test('Dummy test, change it', () => {
-        expect(true).toBe(true);
+    // Define the request and response objects
+    let req;
+    let res;
+
+    beforeEach(() => {
+        req = {
+            body: {
+                email: 'test@example.com',
+                password: 'password',
+            },
+            cookies: {},
+        };
+        res = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn(),
+            cookie: jest.fn(),
+        };
     });
-});
+
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
+    test('should perform login and return access token and refresh token', async () => {
+        // Mock the findOne function to return an existing user
+        User.findOne.mockResolvedValue({
+            email: 'test@example.com',
+            password: 'hashedpassword',
+            id: 'user123',
+            username: 'testuser',
+            role: 'user',
+            save: jest.fn(),
+        });
+        // Mock the compare function to return true (password match)
+        bcrypt.compare.mockResolvedValue(true);
+        // Mock the sign function to return different token in consecutive calls
+        jwt.sign.mockReturnValueOnce('accessToken').mockReturnValueOnce('refreshToken');
+
+        await login(req, res);
+
+        // Check if the appropriate functions were called
+        expect(User.findOne).toHaveBeenCalledWith({ email: 'test@example.com' });
+        expect(bcrypt.compare).toHaveBeenCalledWith('password', 'hashedpassword');
+        expect(jwt.sign).toHaveBeenCalledWith(
+            {
+                email: 'test@example.com',
+                id: 'user123',
+                username: 'testuser',
+                role: 'user',
+            },
+            process.env.ACCESS_KEY,
+            { expiresIn: '1h' }
+        );
+        expect(jwt.sign).toHaveBeenCalledWith(
+            {
+                email: 'test@example.com',
+                id: 'user123',
+                username: 'testuser',
+                role: 'user',
+            },
+            process.env.ACCESS_KEY,
+            { expiresIn: '7d' }
+        );
+        expect(res.cookie).toHaveBeenCalledWith(
+            'accessToken',
+            'accessToken',
+            {
+                httpOnly: true,
+                domain: 'localhost',
+                path: '/api',
+                maxAge: 3600000,
+                sameSite: 'none',
+                secure: true,
+            }
+        );
+        expect(res.cookie).toHaveBeenCalledWith(
+            'refreshToken',
+            'refreshToken',
+            {
+                httpOnly: true,
+                domain: 'localhost',
+                path: '/api',
+                maxAge: 604800000,
+                sameSite: 'none',
+                secure: true,
+            }
+        );
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({
+            data: { accessToken: 'accessToken', refreshToken: 'refreshToken' },
+        });
+    });
+
+    test('should return an error message if the user does not exist', async () => {
+        // Mock the findOne function to return null (user not found)
+        User.findOne.mockResolvedValue(null);
+
+        await login(req, res);
+
+        // Check if the appropriate functions were called
+        expect(User.findOne).toHaveBeenCalledWith({ email: 'test@example.com' });
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith('please you need to register');
+    });
+
+    test('should return an error message if the supplied password does not match', async () => {
+        // Mock the findOne function to return an existing user
+        User.findOne.mockResolvedValue({
+            email: 'test@example.com',
+            password: 'hashedpassword',
+        });
+        // Mock the compare function to return false (password does not match)
+        bcrypt.compare.mockResolvedValue(false);
+
+        await login(req, res);
+
+        // Check if the appropriate functions were called
+        expect(User.findOne).toHaveBeenCalledWith({ email: 'test@example.com' });
+        expect(bcrypt.compare).toHaveBeenCalledWith('password', 'hashedpassword');
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith('wrong credentials');
+    });
+
+    test('should return an error if an exception occurs', async () => {
+        // Mock the findOne function to throw an error
+        User.findOne.mockRejectedValue(new Error('Database error'));
+
+        await login(req, res);
+
+        // Check if the appropriate functions were called
+        expect(User.findOne).toHaveBeenCalledWith({ email: 'test@example.com' });
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith(new Error('Database error'));
+    });
+})
+
 
 describe('logout', () => {
     test('Dummy test, change it', () => {
         expect(true).toBe(true);
     });
 });
+
