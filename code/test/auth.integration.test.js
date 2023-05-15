@@ -166,7 +166,54 @@ describe('login', () => {
 });
 
 describe('logout', () => {
-  test('Dummy test, change it', () => {
-    expect(true).toBe(true);
+  test('should log out a user and return a success message', async () => {
+    // Register and log in the user first
+    const registerResponse = await request(app)
+      .post('/api/register')
+      .send({
+        username: 'testuser',
+        email: 'test@example.com',
+        password: 'password123',
+      });
+
+    const loginResponse = await request(app)
+      .post('/api/login')
+      .send({
+        email: 'test@example.com',
+        password: 'password123',
+      });
+
+    // Get the refresh token from the login response
+    const refreshToken = loginResponse.body.data.refreshToken;
+
+    // Log out the user
+    const response = await request(app)
+      .post('/api/logout')
+      .set('Cookie', [`refreshToken=${refreshToken}`]);
+
+    // Check the response status code and data content
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual('logged out');
+  });
+
+  test('should return an error if the user is not found', async () => {
+    // Set an invalid refresh token
+    const refreshToken = 'invalid-token';
+
+    const response = await request(app)
+      .post('/api/logout')
+      .set('Cookie', [`refreshToken=${refreshToken}`]);
+
+    // Check the response status code and error message
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual('user not found');
+  });
+
+  test('should return an error if the refresh token is not provided', async () => {
+    const response = await request(app).post('/api/logout');
+
+    // Check the response status code and error message
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual('user not found');
   });
 });
