@@ -72,9 +72,21 @@ describe('register', () => {
         expect(res.json).toHaveBeenCalledWith({ message: 'you are already registered' });
     })
 
-    test("Should return an error if an exception occurs", async () => {
+    test("Should return an error if an exception occurs in User.findOne", async () => {
         // Mock the findOne function to throw an error
         User.findOne.mockRejectedValue(new Error('Database error'));
+
+        await register(req, res);
+
+        // Check if the appropriate functions were called
+        expect(User.findOne).toHaveBeenCalledWith({ email: 'test@example.com' });
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith(new Error('Database error'));
+    })
+
+    test("Should return an error if an exception occurs in User.Create", async () => {
+        // Mock the findOne function to throw an error
+        User.create.mockRejectedValue(new Error('Database error'));
 
         await register(req, res);
 
