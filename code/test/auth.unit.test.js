@@ -372,6 +372,17 @@ describe('logout', () => {
         expect(res.json).toHaveBeenCalledWith('user not found');
     });
 
+    test('should return an error message if there is no refreshToken in the request', async () => {
+        //Set refreshToken to undefined
+        req.cookies.refreshToken = undefined;
+
+        await logout(req, res);
+
+        // Check if the appropriate functions were called
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith('user not found');
+    });
+
     test('should return an error if an exception occurs', async () => {
         // Mock the findOne function to throw an error
         User.findOne.mockRejectedValue(new Error('Database error'));
