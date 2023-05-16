@@ -88,6 +88,27 @@ export const verifyAuth = (req, res, info) => {
         if (err.name === "TokenExpiredError") {
             try {
                 const refreshToken = jwt.verify(cookie.refreshToken, process.env.ACCESS_KEY)
+                if (info.authType === "Admin") {
+                    if (refreshToken.role !== "Admin") {
+                        res.status(401).json({ message: "You need to be admin to perform this action" })
+                        return false;
+                    }
+                }
+                if (info.authType === "User") {
+                    const username = req.params.username;
+                    if (refreshToken.username !== username) {
+                        res.status(401).json({ message: "You cannot request info about another user" })
+                        return false;
+                    }
+                }
+                if (info.authType === "Group") {
+                    const group = info.group;
+                    const user = group.members.find(e => e.email === refreshToken.email);
+                    if (!user) {
+                        res.status(401).json({ message: "You cannot request info about a group you don't belong to" });
+                        return false;
+                    }
+                }
                 const newAccessToken = jwt.sign({
                     username: refreshToken.username,
                     email: refreshToken.email,
