@@ -1,7 +1,7 @@
 import request from 'supertest';
 import { app } from '../app';
 import { categories, transactions } from '../models/model';
-import { createCategory, updateCategory } from '../controllers/controller';
+import { createCategory, updateCategory, deleteCategory } from '../controllers/controller';
 
 jest.mock('../models/model');
 
@@ -53,109 +53,175 @@ describe("createCategory", () => {
     test('should return an error if there is an issue creating the category', async () => {
         // Mock the request and response objects
         const req = {
-          body: {
-            type: 'Test Category',
-            color: 'red',
-          },
+            body: {
+                type: 'Test Category',
+                color: 'red',
+            },
         };
         const res = {
-          status: jest.fn().mockReturnThis(),
-          json: jest.fn(),
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn(),
         };
-    
+
         // Mock the category creation error
         const mockError = new Error('Database error');
         categories.prototype.save.mockRejectedValue(mockError);
-    
+
         // Call the createCategory function
         await createCategory(req, res);
-    
+
         // Check the response status and error message
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith({ error: 'Database error' });
         expect(categories.prototype.save).toHaveBeenCalledTimes(1);
-      });
+    });
 })
-
+//Missing controls on authentication (probably will have to mock the verifyAuth() func after inserting it)
 describe("updateCategory", () => {
-  // Mock request and response objects
-  const req = {
-    params: {
-      type: 'old-category',
-    },
-    body: {
-      type: 'new-category',
-      color: 'new-color',
-    },
-  };
-  const res = {
-    status: jest.fn(() => res),
-    json: jest.fn(),
-  };
+    // Mock request and response objects
+    let req;
+    let res;
+    beforeEach(() => {
+        jest.clearAllMocks();
+        req = {
+            params: {
+                type: 'old-category',
+            },
+            body: {
+                type: 'new-category',
+                color: 'new-color',
+            },
+        };
+        res = {
+            status: jest.fn(() => res),
+            json: jest.fn(),
+        };
+    });
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
+    test('should return error 401 if category does not exist', async () => {
+        // Mock the categories.findOne function to return null (category does not exist)
+        categories.findOne = jest.fn().mockResolvedValueOnce(null);
 
-  test('should return error 401 if category does not exist', async () => {
-    // Mock the categories.findOne function to return null (category does not exist)
-    categories.findOne = jest.fn().mockResolvedValueOnce(null);
+        await updateCategory(req, res);
 
-    await updateCategory(req, res);
+        // Verify the response
+        expect(res.status).toHaveBeenCalledWith(401);
+        expect(res.json).toHaveBeenCalledWith({ data: { count: 0 }, message: 'The category does not exist' });
+    });
 
-    // Verify the response
-    expect(res.status).toHaveBeenCalledWith(401);
-    expect(res.json).toHaveBeenCalledWith({ data: { count: 0 }, message: 'The category does not exist' });
-  });
+    test('should update category and related transactions', async () => {
+        // Mock the categories.findOne function to return a category
+        categories.findOne = jest.fn().mockResolvedValueOnce({ type: 'old-category' });
 
-  test('should update category and related transactions', async () => {
-    // Mock the categories.findOne function to return a category
-    categories.findOne = jest.fn().mockResolvedValueOnce({ type: 'old-category' });
+        // Mock the categories.updateOne and transactions.updateMany functions to return successful updates
+        categories.updateOne = jest.fn().mockResolvedValueOnce();
+        transactions.updateMany = jest.fn().mockResolvedValueOnce({ modifiedCount: 5 });
 
-    // Mock the categories.updateOne and transactions.updateMany functions to return successful updates
-    categories.updateOne = jest.fn().mockResolvedValueOnce();
-    transactions.updateMany = jest.fn().mockResolvedValueOnce({ modifiedCount: 5 });
+        await updateCategory(req, res);
 
-    await updateCategory(req, res);
+        // Verify the response
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({ data: { count: 5 }, message: 'Successfully updated' });
 
-    // Verify the response
-    expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith({ data: { count: 5 }, message: 'Successfully updated' });
+        // Verify the function calls
+        expect(categories.updateOne).toHaveBeenCalledWith({ type: 'old-category' }, { $set: { type: 'new-category', color: 'new-color' } });
+        expect(transactions.updateMany).toHaveBeenCalledWith({ type: 'old-category' }, { $set: { type: 'new-category' } });
+    });
 
-    // Verify the function calls
-    expect(categories.updateOne).toHaveBeenCalledWith({ type: 'old-category' }, { $set: { type: 'new-category', color: 'new-color' } });
-    expect(transactions.updateMany).toHaveBeenCalledWith({ type: 'old-category' }, { $set: { type: 'new-category' } });
-  });
+    /*test('should return error 401 if unauthorized', async () => {
+      // Mock the categories.findOne function to return a category
+      categories.findOne = jest.fn().mockResolvedValueOnce({ type: 'old-category' });
+  
+      // Uncomment the following lines to simulate an unauthorized request
+      // req.cookies = {};
+  
+      await updateCategory(req, res);
+  
+      // Verify the response
+      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.json).toHaveBeenCalledWith({ message: 'Unauthorized' });
+    });*/
 
-  /*test('should return error 401 if unauthorized', async () => {
-    // Mock the categories.findOne function to return a category
-    categories.findOne = jest.fn().mockResolvedValueOnce({ type: 'old-category' });
+    test('should handle and return error 401', async () => {
+        // Mock the categories.findOne function to throw an error
+        categories.findOne = jest.fn().mockRejectedValueOnce(new Error('Database error'));
 
-    // Uncomment the following lines to simulate an unauthorized request
-    // req.cookies = {};
+        await updateCategory(req, res);
 
-    await updateCategory(req, res);
-
-    // Verify the response
-    expect(res.status).toHaveBeenCalledWith(401);
-    expect(res.json).toHaveBeenCalledWith({ message: 'Unauthorized' });
-  });*/
-
-  test('should handle and return error 401', async () => {
-    // Mock the categories.findOne function to throw an error
-    categories.findOne = jest.fn().mockRejectedValueOnce(new Error('Database error'));
-
-    await updateCategory(req, res);
-
-    // Verify the response
-    expect(res.status).toHaveBeenCalledWith(401);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Database error' });
-  });
+        // Verify the response
+        expect(res.status).toHaveBeenCalledWith(401);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Database error' });
+    });
 })
 
 describe("deleteCategory", () => {
-    test('Dummy test, change it', () => {
-        expect(true).toBe(true);
+    // Mock request and response objects
+    let req;
+    let res;
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+        req = {
+            body: {
+                types: ['category1', 'category2'],
+            },
+        };
+        res = {
+            status: jest.fn(() => res),
+            json: jest.fn(),
+        };
+    })
+
+    test('should return error 401 if any category does not exist', async () => {
+        // Mock the categories.findOne function to return null for one category
+        categories.findOne = jest.fn().mockImplementation((query) => {
+            if (query.type === 'category1') return { type: 'category1' };
+            return null;
+        });
+
+        await deleteCategory(req, res);
+
+        // Verify the response
+        expect(res.status).toHaveBeenCalledWith(401);
+        expect(res.json).toHaveBeenCalledWith({
+            message: 'The following categories do not exist: category2',
+        });
+    });
+
+    test('should delete categories and update transactions', async () => {
+        // Mock the categories.findOne function to return the categories
+        categories.findOne.mockResolvedValueOnce({ type: 'category1' }).mockResolvedValueOnce({ type: 'category2' });
+
+        // Mock the categories.deleteOne and transactions.updateMany functions to return successful deletions/updates
+        categories.deleteOne.mockResolvedValue(undefined);
+        transactions.updateMany.mockResolvedValue({ modifiedCount: 5 });
+
+        await deleteCategory(req, res);
+
+        // Verify the response
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({ message: 'Successfully deleted', count: 10 });
+
+        // Verify the function calls
+        expect(categories.deleteOne).toHaveBeenCalledTimes(2);
+        expect(categories.deleteOne).toHaveBeenCalledWith({ type: 'category1' });
+        expect(categories.deleteOne).toHaveBeenCalledWith({ type: 'category2' });
+        expect(transactions.updateMany).toHaveBeenCalledTimes(2);
+        expect(transactions.updateMany).toHaveBeenCalledWith({ type: 'category1' }, { $set: { type: 'investment' } });
+        expect(transactions.updateMany).toHaveBeenCalledWith({ type: 'category2' }, { $set: { type: 'investment' } });
+    });
+
+    test('should handle and return error 400', async () => {
+        // Mock the categories.findOne function to throw an error
+        console.log(req);
+        console.log(res);
+        categories.findOne.mockRejectedValue(new Error('Database error'));
+
+        await deleteCategory(req, res);
+
+        // Verify the response
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Database error' });
     });
 })
 

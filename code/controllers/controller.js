@@ -46,16 +46,16 @@ export const updateCategory = async (req, res) => {
         //Detect if the category actually exists
         const oldCategory = await categories.findOne({ type: oldType });
         if (!oldCategory) {
-            return res.status(401).json({ data:{count: 0}, message:"The category does not exist" });
+            return res.status(401).json({ data: { count: 0 }, message: "The category does not exist" });
         }
 
         //Update the target category
         await categories.updateOne({ type: oldType }, { $set: { type: type, color: color } });  // Update the category
-        
-        //Update all the related transactions and retrieve the number of changed transactions
-        const changes = await transactions.updateMany ({type: oldType}, { $set: {type: type}});
 
-        return res.status(200).json({ data:{count: changes.modifiedCount}, message: "Successfully updated" });
+        //Update all the related transactions and retrieve the number of changed transactions
+        const changes = await transactions.updateMany({ type: oldType }, { $set: { type: type } });
+
+        return res.status(200).json({ data: { count: changes.modifiedCount }, message: "Successfully updated" });
     } catch (error) {
         //Return 401 as said in the docs (it was previously 400 by default)
         res.status(401).json({ error: error.message })
@@ -76,18 +76,20 @@ export const updateCategory = async (req, res) => {
 export const deleteCategory = async (req, res) => {
     try {
         const cookie = req.cookies
-        if (!cookie.accessToken) {
+        /*if (!cookie.accessToken) {
             return res.status(401).json({ message: "Unauthorized" }) // unauthorized
-        }
-        // TODO: Add check on admin
+        }*/
         let numUpdTrans = 0, resp, type;
         let types = req.body.types;
 
         // Check if types exists
         let NotExistArray = [];
-        for (let i = 0; i < types.length; i++)
-            if (!(await categories.findOne({ type: types[i] })))
-                NotExistArray.push(types[i]);
+        for (let i = 0; i < types.length; i++) {
+                let category = await categories.findOne({ type: types[i] });
+                if (!category) {
+                    NotExistArray.push(types[i]);
+                }
+        }
         if (NotExistArray.length > 0)
             return res.status(401).json({ message: `The following categories do not exist: ${NotExistArray.join(", ")}` })
 
