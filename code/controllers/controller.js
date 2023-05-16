@@ -57,7 +57,8 @@ export const updateCategory = async (req, res) => {
 
         return res.status(200).json({ data:{count: changes}, message: "Successfully updated" });
     } catch (error) {
-        res.status(400).json({ error: error.message })
+        //Return 401 as said in the docs (it was previously 400 by default)
+        res.status(401).json({ error: error.message })
     }
 }
 
