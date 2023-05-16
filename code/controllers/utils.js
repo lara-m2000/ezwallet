@@ -14,7 +14,6 @@ export const handleDateFilterParams = (req) => {
 
 /**
  * Handle possible authentication modes depending on `authType`
- * Async function, due to the fact that there is a Group.find that needs to be awaited
  * @param req the request object that contains cookie information
  * @param res the result object of the request
  * @param info an object that specifies the `authType` and that contains additional information, depending on the value of `authType`. In case of authType="Group", you have additional property (info.group), which contains a group object with a property group.members containing a list of group member emails.
@@ -40,6 +39,8 @@ export const handleDateFilterParams = (req) => {
  *  Refreshes the accessToken if it has expired and the refreshToken is still valid
  *  It sets res.status to 401 and sends a json with a message error if the authentication fails.
  */
+
+//TODO: add check of authType in the catch 
 export const verifyAuth = (req, res, info) => {
     const cookie = req.cookies
     if (!cookie.accessToken || !cookie.refreshToken) {
