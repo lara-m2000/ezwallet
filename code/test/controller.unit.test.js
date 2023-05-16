@@ -2,11 +2,14 @@ import request from 'supertest';
 import { app } from '../app';
 import { categories, transactions } from '../models/model';
 import { createCategory, updateCategory, deleteCategory, getCategories } from '../controllers/controller';
+import { verifyAuth } from '../controllers/utils';
 
 jest.mock('../models/model');
+jest.mock('../controllers/utils.js');
 
 beforeEach(() => {
     jest.clearAllMocks();
+    verifyAuth.mockReturnValue(true); //at the moment it's useless, will be required when we will add verifyAuth in the categories function. Since it's unit testing it's ok if it returns always true.
     /*categories.find.mockClear();
     categories.prototype.save.mockClear();
     transactions.find.mockClear();
@@ -206,8 +209,6 @@ describe("deleteCategory", () => {
 
     test('should handle and return error 400', async () => {
         // Mock the categories.findOne function to throw an error
-        console.log(req);
-        console.log(res);
         categories.findOne.mockRejectedValue(new Error('Database error'));
 
         await deleteCategory(req, res);
