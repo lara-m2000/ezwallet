@@ -43,9 +43,10 @@ export const updateCategory = async (req, res) => {
         if (!oldCategory) {
             return res.status(401).json({ data:{count: 0}, message:"The category does not exist" });
         }
-        await categories.updateOne({ type: type }, { $set: { color: color } });  // Update
+        await categories.updateOne({ type: oldType }, { $set: { type: type, color: color } });  // Update the category
+        const changes = await transactions.updateMany ({type: oldType}, { $set: {type: type}});
 
-        return res.status(200).json({ message: "Successfully updated" });
+        return res.status(200).json({ data:{count: changes}, message: "Successfully updated" });
     } catch (error) {
         res.status(400).json({ error: error.message })
     }
