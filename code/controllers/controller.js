@@ -116,9 +116,9 @@ export const deleteCategory = async (req, res) => {
 export const getCategories = async (req, res) => {
     try {
         const cookie = req.cookies
-        if (!cookie.accessToken) {
+        /*if (!cookie.accessToken) {
             return res.status(401).json({ message: "Unauthorized" }) // unauthorized
-        }
+        }*/
         let data = await categories.find({})
         let filter = data.map(v => Object.assign({}, { type: v.type, color: v.color }))
 

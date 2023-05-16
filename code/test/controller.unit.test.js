@@ -1,7 +1,7 @@
 import request from 'supertest';
 import { app } from '../app';
 import { categories, transactions } from '../models/model';
-import { createCategory, updateCategory, deleteCategory } from '../controllers/controller';
+import { createCategory, updateCategory, deleteCategory, getCategories } from '../controllers/controller';
 
 jest.mock('../models/model');
 
@@ -200,7 +200,7 @@ describe("deleteCategory", () => {
 
         // Verify the response
         expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith({ data:{message: 'Successfully deleted', count: 10} });
+        expect(res.json).toHaveBeenCalledWith({ data: { message: 'Successfully deleted', count: 10 } });
 
         // Verify the function calls
         expect(categories.deleteOne).toHaveBeenCalledTimes(2);
@@ -226,8 +226,53 @@ describe("deleteCategory", () => {
 })
 
 describe("getCategories", () => {
-    test('Dummy test, change it', () => {
-        expect(true).toBe(true);
+    // Mock request and response objects
+    let req;
+    let res;
+    beforeEach(() => {
+        jest.clearAllMocks();
+        req = {};
+        res = {
+            json: jest.fn(),
+            status: jest.fn(() => res),
+        };
+    });
+
+    test('should return all categories', async () => {
+        // Mock the categories.find function to return some data
+        categories.find.mockResolvedValueOnce([
+            { type: 'category1', color: 'red' },
+            { type: 'category2', color: 'blue' },
+        ]);
+
+        await getCategories(req, res);
+
+        // Verify the response
+        expect(res.json).toHaveBeenCalledWith({data:[
+            { type: 'category1', color: 'red' },
+            { type: 'category2', color: 'blue' },
+        ]});
+    });
+
+    test('should return an empty array if there are no categories', async () => {
+        // Mock the categories.find function to return an empty array
+        categories.find.mockResolvedValueOnce([]);
+
+        await getCategories(req, res);
+
+        // Verify the response
+        expect(res.json).toHaveBeenCalledWith({data:[]});
+    });
+
+    test('should handle and return error 400', async () => {
+        // Mock the categories.find function to throw an error
+        categories.find.mockRejectedValueOnce(new Error('Database error'));
+
+        await getCategories(req, res);
+
+        // Verify the response
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Database error' });
     });
 })
 
