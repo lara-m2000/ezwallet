@@ -130,6 +130,77 @@ describe("verifyAuth", () => {
         expect(res.json).toHaveBeenCalledWith({ message: "DecodeError" });
     });
 
+    test('Should return true for valid Admin authentication when role == Admin (authType=Admin)', () => {
+        const info = { authType: 'Admin' };
+        //Mock jwt.verify to return a valid decodedToken
+        jwt.verify.mockReturnValue({ username: "testname", email: "test@email", role: "Admin" })
+
+        const result = verifyAuth(req, res, info);
+
+        //Check if the appropriate functions were called
+        expect(result).toBe(true);
+        expect(res.status).not.toHaveBeenCalled();
+        expect(res.json).not.toHaveBeenCalled();
+    });
+
+    test('Should return false for non valid admin authentication with role!=Admin (authType=Admin)', () => {
+        const info = { authType: 'Admin' };
+        //Mock jwt.verify to return a non valid decodedToken
+        jwt.verify.mockReturnValue({ username:"testuser", email: "test@email", role: "Regular" })
+
+        const result = verifyAuth(req, res, info);
+
+        //Check if the appropriate functions were called
+        expect(result).toBe(false);
+        expect(res.status).toHaveBeenCalledWith(401);
+        expect(res.json).toHaveBeenCalledWith({ message: "You need to be admin to perform this action" });
+    });
+
+    test('Should return true when refreshToken not expired and accessToken expired and role == Admin (authType=Admin)', () => {
+        const info = { authType: 'Admin' };
+        let counter = 0;
+        //Mock jwt.verify to throw TokenExpiredError the first time it's called
+        jwt.verify.mockImplementation(() => {
+            if (counter == 0) {
+                counter++;
+                throw Object.assign(new Error('TokenExpiredError'), { name: 'TokenExpiredError' });
+            }
+            else
+                return { username: "testname", email: "test@email", role: "Admin" };
+        })
+        //Mock jwt.sign to return the new accessToken
+        jwt.sign.mockReturnValue("newAccessToken");
+
+        const result = verifyAuth(req, res, info);
+
+        //Check if the appropriate functions were called
+        expect(result).toBe(true);
+        expect(res.status).not.toHaveBeenCalled();
+        expect(res.json).not.toHaveBeenCalled();
+        expect(res.cookie).toHaveBeenCalledWith('accessToken', 'newAccessToken', { httpOnly: true, path: '/api', maxAge: 60 * 60 * 1000, sameSite: 'none', secure: true });
+        expect(res.locals.message).toBe('Access token has been refreshed. Remember to copy the new one in the headers of subsequent calls');
+    });
+
+    test('Should return false when refreshToken not expired and accessToken expired and role != Admin (authType=Admin)', () => {
+        const info = { authType: 'Admin' };
+        let counter = 0;
+        //Mock jwt.verify to throw TokenExpiredError the first time it's called
+        jwt.verify.mockImplementation(() => {
+            if (counter == 0) {
+                counter++;
+                throw Object.assign(new Error('TokenExpiredError'), { name: 'TokenExpiredError' });
+            }
+            else
+                return { username: "testname", email: "test@email", role: "Regular" };
+        })
+
+        const result = verifyAuth(req, res, info);
+
+        //Check if the appropriate functions were called
+        expect(result).toBe(false);
+        expect(res.status).toHaveBeenCalledWith(401);
+        expect(res.json).toHaveBeenCalledWith({ message: "You need to be admin to perform this action" });
+    });
 })
 
 describe("handleAmountFilterParams", () => {
