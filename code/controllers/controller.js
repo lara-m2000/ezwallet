@@ -1,4 +1,4 @@
-import { Model, model} from "mongoose";
+import { Model, model } from "mongoose";
 import { categories, transactions } from "../models/model.js";
 import { Group, User } from "../models/User.js";
 import { handleDateFilterParams, handleAmountFilterParams, verifyAuth } from "./utils.js";
@@ -17,7 +17,7 @@ export const createCategory = async (req, res) => {
         const { type, color } = req.body;
         const new_categories = new categories({ type, color });
         const data = await new_categories.save();
-        return res.status(200).json({data:data});
+        return res.status(200).json({ data: data });
     } catch (error) {
         res.status(400).json({ error: error.message })
     }
@@ -34,20 +34,18 @@ export const createCategory = async (req, res) => {
 export const updateCategory = async (req, res) => {
     try {
         const cookie = req.cookies
-        if (!cookie.accessToken) {
+        /*if (!cookie.accessToken) {
             return res.status(401).json({ message: "Unauthorized" }) // unauthorized
-        }
-        // TODO: Add check on admin
-        // TODO: there is no check on the match between URL category type value and category type value passed in the body
+        }*/
+        const oldType = req.params.type;
         const { type, color } = req.body;
-        const existCategory = await categories.findOne({ type:type });
-        if (!existCategory) return res.status(401).json({ message: "The specified category does not exist"});
-        await categories.updateOne({type:type}, {$set: {color:color}});  // Update
-        /* TODO: ASK
-            Changing the category's type does not make sense since the type is the catagory id
-            If the type is not changed the transactions are not modified so the "count" value is not returned
-        */
-        return res.status(200).json({message: "Successfully updated"});
+        const oldCategory = await categories.findOne({ type: oldType });
+        if (!oldCategory) {
+            return res.status(401).json({ data:{count: 0}, message:"The category does not exist" });
+        }
+        await categories.updateOne({ type: type }, { $set: { color: color } });  // Update
+
+        return res.status(200).json({ message: "Successfully updated" });
     } catch (error) {
         res.status(400).json({ error: error.message })
     }
@@ -76,20 +74,20 @@ export const deleteCategory = async (req, res) => {
 
         // Check if types exists
         let NotExistArray = [];
-        for (let i=0; i < types.length; i++)
-            if(!(await categories.findOne({type:types[i]})))
+        for (let i = 0; i < types.length; i++)
+            if (!(await categories.findOne({ type: types[i] })))
                 NotExistArray.push(types[i]);
-        if(NotExistArray.length > 0)
-            return res.status(401).json({message: `The following categories do not exist: ${NotExistArray.join(", ")}`})
+        if (NotExistArray.length > 0)
+            return res.status(401).json({ message: `The following categories do not exist: ${NotExistArray.join(", ")}` })
 
         // Actual deletion
-        while(types.length > 0){
+        while (types.length > 0) {
             type = types.pop();
-            await categories.deleteOne({type:type});
-            resp = await transactions.updateMany({type:type}, {$set: {type: "investment"}});
+            await categories.deleteOne({ type: type });
+            resp = await transactions.updateMany({ type: type }, { $set: { type: "investment" } });
             numUpdTrans += resp.modifiedCount;
         }
-        return res.status(200).json({message: "Successfully deleted", count: numUpdTrans});
+        return res.status(200).json({ message: "Successfully deleted", count: numUpdTrans });
     } catch (error) {
         res.status(400).json({ error: error.message })
     }

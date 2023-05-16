@@ -15,7 +15,7 @@ beforeEach(() => {
     transactions.prototype.save.mockClear();*/
 });
 
-//Missing controls on authentication, do i need to put them in here (?)
+//Missing controls on authentication (probably will have to mock the verifyAuth() func after inserting it)
 describe("createCategory", () => {
     beforeEach(() => {
         jest.clearAllMocks();
