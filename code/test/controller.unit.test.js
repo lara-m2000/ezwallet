@@ -121,7 +121,7 @@ describe("updateCategory", () => {
 
         // Verify the response
         expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith({ data: { count: 5 }, message: 'Successfully updated' });
+        expect(res.json).toHaveBeenCalledWith({ data: { count: 5, message: 'Successfully updated' } });
 
         // Verify the function calls
         expect(categories.updateOne).toHaveBeenCalledWith({ type: 'old-category' }, { $set: { type: 'new-category', color: 'new-color' } });
@@ -200,7 +200,7 @@ describe("deleteCategory", () => {
 
         // Verify the response
         expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith({ message: 'Successfully deleted', count: 10 });
+        expect(res.json).toHaveBeenCalledWith({ data:{message: 'Successfully deleted', count: 10} });
 
         // Verify the function calls
         expect(categories.deleteOne).toHaveBeenCalledTimes(2);
