@@ -153,7 +153,7 @@ describe("updateCategory", () => {
         expect(res.json).toHaveBeenCalledWith({ error: 'Database error' });
     });
 })
-
+//Missing controls on authentication (probably will have to mock the verifyAuth() func after inserting it)
 describe("deleteCategory", () => {
     // Mock request and response objects
     let req;
@@ -224,7 +224,7 @@ describe("deleteCategory", () => {
         expect(res.json).toHaveBeenCalledWith({ error: 'Database error' });
     });
 })
-
+//Missing controls on authentication (probably will have to mock the verifyAuth() func after inserting it)
 describe("getCategories", () => {
     // Mock request and response objects
     let req;
