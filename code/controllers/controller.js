@@ -55,7 +55,7 @@ export const updateCategory = async (req, res) => {
         //Update all the related transactions and retrieve the number of changed transactions
         const changes = await transactions.updateMany ({type: oldType}, { $set: {type: type}});
 
-        return res.status(200).json({ data:{count: changes}, message: "Successfully updated" });
+        return res.status(200).json({ data:{count: changes.modifiedCount}, message: "Successfully updated" });
     } catch (error) {
         //Return 401 as said in the docs (it was previously 400 by default)
         res.status(401).json({ error: error.message })
