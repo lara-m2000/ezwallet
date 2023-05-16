@@ -40,7 +40,6 @@ export const handleDateFilterParams = (req) => {
  *  It sets res.status to 401 and sends a json with a message error if the authentication fails.
  */
 
-//TODO: add check of authType in the catch 
 export const verifyAuth = (req, res, info) => {
     const cookie = req.cookies
     if (!cookie.accessToken || !cookie.refreshToken) {
