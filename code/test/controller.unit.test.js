@@ -1,7 +1,7 @@
 import request from 'supertest';
 import { app } from '../app';
 import { categories, transactions } from '../models/model';
-import { createCategory } from '../controllers/controller';
+import { createCategory, updateCategory } from '../controllers/controller';
 
 jest.mock('../models/model');
 
@@ -78,9 +78,79 @@ describe("createCategory", () => {
 })
 
 describe("updateCategory", () => {
-    test('Dummy test, change it', () => {
-        expect(true).toBe(true);
-    });
+  // Mock request and response objects
+  const req = {
+    params: {
+      type: 'old-category',
+    },
+    body: {
+      type: 'new-category',
+      color: 'new-color',
+    },
+  };
+  const res = {
+    status: jest.fn(() => res),
+    json: jest.fn(),
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('should return error 401 if category does not exist', async () => {
+    // Mock the categories.findOne function to return null (category does not exist)
+    categories.findOne = jest.fn().mockResolvedValueOnce(null);
+
+    await updateCategory(req, res);
+
+    // Verify the response
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({ data: { count: 0 }, message: 'The category does not exist' });
+  });
+
+  test('should update category and related transactions', async () => {
+    // Mock the categories.findOne function to return a category
+    categories.findOne = jest.fn().mockResolvedValueOnce({ type: 'old-category' });
+
+    // Mock the categories.updateOne and transactions.updateMany functions to return successful updates
+    categories.updateOne = jest.fn().mockResolvedValueOnce();
+    transactions.updateMany = jest.fn().mockResolvedValueOnce({ modifiedCount: 5 });
+
+    await updateCategory(req, res);
+
+    // Verify the response
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({ data: { count: 5 }, message: 'Successfully updated' });
+
+    // Verify the function calls
+    expect(categories.updateOne).toHaveBeenCalledWith({ type: 'old-category' }, { $set: { type: 'new-category', color: 'new-color' } });
+    expect(transactions.updateMany).toHaveBeenCalledWith({ type: 'old-category' }, { $set: { type: 'new-category' } });
+  });
+
+  /*test('should return error 401 if unauthorized', async () => {
+    // Mock the categories.findOne function to return a category
+    categories.findOne = jest.fn().mockResolvedValueOnce({ type: 'old-category' });
+
+    // Uncomment the following lines to simulate an unauthorized request
+    // req.cookies = {};
+
+    await updateCategory(req, res);
+
+    // Verify the response
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({ message: 'Unauthorized' });
+  });*/
+
+  test('should handle and return error 401', async () => {
+    // Mock the categories.findOne function to throw an error
+    categories.findOne = jest.fn().mockRejectedValueOnce(new Error('Database error'));
+
+    await updateCategory(req, res);
+
+    // Verify the response
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({ error: 'Database error' });
+  });
 })
 
 describe("deleteCategory", () => {
