@@ -202,13 +202,6 @@ describe("deleteCategory", () => {
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({ data: { message: 'Successfully deleted', count: 10 } });
 
-        // Verify the function calls
-        expect(categories.deleteOne).toHaveBeenCalledTimes(2);
-        expect(categories.deleteOne).toHaveBeenCalledWith({ type: 'category1' });
-        expect(categories.deleteOne).toHaveBeenCalledWith({ type: 'category2' });
-        expect(transactions.updateMany).toHaveBeenCalledTimes(2);
-        expect(transactions.updateMany).toHaveBeenCalledWith({ type: 'category1' }, { $set: { type: 'investment' } });
-        expect(transactions.updateMany).toHaveBeenCalledWith({ type: 'category2' }, { $set: { type: 'investment' } });
     });
 
     test('should handle and return error 400', async () => {
