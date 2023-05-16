@@ -122,7 +122,7 @@ export const getCategories = async (req, res) => {
         let data = await categories.find({})
         let filter = data.map(v => Object.assign({}, { type: v.type, color: v.color }))
 
-        return res.json(filter)
+        return res.json({data: filter})
     } catch (error) {
         res.status(400).json({ error: error.message })
     }
