@@ -159,7 +159,7 @@ describe("User", () => {
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
         data: {
-          deletedTrasactions: 0,
+          deletedTransactions: 0,
           deletedFromGroup: false,
         },
         message: "",

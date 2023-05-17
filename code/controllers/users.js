@@ -360,7 +360,7 @@ export const deleteUser = async (req, res) => {
     const toRemoveFromGroup = await Group.aggregate([
       {
         $match: {
-          members: { email: email },
+          members: { $elemMatch: { email: email } },
         },
       },
     ]);
@@ -387,7 +387,7 @@ export const deleteUser = async (req, res) => {
 
     res.status(200).json({
       data: {
-        deletedTrasactions: removedTransactions.deletedCount,
+        deletedTransactions: removedTransactions.deletedCount,
         deletedFromGroup: deletedFromGroup,
       },
       message: res.locals.message,
