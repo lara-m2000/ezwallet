@@ -5,13 +5,17 @@ import {
   addToGroup,
   createGroup,
   deleteGroup,
+  deleteUser,
   getGroup,
   getGroups,
+  getUser,
+  getUsers,
   removeFromGroup,
 } from "../controllers/users";
 import groupStub from "./stubs/group.stub";
 import { Document } from "mongoose";
 import { groupSchemaMapper } from "../controllers/group.utils";
+import { transactions } from "../models/model";
 
 /**
  * In order to correctly mock the calls to external modules it is necessary to mock them using the following line.
@@ -31,38 +35,138 @@ beforeEach(() => {
   //additional `mockClear()` must be placed here
 });
 
-describe("getUsers", () => {
-  test("should return empty list if there are no users", async () => {
-    //any time the `User.find()` method is called jest will replace its actual implementation with the one defined below
-    jest.spyOn(User, "find").mockImplementation(() => []);
-    const response = await request(app).get("/api/users");
-
-    expect(response.status).toBe(200);
-    expect(response.body).toEqual([]);
+describe("User", () => {
+  const mockRes = () => ({
+    status: jest.fn().mockReturnThis(),
+    json: jest.fn(),
+    locals: {
+      message: "",
+    },
   });
 
-  test("should retrieve list of all users", async () => {
-    const retrievedUsers = [
-      {
-        username: "test1",
-        email: "test1@example.com",
-        password: "hashedPassword1",
-      },
-      {
-        username: "test2",
-        email: "test2@example.com",
-        password: "hashedPassword2",
-      },
-    ];
-    jest.spyOn(User, "find").mockImplementation(() => retrievedUsers);
-    const response = await request(app).get("/api/users");
+  describe("getUsers", () => {
+    beforeEach(async () => {
+      jest.clearAllMocks();
+    });
 
-    expect(response.status).toBe(200);
-    expect(response.body).toEqual(retrievedUsers);
+    test("should return empty list if there are no users", async () => {
+      //any time the `User.find()` method is called jest will replace its actual implementation with the one defined below
+      const mockReq = {};
+      jest.spyOn(User, "find").mockResolvedValue([]);
+
+      const res = mockRes();
+      await getUsers(mockReq, res);
+
+      expect(User.find).toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        data: [],
+        message: "",
+      });
+    });
+
+    test("should retrieve list of all users", async () => {
+      const mockReq = {};
+      const retrievedUsers = [
+        {
+          username: "test1",
+          email: "test1@example.com",
+          role: "Regular",
+        },
+        {
+          username: "test2",
+          email: "test2@example.com",
+          role: "Regular",
+        },
+      ];
+      jest.spyOn(User, "find").mockResolvedValue(retrievedUsers);
+
+      const res = mockRes();
+      await getUsers(mockReq, res);
+
+      expect(User.find).toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        data: retrievedUsers,
+        message: "",
+      });
+    });
+  });
+
+  describe("getUser", () => {
+    beforeEach(async () => {
+      jest.clearAllMocks();
+    });
+
+    const mockReq = () => ({
+      params: { username: "bre" },
+    });
+
+    const userStub = () => ({
+      username: "bre",
+      email: "bre@bre.it",
+      role: "Regular",
+    });
+
+    test("should return a user", async () => {
+      jest.spyOn(User, "findOne").mockResolvedValue(userStub());
+
+      const res = mockRes();
+      await getUser(mockReq(), res);
+
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        data: userStub(),
+        message: "",
+      });
+    });
+
+    test("should return error", async () => {
+      jest.spyOn(User, "findOne").mockResolvedValue();
+
+      const res = mockRes();
+      await getUser(mockReq(), res);
+
+      expect(res.status).toHaveBeenCalledWith(401);
+    });
+  });
+
+  describe("deleteUser", () => {
+    beforeEach(async () => {
+      jest.clearAllMocks();
+    });
+
+    const mockReq = () => ({
+      body: { email: "bre@bre.it" },
+    });
+
+    const userStub = () => ({
+      username: "bre",
+      email: "bre@bre.it",
+      role: "Regular",
+    });
+
+    test("should delete a user", async () => {
+      jest.spyOn(User, "findOneAndDelete").mockResolvedValue(userStub());
+      jest.spyOn(User, "aggregate").mockResolvedValue([]);
+      jest
+        .spyOn(transactions, "deleteMany")
+        .mockResolvedValue({ deletedCount: 0 });
+
+      const res = mockRes();
+      await deleteUser(mockReq(), res);
+
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        data: {
+          deletedTrasactions: 0,
+          deletedFromGroup: false,
+        },
+        message: "",
+      });
+    });
   });
 });
-
-describe("getUser", () => {});
 
 describe("Group", () => {
   const mockRes = () => {
@@ -550,5 +654,3 @@ describe("Group", () => {
     });
   });
 });
-
-describe("deleteUser", () => {});
