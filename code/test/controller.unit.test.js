@@ -35,6 +35,9 @@ describe("createCategory", () => {
         const res = {
             status: jest.fn().mockReturnThis(),
             json: jest.fn(),
+            locals: {
+                message: "test message"
+            }
         };
 
         // Mock the category creation
@@ -49,7 +52,7 @@ describe("createCategory", () => {
 
         // Check the response status and data
         expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith({ data: {type: mockSavedCategory.type, color: mockSavedCategory.color} });
+        expect(res.json).toHaveBeenCalledWith({ data: {type: mockSavedCategory.type, color: mockSavedCategory.color}, message: "test message" });
         expect(categories.prototype.save).toHaveBeenCalledTimes(1);
     });
 
@@ -64,6 +67,9 @@ describe("createCategory", () => {
         const res = {
             status: jest.fn().mockReturnThis(),
             json: jest.fn(),
+            locals: {
+                message: "test message"
+            }
         };
 
         // Mock the category creation error
@@ -98,6 +104,9 @@ describe("updateCategory", () => {
         res = {
             status: jest.fn(() => res),
             json: jest.fn(),
+            locals: {
+                message: "test message"
+            }
         };
     });
 
@@ -124,26 +133,12 @@ describe("updateCategory", () => {
 
         // Verify the response
         expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith({ data: { count: 5, message: 'Successfully updated' } });
+        expect(res.json).toHaveBeenCalledWith({ data: { count: 5, message: 'Successfully updated' }, message: "test message" });
 
         // Verify the function calls
         expect(categories.updateOne).toHaveBeenCalledWith({ type: 'old-category' }, { $set: { type: 'new-category', color: 'new-color' } });
         expect(transactions.updateMany).toHaveBeenCalledWith({ type: 'old-category' }, { $set: { type: 'new-category' } });
     });
-
-    /*test('should return error 401 if unauthorized', async () => {
-      // Mock the categories.findOne function to return a category
-      categories.findOne = jest.fn().mockResolvedValueOnce({ type: 'old-category' });
-  
-      // Uncomment the following lines to simulate an unauthorized request
-      // req.cookies = {};
-  
-      await updateCategory(req, res);
-  
-      // Verify the response
-      expect(res.status).toHaveBeenCalledWith(401);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Unauthorized' });
-    });*/
 
     test('should handle and return error 401', async () => {
         // Mock the categories.findOne function to throw an error
@@ -172,6 +167,9 @@ describe("deleteCategory", () => {
         res = {
             status: jest.fn(() => res),
             json: jest.fn(),
+            locals: {
+                message: "test message"
+            }
         };
     })
 
@@ -203,7 +201,7 @@ describe("deleteCategory", () => {
 
         // Verify the response
         expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith({ data: { message: 'Successfully deleted', count: 10 } });
+        expect(res.json).toHaveBeenCalledWith({ data: { message: 'Successfully deleted', count: 10 }, message: "test message" });
 
     });
 
@@ -229,6 +227,9 @@ describe("getCategories", () => {
         res = {
             json: jest.fn(),
             status: jest.fn(() => res),
+            locals: {
+                message: "test message"
+            }
         };
     });
 
@@ -245,7 +246,7 @@ describe("getCategories", () => {
         expect(res.json).toHaveBeenCalledWith({data:[
             { type: 'category1', color: 'red' },
             { type: 'category2', color: 'blue' },
-        ]});
+        ], message: "test message"});
     });
 
     test('should return an empty array if there are no categories', async () => {
