@@ -87,13 +87,24 @@ export const getCategories = async (req, res) => {
 export const createTransaction = async (req, res) => {
     try {
         const cookie = req.cookies
-        if (!cookie.accessToken) {
+        if (!cookie.accessToken) {//TODO: check auth
             return res.status(401).json({ message: "Unauthorized" }) // unauthorized
         }
         const { username, amount, type } = req.body;
+        const user=await User.findOne({username:username});
+        if(!user){
+            res.status(401).json({message: "User not found"})
+        }
+        if(user.refreshToken!==cookie.refreshToken){
+            return res.status(401).json({ message: "Unauthorized" });
+        }
+        const category= await categories.findOne({type: type});
+        if(!category){
+            res.status(401).json({message: "Category not found"})
+        }
         const new_transactions = new transactions({ username, amount, type });
         new_transactions.save()
-            .then(data => res.json(data))
+            .then(data => res.json({data:data, message: res.locals.message}))
             .catch(err => { throw err })
     } catch (error) {
         res.status(400).json({ error: error.message })
@@ -110,7 +121,7 @@ export const createTransaction = async (req, res) => {
 export const getAllTransactions = async (req, res) => {
     try {
         const cookie = req.cookies
-        if (!cookie.accessToken) {
+        if (!cookie.accessToken) {//checked in Auth; role="Admin"
             return res.status(401).json({ message: "Unauthorized" }) // unauthorized
         }
         /**
@@ -128,7 +139,7 @@ export const getAllTransactions = async (req, res) => {
             { $unwind: "$categories_info" }
         ]).then((result) => {
             let data = result.map(v => Object.assign({}, { _id: v._id, username: v.username, amount: v.amount, type: v.type, color: v.categories_info.color, date: v.date }))
-            res.json(data);
+            res.json({data: data, message:res.locals.message});
         }).catch(error => { throw (error) })
     } catch (error) {
         res.status(400).json({ error: error.message })
@@ -187,7 +198,7 @@ export const getTransactionsByUser = async (req, res) => {
             { $unwind: "$categories_info" }
         ]).then((result) => {
             let data = result.map(v => Object.assign({}, { _id: v._id, username: v.username, amount: v.amount, type: v.type, color: v.categories_info.color, date: v.date }))
-            res.json(data);
+            res.json({data:data, message:res.locals.message});
         }).catch(error => { throw (error) })
     } catch (error) {
         res.status(400).json({ error: error.message })
@@ -209,21 +220,27 @@ export const getTransactionsByUserByCategory = async (req, res) => {
         if (!cookie.accessToken || !cookie.refreshToken) {
             return res.status(401).json({ message: "Unauthorized" }) // unauthorized
         }
-        const user = await User.findOne({ refreshToken: cookie.refreshToken });
+        const user = await User.findOne({ username: username });
         if (!user) 
             return res.status(401).json({ message: "User not found" });
-        if (user.username !== username) // the requested user is not the one logged in
+        if (req.url.indexOf("/transactions/users/") >= 0) {//Admin
+            //TODO: check auth as admin
+        }
+        else{ //Regular user
+            //TODO: check auth
+            if(user.refreshToken!==cookie.refreshToken)//user logged in is not the requested one
             return res.status(401).json({ message: "Unauthorized" });
+        }
         const cat = await categories.findOne({type: category});
         if (!cat) 
             return res.status(401).json({ message: "Category not found" });
-            transactions.aggregate([
-                {
-                    $match: {
-                        username:username,
-                        type:category
+        transactions.aggregate([
+            {
+                $match: {
+                    username:username,
+                    type:category
                     }
-                },
+            },
                 {
                     $lookup: {
                         from: "categories",
@@ -235,7 +252,7 @@ export const getTransactionsByUserByCategory = async (req, res) => {
                 { $unwind: "$categories_info" }
             ]).then((result) => {
                 let data = result.map(v => Object.assign({}, { _id: v._id, username: v.username, amount: v.amount, type: v.type, color: v.categories_info.color, date: v.date }))
-                res.json(data);
+                res.json({data:data, message:res.locals.message});
             }).catch(error => { throw (error) })
     } catch (error) {
         res.status(400).json({ error: error.message })
@@ -258,6 +275,17 @@ export const getTransactionsByGroup = async (req, res) => {
         }
         // Array with group members' usernames
         const groupMembers=await findGroupUsernames(req.params.name);
+        //if Admin->OK; if Regular, member of group
+        if (req.url.indexOf("/transactions/groups/") >= 0) {//Admin
+            //TODO: check auth as admin
+        }
+        else{ //Regular user
+            //TODO: check auth
+            const user=await User.findOne({refreshToken:req.cookie.refreshToken})
+            //check if the user authenticated belongs to the group
+            if(!user || !groupMembers.includes(user.username))
+                return req.status(401).json({ message: "Unauthorized" });
+        }
         transactions.aggregate([
             {
                 $match: {
@@ -275,7 +303,7 @@ export const getTransactionsByGroup = async (req, res) => {
             { $unwind: "$categories_info" }
         ]).then((result) => {
             let data = result.map(v => Object.assign({}, { _id: v._id, username: v.username, amount: v.amount, type: v.type, color: v.categories_info.color, date: v.date }))
-            res.json(data);
+            res.json({data:data, message:res.locals.message});
         }).catch(error => { throw (error) })
     } catch (error) {
         res.status(400).json({ error: error.message })
@@ -302,6 +330,16 @@ export const getTransactionsByGroupByCategory = async (req, res) => {
         }
         // Array with group members' usernames
         const groupMembers=await findGroupUsernames(req.params.name);
+        if (req.url.indexOf("/transactions/groups/") >= 0) {//Admin
+            //TODO: check auth as admin
+        }
+        else{ //Regular user
+            //TODO: check auth
+            const user=await User.findOne({refreshToken:req.cookie.refreshToken})
+            //check if the user authenticated belongs to the group
+            if(!user || !groupMembers.includes(user.username))
+                return req.status(401).json({ message: "Unauthorized" });
+        }
         transactions.aggregate([
             {
                 $match: {
@@ -320,7 +358,7 @@ export const getTransactionsByGroupByCategory = async (req, res) => {
             { $unwind: "$categories_info" }
         ]).then((result) => {
             let data = result.map(v => Object.assign({}, { _id: v._id, username: v.username, amount: v.amount, type: v.type, color: v.categories_info.color, date: v.date }))
-            res.json(data);
+            res.json({data: data, message: res.locals.message});
         }).catch(error => { throw (error) })
     } catch (error) {
         res.status(400).json({ error: error.message })
@@ -334,14 +372,27 @@ export const getTransactionsByGroupByCategory = async (req, res) => {
   - Optional behavior:
     - error 401 is returned if the user or the transaction does not exist
  */
-export const deleteTransaction = async (req, res) => {
+export const deleteTransaction = async (req, res) => { //only called by regular users
     try {
         const cookie = req.cookies
         if (!cookie.accessToken) {
+            //TODO: check auth
             return res.status(401).json({ message: "Unauthorized" }) // unauthorized
         }
+        const loggedUser=await User.findOne({refreshToken:req.cookie.refreshToken})
+        if(!loggedUser){
+            res.status(401).json({message:"User not found"});
+        }
+        const transactionToDelete=await transactions.findById(req.body._id);
+        if(!transactionToDelete){
+            res.status(401).json({message:"Transaction not found"});
+        }
+        if(transactionToDelete.username!==loggedUser.username){
+            res.status(401).json({message:"Unauthorized"});
+        }
+
         let data = await transactions.deleteOne({ _id: req.body._id });
-        return res.json("deleted");
+        return res.json({data:"Transaction deleted"});
     } catch (error) {
         res.status(400).json({ error: error.message })
     }
@@ -357,17 +408,18 @@ export const deleteTransaction = async (req, res) => {
 export const deleteTransactions = async (req, res) => {
     try {
         const cookie = req.cookies
-        if (!cookie.accessToken) {
+        if (!cookie.accessToken) {//only ADMIN
             return res.status(401).json({ message: "Unauthorized" }) // unauthorized
         }
         const ids=req.body._ids;
         let count= await transactions.countDocuments({_id: {$in: ids}});
+        transactions.id
         if(count!==ids.length){
             return res.status(401).json({error: "Not every ids could be found"});
         }
 
-        let data = await transactions.deleteMany({_id: {$in: ids}});
-        return res.json("deleted");
+        await transactions.deleteMany({_id: {$in: ids}});
+        return res.json({data:"All transactiions deleted"});
     } catch (error) {
         res.status(400).json({ error: error.message })
     }

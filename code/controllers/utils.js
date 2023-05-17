@@ -11,10 +11,11 @@ import jwt from 'jsonwebtoken'
 export const handleDateFilterParams = (req) => {
     const {date, from, upTo}=req.query;
     if(date && (from || upTo))
-            throw new Error("Cannot set a date filter with a from or upTo filter");
-    let matchObj;
+        throw new Error("Cannot set a date filter with a from or upTo filter");
+    if(!(date||from||to))
+        return;
+    let matchObj={date:{}};
     const dayEnd="T23:59:59.999Z";
-    //TODO: check date comparison
     if(date){
         // selects transactions with this specific date
         matchObj.date={$gte: new Date(date), 
