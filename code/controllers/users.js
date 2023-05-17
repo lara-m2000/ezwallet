@@ -97,9 +97,7 @@ export const createGroup = async (req, res) => {
     }
 
     const members = await getUserReference(membersNotInGroup);
-    const savedGroup = await Group.create([
-      { name: name, members: members },
-    ]);
+    const savedGroup = await Group.create([{ name: name, members: members }]);
 
     res.status(200).json({
       data: {
@@ -307,6 +305,11 @@ export const removeFromGroup = async (req, res) => {
       { $pull: { members: { email: { $in: membersToRemove } } } },
       { new: true }
     );
+
+    // If all users were removed from a group also remove the group
+    if (updatedGroup.members.length === 0) {
+      await Group.findOneAndDelete({ name: name });
+    }
 
     res.status(200).json({
       data: {
