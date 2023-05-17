@@ -55,7 +55,7 @@ export const updateCategory = async (req, res) => {
         //Update all the related transactions and retrieve the number of changed transactions
         const changes = await transactions.updateMany({ type: oldType }, { $set: { type: type } });
 
-        return res.status(200).json({ data: { count: changes.modifiedCount, message: "Successfully updated" } });
+        return res.status(200).json({ data: { count: changes.modifiedCount, message: "Successfully updated" }, message: res.locals.message });
     } catch (error) {
         //Return 401 as said in the docs (it was previously 400 by default)
         res.status(401).json({ error: error.message })
@@ -100,7 +100,7 @@ export const deleteCategory = async (req, res) => {
             resp = await transactions.updateMany({ type: type }, { $set: { type: "investment" } });
             numUpdTrans += resp.modifiedCount;
         }
-        return res.status(200).json({ data:{message: "Successfully deleted", count: numUpdTrans} });
+        return res.status(200).json({ data:{message: "Successfully deleted", count: numUpdTrans}, message: res.locals.message });
     } catch (error) {
         res.status(400).json({ error: error.message })
     }
@@ -122,7 +122,7 @@ export const getCategories = async (req, res) => {
         let data = await categories.find({})
         let filter = data.map(v => Object.assign({}, { type: v.type, color: v.color }))
 
-        return res.json({data: filter})
+        return res.json({data: filter, message: res.locals.message})
     } catch (error) {
         res.status(400).json({ error: error.message })
     }

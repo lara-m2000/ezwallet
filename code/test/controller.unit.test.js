@@ -256,7 +256,7 @@ describe("getCategories", () => {
         await getCategories(req, res);
 
         // Verify the response
-        expect(res.json).toHaveBeenCalledWith({data:[]});
+        expect(res.json).toHaveBeenCalledWith({data:[], message: res.locals.message});
     });
 
     test('should handle and return error 400', async () => {
