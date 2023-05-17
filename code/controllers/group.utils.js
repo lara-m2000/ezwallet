@@ -1,5 +1,5 @@
-import { Group, User } from "../models/User";
-import { arrayDifference } from "./array.utils";
+import { Group, User } from "../models/User.js";
+import { arrayDifference } from "./array.utils.js";
 
 /**
  *
