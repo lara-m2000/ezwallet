@@ -7,6 +7,7 @@ import {
   getUserReference,
   groupSchemaMapper,
 } from "./group.utils.js";
+import { userSchemaMapper } from "./users.utils.js";
 import { verifyAuth } from "./utils.js";
 
 /**
@@ -18,8 +19,14 @@ import { verifyAuth } from "./utils.js";
  */
 export const getUsers = async (req, res) => {
   try {
+    // TODO: auth
+
     const users = await User.find();
-    res.status(200).json(users);
+
+    res.status(200).json({
+      data: users.map((u) => userSchemaMapper(u)),
+      message: res.locals.message,
+    });
   } catch (error) {
     res.status(500).json(error.message);
   }
@@ -34,16 +41,20 @@ export const getUsers = async (req, res) => {
  */
 export const getUser = async (req, res) => {
   try {
-    const cookie = req.cookies;
-    if (!cookie.accessToken || !cookie.refreshToken) {
-      return res.status(401).json({ message: "Unauthorized" }); // unauthorized
-    }
+    // TODO: auth
+
     const username = req.params.username;
-    const user = await User.findOne({ refreshToken: cookie.refreshToken });
-    if (!user) return res.status(401).json({ message: "User not found" });
-    if (user.username !== username)
-      return res.status(401).json({ message: "Unauthorized" });
-    res.status(200).json(user);
+
+    const user = await User.findOne({ username: username });
+
+    if (!user) {
+      return res.status(401).json({ message: res.locals.message });
+    }
+
+    res.status(200).json({
+      data: userSchemaMapper(user),
+      message: res.locals.message,
+    });
   } catch (error) {
     res.status(500).json(error.message);
   }
@@ -335,6 +346,52 @@ export const removeFromGroup = async (req, res) => {
  */
 export const deleteUser = async (req, res) => {
   try {
+    // TODO: auth
+
+    const { email } = req.body;
+
+    const user = await User.findOneAndDelete({ email: email });
+    if (!user) {
+      return res.status(401).json({ message: res.locals.message });
+    }
+
+    let deletedFromGroup = false;
+    // Find if user is in a group
+    const toRemoveFromGroup = await Group.aggregate([
+      {
+        $match: {
+          members: { email: email },
+        },
+      },
+    ]);
+
+    // remove user from gruop
+    if (toRemoveFromGroup.length !== 0) {
+      const updatedGroup = await Group.findOneAndUpdate(
+        { name: toRemoveFromGroup[0].name },
+        { $pull: { members: { email: email } } },
+        { new: true }
+      );
+
+      if (updatedGroup.members.length === 0) {
+        await Group.findOneAndDelete({ name: updatedGroup.name });
+      }
+
+      deletedFromGroup = true;
+    }
+
+    // delete users transactions
+    const removedTransactions = await transactions.deleteMany({
+      username: user.username,
+    });
+
+    res.status(200).json({
+      data: {
+        deletedTrasactions: removedTransactions.deletedCount,
+        deletedFromGroup: deletedFromGroup,
+      },
+      message: res.locals.message,
+    });
   } catch (err) {
     res.status(500).json(err.message);
   }
