@@ -30,48 +30,140 @@ afterAll(async () => {
   await mongoose.connection.close();
 });
 
-describe("getUsers", () => {
-  /**
-   * Database is cleared before each test case, in order to allow insertion of data tailored for each specific test case.
-   */
-  beforeEach(async () => {
-    await User.deleteMany({});
+describe("Users", () => {
+  const newUser = (user) => ({
+    username: user,
+    email: `${user}@${user}.it`,
+    role: "Regular",
   });
 
-  test("should return empty list if there are no users", (done) => {
-    request(app)
-      .get("/api/users")
-      .then((response) => {
-        expect(response.status).toBe(200);
-        expect(response.body).toHaveLength(0);
-        done();
-      })
-      .catch((err) => done(err));
+  const dbUser = (user) => ({
+    ...newUser(user),
+    password: user,
   });
 
-  test("should retrieve list of all users", (done) => {
-    User.create({
-      username: "tester",
-      email: "test@test.com",
-      password: "tester",
-    }).then(() => {
-      request(app)
-        .get("/api/users")
-        .then((response) => {
-          expect(response.status).toBe(200);
-          expect(response.body).toHaveLength(1);
-          expect(response.body[0].username).toEqual("tester");
-          expect(response.body[0].email).toEqual("test@test.com");
-          expect(response.body[0].password).toEqual("tester");
-          expect(response.body[0].role).toEqual("Regular");
-          done(); // Notify Jest that the test is complete
-        })
-        .catch((err) => done(err));
+  const userTransactions = (user) => [
+    { username: user, type: "boh" },
+    { username: user, type: "test" },
+    { username: user, type: "cabodi" },
+  ];
+
+  describe("getUsers", () => {
+    /**
+     * Database is cleared before each test case, in order to allow insertion of data tailored for each specific test case.
+     */
+    beforeEach(async () => {
+      await User.deleteMany({});
+    });
+
+    test("should return empty list if there are no users", async () => {
+      const response = await request(app).get("/api/users");
+
+      expect(response.status).toBe(200);
+      expect(response.body.data).toHaveLength(0);
+    });
+
+    test("should retrieve list of all users", async () => {
+      await User.create(dbUser("bre"));
+
+      const response = await request(app).get("/api/users");
+
+      expect(response.status).toBe(200);
+      expect(response.body.data).toEqual([newUser("bre")]);
+    });
+  });
+
+  describe("getUser", () => {
+    beforeEach(async () => {
+      await User.deleteMany({});
+    });
+
+    const sendRequest = async (username) => {
+      return await request(app)
+        .get(`/api/users/${username}`)
+        .set("Content-Type", "application/json")
+        .send();
+    };
+
+    test("should return a user", async () => {
+      await User.create(dbUser("bre"));
+
+      const res = await sendRequest(newUser("bre").username);
+
+      expect(res.status).toBe(200);
+      expect(res.body.data).toEqual(newUser("bre"));
+    });
+
+    test("should return error if user does not exist", async () => {
+      const res = await sendRequest(newUser("bre").username);
+
+      expect(res.status).toBe(401);
+    });
+  });
+
+  describe("deleteUser", () => {
+    beforeEach(async () => {
+      await User.deleteMany({});
+      await transactions.deleteMany({});
+    });
+
+    const sendRequest = async (email) => {
+      return await request(app)
+        .delete("/api/users")
+        .set("Content-Type", "application/json")
+        .send({ email: email });
+    };
+
+    test("should return deleted user", async () => {
+      await User.create(dbUser("bre"));
+
+      const res = await sendRequest(newUser("bre").email);
+
+      expect(res.status).toBe(200);
+      expect(res.body.data.deletedTransactions).toBe(0);
+      expect(res.body.data.deletedFromGroup).toBe(false);
+    });
+
+    test("should return error if user doesn't exist", async () => {
+      const res = await sendRequest(newUser("bre").email);
+
+      expect(res.status).toBe(401);
+    });
+
+    test("should return removed transactions", async () => {
+      await User.create(dbUser("bre"));
+      await transactions.create(userTransactions("bre"));
+
+      const res = await sendRequest(newUser("bre").email);
+
+      expect(res.status).toBe(200);
+      expect(res.body.data.deletedTransactions).toBe(
+        userTransactions("bre").length
+      );
+      expect(res.body.data.deletedFromGroup).toBe(false);
+    });
+
+    test("should return removed transactions and removed group", async () => {
+      await User.create(dbUser("bre"));
+      await transactions.create(userTransactions("bre"));
+      await Group.create({
+        name: "test",
+        members: [
+          { email: newUser("bre").email },
+          { email: newUser("test").email },
+        ],
+      });
+
+      const res = await sendRequest(newUser("bre").email);
+
+      expect(res.status).toBe(200);
+      expect(res.body.data.deletedTransactions).toBe(
+        userTransactions("bre").length
+      );
+      expect(res.body.data.deletedFromGroup).toBe(true);
     });
   });
 });
-
-describe("getUser", () => {});
 
 describe("Groups", () => {
   const newUser = (user) => ({
@@ -450,5 +542,3 @@ describe("Groups", () => {
     });
   });
 });
-
-describe("deleteUser", () => {});
