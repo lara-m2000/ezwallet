@@ -17,7 +17,7 @@ export const createCategory = async (req, res) => {
         const { type, color } = req.body;
         const new_categories = new categories({ type, color });
         const data = await new_categories.save();
-        return res.status(200).json({ data: data });
+        return res.status(200).json({ data: {type: data.type, color: data.color} });
     } catch (error) {
         res.status(400).json({ error: error.message })
     }

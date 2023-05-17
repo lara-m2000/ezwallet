@@ -49,7 +49,7 @@ describe("createCategory", () => {
 
         // Check the response status and data
         expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith({ data: mockSavedCategory });
+        expect(res.json).toHaveBeenCalledWith({ data: {type: mockSavedCategory.type, color: mockSavedCategory.color} });
         expect(categories.prototype.save).toHaveBeenCalledTimes(1);
     });
 
