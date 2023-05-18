@@ -91,21 +91,26 @@ export const createTransaction = async (req, res) => {
             return res.status(401).json({ message: "Unauthorized" }) // unauthorized
         }
         const { username, amount, type } = req.body;
+        if(username!==req.params.username){
+            return res.status(400).json({error: "Unauthorized"});
+        }
         const user=await User.findOne({username:username});
         if(!user){
-            res.status(401).json({message: "User not found"})
+            return res.status(401).json({message: "User not found"})
         }
         if(user.refreshToken!==cookie.refreshToken){
             return res.status(401).json({ message: "Unauthorized" });
         }
         const category= await categories.findOne({type: type});
         if(!category){
-            res.status(401).json({message: "Category not found"})
+            return res.status(401).json({message: "Category not found"})
         }
-        const new_transactions = new transactions({ username, amount, type });
-        new_transactions.save()
+        //const new_transactions = new transactions({ username, amount, type });
+        const savedTransaction= await transactions.create({username, amount, type});
+        /*new_transactions.save()
             .then(data => res.json({data:data, message: res.locals.message}))
-            .catch(err => { throw err })
+            .catch(err => { throw err })*/
+        res.json({data: savedTransaction, message: res.locals.message})
     } catch (error) {
         res.status(400).json({ error: error.message })
     }
