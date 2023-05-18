@@ -30,7 +30,7 @@ describe("verifyAuth", () => {
 
         //Check if the appropriate results are returned
         expect(result.authorized).toBe(true);
-        expect(result.message).toBe("Authorized");
+        expect(result.cause).toBe("Authorized");
     });
 
     test('Should return false for missing token in req', () => {
@@ -43,7 +43,7 @@ describe("verifyAuth", () => {
         const result = verifyAuth(req, res, info);
 
         expect(result.authorized).toBe(false);
-        expect(result.message).toBe("Unauthorized");
+        expect(result.cause).toBe("Unauthorized");
     });
 
     test('Should return false for non valid simple authentication with accessToken missing information (authType=Simple)', () => {
@@ -55,7 +55,7 @@ describe("verifyAuth", () => {
         const result = verifyAuth(req, res, info);
 
         expect(result.authorized).toBe(false);
-        expect(result.message).toBe("Token is missing information");
+        expect(result.cause).toBe("Token is missing information");
     });
 
     test('Should return false for non valid simple authentication with refreshToken missing information (authType=Simple)', () => {
@@ -77,7 +77,7 @@ describe("verifyAuth", () => {
         const result = verifyAuth(req, res, info);
 
         expect(result.authorized).toBe(false);
-        expect(result.message).toBe("Token is missing information");
+        expect(result.cause).toBe("Token is missing information");
     });
 
     test('Should return false for non valid simple authentication with mismatch of information in the tokens (authType=Simple)', () => {
@@ -88,7 +88,7 @@ describe("verifyAuth", () => {
         const result = verifyAuth(req, res, info);
 
         expect(result.authorized).toBe(false);
-        expect(result.message).toBe("Mismatched users");
+        expect(result.cause).toBe("Mismatched users");
     });
 
     test('Should return true when refreshToken not expired and accessToken expired (authType=Simple)', () => {
@@ -110,7 +110,7 @@ describe("verifyAuth", () => {
 
         //Check if the appropriate functions were called
         expect(result.authorized).toBe(true);
-        expect(result.message).toBe("Authorized");
+        expect(result.cause).toBe("Authorized");
         expect(res.cookie).toHaveBeenCalledWith('accessToken', 'newAccessToken', { httpOnly: true, path: '/api', maxAge: 60 * 60 * 1000, sameSite: 'none', secure: true });
         expect(res.locals.message).toBe('Access token has been refreshed. Remember to copy the new one in the headers of subsequent calls');
     });
@@ -126,7 +126,7 @@ describe("verifyAuth", () => {
 
         //Check if the appropriate functions were called
         expect(result.authorized).toBe(false);
-        expect(result.message).toBe("Perform login again");
+        expect(result.cause).toBe("Perform login again");
     });
 
     test('Should return false when refreshToken not valid and accessToken expired (authType=Simple)', () => {
@@ -146,7 +146,7 @@ describe("verifyAuth", () => {
         const result = verifyAuth(req, res, info);
 
         expect(result.authorized).toBe(false);
-        expect(result.message).toBe("DecodeError");
+        expect(result.cause).toBe("DecodeError");
     });
 
     test('Should return false when error occurs in jwt.verify (authType=Simple)', () => {
@@ -158,7 +158,7 @@ describe("verifyAuth", () => {
         const result = verifyAuth(req, res, info);
 
         expect(result.authorized).toBe(false);
-        expect(result.message).toBe("DecodeError");
+        expect(result.cause).toBe("DecodeError");
     });
     //AuthType=Admin
     test('Should return true for valid Admin authentication when role == Admin (authType=Admin)', () => {
@@ -169,7 +169,7 @@ describe("verifyAuth", () => {
         const result = verifyAuth(req, res, info);
 
         expect(result.authorized).toBe(true);
-        expect(result.message).toBe("Authorized");
+        expect(result.cause).toBe("Authorized");
     });
 
     test('Should return false for non valid admin authentication with role!=Admin (authType=Admin)', () => {
@@ -180,7 +180,7 @@ describe("verifyAuth", () => {
         const result = verifyAuth(req, res, info);
 
         expect(result.authorized).toBe(false);
-        expect(result.message).toBe("You need to be admin to perform this action");
+        expect(result.cause).toBe("You need to be admin to perform this action");
     });
 
     test('Should return true when refreshToken not expired and accessToken expired and role == Admin (authType=Admin)', () => {
@@ -202,7 +202,7 @@ describe("verifyAuth", () => {
 
         //Check if the appropriate functions were called
         expect(result.authorized).toBe(true);
-        expect(result.message).toBe("Authorized");
+        expect(result.cause).toBe("Authorized");
         expect(res.cookie).toHaveBeenCalledWith('accessToken', 'newAccessToken', { httpOnly: true, path: '/api', maxAge: 60 * 60 * 1000, sameSite: 'none', secure: true });
         expect(res.locals.message).toBe('Access token has been refreshed. Remember to copy the new one in the headers of subsequent calls');
     });
@@ -223,7 +223,7 @@ describe("verifyAuth", () => {
         const result = verifyAuth(req, res, info);
 
         expect(result.authorized).toBe(false);
-        expect(result.message).toBe("You need to be admin to perform this action");
+        expect(result.cause).toBe("You need to be admin to perform this action");
     });
     //AuthType=User
     test('Should return true for valid User authentication when req.params.username == refreshToken.username == acessToken.username (authType=User)', () => {
@@ -235,7 +235,7 @@ describe("verifyAuth", () => {
 
         //Check if the appropriate functions were called
         expect(result.authorized).toBe(true);
-        expect(result.message).toBe("Authorized");
+        expect(result.cause).toBe("Authorized");
     });
 
     test('Should return false for non valid user authentication when req.params.username != refreshToken.username or != acessToken.username(authType=User)', () => {
@@ -247,7 +247,7 @@ describe("verifyAuth", () => {
 
         //Check if the appropriate functions were called
         expect(result.authorized).toBe(false);
-        expect(result.message).toBe("You cannot request info about another user");
+        expect(result.cause).toBe("You cannot request info about another user");
     });
 
     test('Should return true when refreshToken not expired and accessToken expired and req.params.username == refreshToken.username (authType=User)', () => {
@@ -270,7 +270,7 @@ describe("verifyAuth", () => {
 
         //Check if the appropriate functions were called
         expect(result.authorized).toBe(true);
-        expect(result.message).toBe("Authorized");
+        expect(result.cause).toBe("Authorized");
         expect(res.cookie).toHaveBeenCalledWith('accessToken', 'newAccessToken', { httpOnly: true, path: '/api', maxAge: 60 * 60 * 1000, sameSite: 'none', secure: true });
         expect(res.locals.message).toBe('Access token has been refreshed. Remember to copy the new one in the headers of subsequent calls');
     });
@@ -291,7 +291,7 @@ describe("verifyAuth", () => {
         const result = verifyAuth(req, res, info);
 
         expect(result.authorized).toBe(false);
-        expect(result.message).toBe("You cannot request info about another user");
+        expect(result.cause).toBe("You cannot request info about another user");
     });
     //AuthType=Group
     test('Should return true for valid Group authentication when accessToken and refreshToken have a `email` which is in the requested group (authType=Group)', () => {
@@ -302,7 +302,7 @@ describe("verifyAuth", () => {
         const result = verifyAuth(req, res, info);
 
         expect(result.authorized).toBe(true);
-        expect(result.message).toBe("Authorized");
+        expect(result.cause).toBe("Authorized");
     });
 
     test('Should return false for non valid user authentication when accessToken and refreshToken have a `email` which is not the requested group(authType=Group)', () => {
@@ -313,7 +313,7 @@ describe("verifyAuth", () => {
         const result = verifyAuth(req, res, info);
 
         expect(result.authorized).toBe(false);
-        expect(result.message).toBe("You cannot request info about a group you don't belong to");
+        expect(result.cause).toBe("You cannot request info about a group you don't belong to");
     });
 
     test('Should return true when refreshToken not expired and accessToken expired and req.params.username == refreshToken.username (authType=User)', () => {
@@ -335,7 +335,7 @@ describe("verifyAuth", () => {
 
         //Check if the appropriate functions were called
         expect(result.authorized).toBe(true);
-        expect(result.message).toBe("Authorized");
+        expect(result.cause).toBe("Authorized");
         expect(res.cookie).toHaveBeenCalledWith('accessToken', 'newAccessToken', { httpOnly: true, path: '/api', maxAge: 60 * 60 * 1000, sameSite: 'none', secure: true });
         expect(res.locals.message).toBe('Access token has been refreshed. Remember to copy the new one in the headers of subsequent calls');
     });
@@ -356,7 +356,7 @@ describe("verifyAuth", () => {
         const result = verifyAuth(req, res, info);
 
         expect(result.authorized).toBe(false);
-        expect(result.message).toBe("You cannot request info about a group you don't belong to");
+        expect(result.cause).toBe("You cannot request info about a group you don't belong to");
     });
 })
 
