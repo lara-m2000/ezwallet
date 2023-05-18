@@ -16,10 +16,13 @@ export const handleDateFilterParams = (req) => {
  * Handle possible authentication modes depending on `authType`
  * @param req the request object that contains cookie information
  * @param res the result object of the request
- * @param info an object that specifies the `authType` and that contains additional information, depending on the value of `authType`. In case of authType="Group", you have additional property (info.group), which contains a group object with a property group.members containing a list of group member emails.
+ * @param info an object that specifies the `authType` and that contains additional information.
  *
- *      Example: {authType: "Simple"}
- *      Additional criteria:
+
+ *      AuthTypes:
+ *          -authType === "Simple":
+ *              -it covers basic authentication requirements
+ *              -accessToken and refreshToken are undefined properties of req.cookies => 
  *          - authType === "User":
  *              - either the accessToken or the refreshToken have a `username` different from the requested one => error 401
  *              - the accessToken is expired and the refreshToken has a `username` different from the requested one => error 401
@@ -37,74 +40,61 @@ export const handleDateFilterParams = (req) => {
  *              - the accessToken is expired and the refreshToken has a `email` which is in the requested group => success
  * @returns true if the user satisfies all the conditions of the specified `authType` and false if at least one condition is not satisfied
  *  Refreshes the accessToken if it has expired and the refreshToken is still valid
- *  It sets res.status to 401 and sends a json with a message error if the authentication fails.
  */
-//TO BE FINISHED
 export const verifyAuth = (req, res, info) => {
     const cookie = req.cookies
     if (!cookie.accessToken || !cookie.refreshToken) {
-        return {authorized:true, message:"Unauthorized"};
+        return {authorized:false, cause:"Unauthorized"};
     }
     try {
         const decodedAccessToken = jwt.verify(cookie.accessToken, process.env.ACCESS_KEY);
         const decodedRefreshToken = jwt.verify(cookie.refreshToken, process.env.ACCESS_KEY);
         if (info.authType === "Admin") {
             if (decodedAccessToken.role !== "Admin" || decodedRefreshToken.role !== "Admin") {
-                res.status(401).json({ message: "You need to be admin to perform this action" })
-                return false;
+                return {authorized:false, cause:"You need to be admin to perform this action"};
             }
         }
         if (info.authType === "User") {
-            const username = req.params.username;
+            const username = info.username;
             if (decodedAccessToken.username !== username || decodedRefreshToken.username !== username) {
-                res.status(401).json({ message: "You cannot request info about another user" })
-                return false;
+                return {authorized:false, cause:"You cannot request info about another user"};
             }
         }
         if (info.authType === "Group") {
-            const group = info.group;
-            const user = group.members.find(e => e.email === decodedAccessToken.email) && group.members.find(e => e.email === decodedRefreshToken.email);
-            if (!user) {
-                res.status(401).json({ message: "You cannot request info about a group you don't belong to" });
-                return false;
+            const email = info.emails.find(e => e === decodedAccessToken.email) && info.emails.find(e => e === decodedRefreshToken.email);
+            if (!email) {
+                return {authorized:false, cause:"You cannot request info about a group you don't belong to"};
             }
         }
         if (!decodedAccessToken.username || !decodedAccessToken.email || !decodedAccessToken.role) {
-            res.status(401).json({ message: "Token is missing information" })
-            return false
+            return {authorized:false, cause:"Token is missing information"};
         }
         if (!decodedRefreshToken.username || !decodedRefreshToken.email || !decodedRefreshToken.role) {
-            res.status(401).json({ message: "Token is missing information" })
-            return false
+            return {authorized:false, cause:"Token is missing information"};
         }
         if (decodedAccessToken.username !== decodedRefreshToken.username || decodedAccessToken.email !== decodedRefreshToken.email || decodedAccessToken.role !== decodedRefreshToken.role) {
-            res.status(401).json({ message: "Mismatched users" });
-            return false;
+            return {authorized:false, cause:"Mismatched users"};
         }
-        return true
+        return {authorized:true, cause:"Authorized"};
     } catch (err) {
         if (err.name === "TokenExpiredError") {
             try {
                 const refreshToken = jwt.verify(cookie.refreshToken, process.env.ACCESS_KEY)
                 if (info.authType === "Admin") {
                     if (refreshToken.role !== "Admin") {
-                        res.status(401).json({ message: "You need to be admin to perform this action" })
-                        return false;
+                        return {authorized:false, cause:"You need to be admin to perform this action"};
                     }
                 }
                 if (info.authType === "User") {
-                    const username = req.params.username;
+                    const username = info.username;
                     if (refreshToken.username !== username) {
-                        res.status(401).json({ message: "You cannot request info about another user" })
-                        return false;
+                        return {authorized:false, cause:"You cannot request info about another user"};
                     }
                 }
                 if (info.authType === "Group") {
-                    const group = info.group;
-                    const user = group.members.find(e => e.email === refreshToken.email);
-                    if (!user) {
-                        res.status(401).json({ message: "You cannot request info about a group you don't belong to" });
-                        return false;
+                    const email = info.emails.find(e => e === refreshToken.email);
+                    if (!email) {
+                        return {authorized:false, cause:"You cannot request info about a group you don't belong to"};
                     }
                 }
                 const newAccessToken = jwt.sign({
@@ -115,18 +105,16 @@ export const verifyAuth = (req, res, info) => {
                 }, process.env.ACCESS_KEY, { expiresIn: '1h' })
                 res.cookie('accessToken', newAccessToken, { httpOnly: true, path: '/api', maxAge: 60 * 60 * 1000, sameSite: 'none', secure: true })
                 res.locals.message = 'Access token has been refreshed. Remember to copy the new one in the headers of subsequent calls'
-                return true
+                return {authorized:true, cause:"Authorized"};
             } catch (err) {
                 if (err.name === "TokenExpiredError") {
-                    res.status(401).json({ message: "Perform login again" });
+                    return {authorized:false, cause:"Perform login again"};
                 } else {
-                    res.status(401).json({ message: err.name });
+                    return {authorized:false, cause:err.name};
                 }
-                return false;
             }
         } else {
-            res.status(401).json({ message: err.name });
-            return false;
+            return {authorized:false, cause:err.name};
         }
     }
 }
