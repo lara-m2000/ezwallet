@@ -16,30 +16,34 @@ export const handleDateFilterParams = (req) => {
  * Handle possible authentication modes depending on `authType`
  * @param req the request object that contains cookie information
  * @param res the result object of the request
- * @param info an object that specifies the `authType` and that contains additional information.
+ * @param info an object that specifies the `authType` and that contains additional information (see examples at the end of docs)
  *
-
  *      AuthTypes:
  *          -authType === "Simple":
- *              -it covers basic authentication requirements
- *              -accessToken and refreshToken are undefined properties of req.cookies => 
+ *              -it covers basic authentication requirements (the requirements needed for action with no other particular request of rights)
+ *          All these other authTypes cover the requirements of authType === "Simple" plus additional criteria:
  *          - authType === "User":
- *              - either the accessToken or the refreshToken have a `username` different from the requested one => error 401
- *              - the accessToken is expired and the refreshToken has a `username` different from the requested one => error 401
- *              - both the accessToken and the refreshToken have a `username` equal to the requested one => success
- *              - the accessToken is expired and the refreshToken has a `username` equal to the requested one => success
+ *              - either the accessToken or the refreshToken have a `username` different from the requested one => {authorized: false, cause:"<cause>"}
+ *              - the accessToken is expired and the refreshToken has a `username` different from the requested one => {authorized: false, cause:"<cause>"}
+ *              - both the accessToken and the refreshToken have a `username` equal to the requested one => {authorized: true, cause:"Authorized"}
+ *              - the accessToken is expired and the refreshToken has a `username` equal to the requested one => {authorized: true, cause:"Authorized"}
  *          - authType === "Admin":
- *              - either the accessToken or the refreshToken have a `role` which is not Admin => error 401
- *              - the accessToken is expired and the refreshToken has a `role` which is not Admin => error 401
- *              - both the accessToken and the refreshToken have a `role` which is equal to Admin => success
- *              - the accessToken is expired and the refreshToken has a `role` which is equal to Admin => success
+ *              - either the accessToken or the refreshToken have a `role` which is not Admin => {authorized: false, cause:"<cause>"}
+ *              - the accessToken is expired and the refreshToken has a `role` which is not Admin => {authorized: false, cause:"<cause>"}
+ *              - both the accessToken and the refreshToken have a `role` which is equal to Admin => {authorized: true, cause:"Authorized"}
+ *              - the accessToken is expired and the refreshToken has a `role` which is equal to Admin => {authorized: true, cause:"Authorized"}
  *          - authType === "Group":
- *              - either the accessToken or the refreshToken have a `email` which is not in the requested group => error 401
- *              - the accessToken is expired and the refreshToken has a `email` which is not in the requested group => error 401
- *              - both the accessToken and the refreshToken have a `email` which is in the requested group => success
- *              - the accessToken is expired and the refreshToken has a `email` which is in the requested group => success
- * @returns true if the user satisfies all the conditions of the specified `authType` and false if at least one condition is not satisfied
+ *              - either the accessToken or the refreshToken have a `email` which is not in the requested group => {authorized: false, cause:"<cause>"}
+ *              - the accessToken is expired and the refreshToken has a `email` which is not in the requested group => {authorized: false, cause:"<cause>"}
+ *              - both the accessToken and the refreshToken have a `email` which is in the requested group => {authorized: true, cause:"Authorized"}
+ *              - the accessToken is expired and the refreshToken has a `email` which is in the requested group => {authorized: true, cause:"Authorized"}
+ * @returns an object {authorized: <bool>, cause:<string>} authorized is true if the user satisfies all the conditions of the specified `authType` and false if at least one condition is not satisfied
  *  Refreshes the accessToken if it has expired and the refreshToken is still valid
+ * Examples of different auths:
+ * -const simpleAuth = verifyAuth(req, res, {authType: "Simple"})
+ * -const userAuth = verifyAuth(req, res, {authType: "User", username: req.params.username})
+ * -const adminAuth = verifyAuth(req, res, {authType: "Admin"})
+ * -const groupAuth = verifyAuth(req, res, {authType: "Group", emails: <array of emails>})
  */
 export const verifyAuth = (req, res, info) => {
     const cookie = req.cookies
