@@ -28,10 +28,9 @@ describe("verifyAuth", () => {
 
         const result = verifyAuth(req, res, info);
 
-        //Check if the appropriate functions were called
-        expect(result).toBe(true);
-        expect(res.status).not.toHaveBeenCalled();
-        expect(res.json).not.toHaveBeenCalled();
+        //Check if the appropriate results are returned
+        expect(result.authorized).toBe(true);
+        expect(result.message).toBe("Authorized");
     });
 
     test('Should return false for missing token in req', () => {
@@ -43,10 +42,8 @@ describe("verifyAuth", () => {
 
         const result = verifyAuth(req, res, info);
 
-        //Check if the appropriate functions were called
-        expect(result).toBe(false);
-        expect(res.status).toHaveBeenCalledWith(401);
-        expect(res.json).toHaveBeenCalledWith({ message: "Unauthorized" });
+        expect(result.authorized).toBe(false);
+        expect(result.message).toBe("Unauthorized");
     });
 
     test('Should return false for non valid simple authentication with accessToken missing information (authType=Simple)', () => {
@@ -57,10 +54,8 @@ describe("verifyAuth", () => {
 
         const result = verifyAuth(req, res, info);
 
-        //Check if the appropriate functions were called
-        expect(result).toBe(false);
-        expect(res.status).toHaveBeenCalledWith(401);
-        expect(res.json).toHaveBeenCalledWith({ message: "Token is missing information" });
+        expect(result.authorized).toBe(false);
+        expect(result.message).toBe("Token is missing information");
     });
 
     test('Should return false for non valid simple authentication with refreshToken missing information (authType=Simple)', () => {
@@ -81,10 +76,8 @@ describe("verifyAuth", () => {
 
         const result = verifyAuth(req, res, info);
 
-        //Check if the appropriate functions were called
-        expect(result).toBe(false);
-        expect(res.status).toHaveBeenCalledWith(401);
-        expect(res.json).toHaveBeenCalledWith({ message: "Token is missing information" });
+        expect(result.authorized).toBe(false);
+        expect(result.message).toBe("Token is missing information");
     });
 
     test('Should return false for non valid simple authentication with mismatch of information in the tokens (authType=Simple)', () => {
@@ -94,10 +87,8 @@ describe("verifyAuth", () => {
 
         const result = verifyAuth(req, res, info);
 
-        //Check if the appropriate functions were called
-        expect(result).toBe(false);
-        expect(res.status).toHaveBeenCalledWith(401);
-        expect(res.json).toHaveBeenCalledWith({ message: "Mismatched users" });
+        expect(result.authorized).toBe(false);
+        expect(result.message).toBe("Mismatched users");
     });
 
     test('Should return true when refreshToken not expired and accessToken expired (authType=Simple)', () => {
@@ -118,9 +109,8 @@ describe("verifyAuth", () => {
         const result = verifyAuth(req, res, info);
 
         //Check if the appropriate functions were called
-        expect(result).toBe(true);
-        expect(res.status).not.toHaveBeenCalled();
-        expect(res.json).not.toHaveBeenCalled();
+        expect(result.authorized).toBe(true);
+        expect(result.message).toBe("Authorized");
         expect(res.cookie).toHaveBeenCalledWith('accessToken', 'newAccessToken', { httpOnly: true, path: '/api', maxAge: 60 * 60 * 1000, sameSite: 'none', secure: true });
         expect(res.locals.message).toBe('Access token has been refreshed. Remember to copy the new one in the headers of subsequent calls');
     });
@@ -135,9 +125,8 @@ describe("verifyAuth", () => {
         const result = verifyAuth(req, res, info);
 
         //Check if the appropriate functions were called
-        expect(result).toBe(false);
-        expect(res.status).toHaveBeenCalledWith(401);
-        expect(res.json).toHaveBeenCalledWith({ message: "Perform login again" });
+        expect(result.authorized).toBe(false);
+        expect(result.message).toBe("Perform login again");
     });
 
     test('Should return false when refreshToken not valid and accessToken expired (authType=Simple)', () => {
@@ -156,10 +145,8 @@ describe("verifyAuth", () => {
 
         const result = verifyAuth(req, res, info);
 
-        //Check if the appropriate functions were called
-        expect(result).toBe(false);
-        expect(res.status).toHaveBeenCalledWith(401);
-        expect(res.json).toHaveBeenCalledWith({ message: "DecodeError" });
+        expect(result.authorized).toBe(false);
+        expect(result.message).toBe("DecodeError");
     });
 
     test('Should return false when error occurs in jwt.verify (authType=Simple)', () => {
@@ -170,10 +157,8 @@ describe("verifyAuth", () => {
         })
         const result = verifyAuth(req, res, info);
 
-        //Check if the appropriate functions were called
-        expect(result).toBe(false);
-        expect(res.status).toHaveBeenCalledWith(401);
-        expect(res.json).toHaveBeenCalledWith({ message: "DecodeError" });
+        expect(result.authorized).toBe(false);
+        expect(result.message).toBe("DecodeError");
     });
     //AuthType=Admin
     test('Should return true for valid Admin authentication when role == Admin (authType=Admin)', () => {
