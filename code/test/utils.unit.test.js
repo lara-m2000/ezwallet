@@ -227,35 +227,31 @@ describe("verifyAuth", () => {
     });
     //AuthType=User
     test('Should return true for valid User authentication when req.params.username == refreshToken.username == acessToken.username (authType=User)', () => {
-        const info = { authType: 'User' };
-        req.params = { username: "testname" };
+        const info = { authType: 'User', username: 'testname' };
         //Mock jwt.verify to return a valid decodedToken
         jwt.verify.mockReturnValue({ username: "testname", email: "test@email", role: "Regular" })
 
         const result = verifyAuth(req, res, info);
 
         //Check if the appropriate functions were called
-        expect(result).toBe(true);
-        expect(res.status).not.toHaveBeenCalled();
-        expect(res.json).not.toHaveBeenCalled();
+        expect(result.authorized).toBe(true);
+        expect(result.message).toBe("Authorized");
     });
 
     test('Should return false for non valid user authentication when req.params.username != refreshToken.username or != acessToken.username(authType=User)', () => {
-        const info = { authType: 'User' };
-        req.params = { username: "different_testname" };
+        const info = { authType: 'User', username: 'different_testname'};
         //Mock jwt.verify to return a valid decodedToken
         jwt.verify.mockReturnValue({ username: "testname", email: "test@email", role: "Regular" })
 
         const result = verifyAuth(req, res, info);
 
         //Check if the appropriate functions were called
-        expect(result).toBe(false);
-        expect(res.status).toHaveBeenCalledWith(401);
-        expect(res.json).toHaveBeenCalledWith({ message: "You cannot request info about another user" });
+        expect(result.authorized).toBe(false);
+        expect(result.message).toBe("You cannot request info about another user");
     });
 
     test('Should return true when refreshToken not expired and accessToken expired and req.params.username == refreshToken.username (authType=User)', () => {
-        const info = { authType: 'User' };
+        const info = { authType: 'User', username: 'testname'};
         req.params = { username: 'testname' };
         let counter = 0;
         //Mock jwt.verify to throw TokenExpiredError the first time it's called
@@ -273,16 +269,14 @@ describe("verifyAuth", () => {
         const result = verifyAuth(req, res, info);
 
         //Check if the appropriate functions were called
-        expect(result).toBe(true);
-        expect(res.status).not.toHaveBeenCalled();
-        expect(res.json).not.toHaveBeenCalled();
+        expect(result.authorized).toBe(true);
+        expect(result.message).toBe("Authorized");
         expect(res.cookie).toHaveBeenCalledWith('accessToken', 'newAccessToken', { httpOnly: true, path: '/api', maxAge: 60 * 60 * 1000, sameSite: 'none', secure: true });
         expect(res.locals.message).toBe('Access token has been refreshed. Remember to copy the new one in the headers of subsequent calls');
     });
 
     test('Should return false when refreshToken not expired and accessToken expired and req.params.username != refreshToken.username (authType=User)', () => {
-        const info = { authType: 'User' };
-        req.params = { username: 'different_testname' };
+        const info = { authType: 'User', username: 'different_testname' };
         let counter = 0;
         //Mock jwt.verify to throw TokenExpiredError the first time it's called
         jwt.verify.mockImplementation(() => {
@@ -296,10 +290,8 @@ describe("verifyAuth", () => {
 
         const result = verifyAuth(req, res, info);
 
-        //Check if the appropriate functions were called
-        expect(result).toBe(false);
-        expect(res.status).toHaveBeenCalledWith(401);
-        expect(res.json).toHaveBeenCalledWith({ message: "You cannot request info about another user" });
+        expect(result.authorized).toBe(false);
+        expect(result.message).toBe("You cannot request info about another user");
     });
     //AuthType=Group
     test('Should return true for valid Group authentication when accessToken and refreshToken have a `email` which is in the requested group (authType=Group)', () => {
