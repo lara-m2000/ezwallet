@@ -26,6 +26,9 @@ afterAll(async () => {
 });
 
 describe('register', () => {
+  beforeEach(async() => {
+    await User.deleteMany();
+  })
   test('should register a new user and return success message', async () => {
     const newUser = {
       username: 'testuser',
@@ -39,35 +42,60 @@ describe('register', () => {
 
     // Check the response status code and message
     expect(response.status).toBe(200);
-    expect(response.body).toEqual('user added succesfully');
+    expect(response.body).toEqual({data: {message: 'user added succesfully'}});
   });
 
-  test('should return an error if the user is already registered', async () => {
-    const existingUser = {
-      username: 'existinguser',
+  test('should return an error if the user email is already registered', async () => {
+    const user = {
+      username: 'existinguser1',
       email: 'existing@example.com',
       password: 'password123',
     };
-
-    // Register the existing user first
-    await request(app)
-      .post('/api/register')
-      .send(existingUser);
-
-    // Attempt to register the same user again
+    const userWithSameEmail = {
+      username: 'existinguser2',
+      email: 'existing@example.com',
+      password: 'password123',
+    };
+    await User.create(user)
+    // Attempt to register the same email again
     const response = await request(app)
       .post('/api/register')
-      .send(existingUser);
+      .send(userWithSameEmail);
 
     // Check the response status code and error message
     expect(response.status).toBe(400);
-    expect(response.body).toEqual({ message: 'you are already registered' });
+    expect(response.body).toEqual({ error: 'you are already registered' });
+  });
+
+  test('should return an error if the user username is already registered', async () => {
+    const user = {
+      username: 'existinguser',
+      email: 'existing1@example.com',
+      password: 'password123',
+    };
+    const userWithSameUsername = {
+      username: 'existinguser',
+      email: 'existing2@example.com',
+      password: 'password123',
+    };
+    await User.create(user)
+    // Attempt to register the same email again
+    const response = await request(app)
+      .post('/api/register')
+      .send(userWithSameUsername);
+
+    // Check the response status code and error message
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'you are already registered' });
   });
 });
 
 
 
 describe("registerAdmin", () => {
+  beforeEach(async() => {
+    await User.deleteMany();
+  })
   test('should register a new admin and return success message', async () => {
     const newAdmin = {
       username: 'adminuser',
@@ -81,29 +109,51 @@ describe("registerAdmin", () => {
 
     // Check the response status code and message
     expect(response.status).toBe(200);
-    expect(response.body).toEqual('admin added succesfully');
+    expect(response.body).toEqual({data:{message:'admin added succesfully'}});
   });
 
-  test('should return an error if the admin is already registered', async () => {
-    const existingAdmin = {
-      username: 'existingadmin',
-      email: 'existingadmin@example.com',
+  test('should return an error if the admin email is already registered', async () => {
+    const user = {
+      username: 'existinguser1',
+      email: 'existing@example.com',
       password: 'password123',
     };
-
-    // Register the existing admin first
-    await request(app)
-      .post('/api/admin')
-      .send(existingAdmin);
-
-    // Attempt to register the same admin again
+    const userWithSameEmail = {
+      username: 'existinguser2',
+      email: 'existing@example.com',
+      password: 'password123',
+    };
+    await User.create(user)
+    // Attempt to register the same email again
     const response = await request(app)
       .post('/api/admin')
-      .send(existingAdmin);
+      .send(userWithSameEmail);
 
     // Check the response status code and error message
     expect(response.status).toBe(400);
-    expect(response.body).toEqual({ message: 'you are already registered' });
+    expect(response.body).toEqual({ error: 'you are already registered' });
+  });
+
+  test('should return an error if the admin username is already registered', async () => {
+    const user = {
+      username: 'existinguser',
+      email: 'existing1@example.com',
+      password: 'password123',
+    };
+    const userWithSameUsername = {
+      username: 'existinguser',
+      email: 'existing2@example.com',
+      password: 'password123',
+    };
+    await User.create(user)
+    // Attempt to register the same email again
+    const response = await request(app)
+      .post('/api/admin')
+      .send(userWithSameUsername);
+
+    // Check the response status code and error message
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'you are already registered' });
   });
 })
 
