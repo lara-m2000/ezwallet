@@ -12,7 +12,7 @@ describe("verifyAuth", () => {
     let req = {};
     let res;
     beforeEach(() => {
-        jest.clearAllMocks();
+        jest.resetAllMocks();
         req = { cookies: { accessToken: "acessToken", refreshToken: "refreshToken" } }
         res = {
             status: jest.fn().mockReturnThis(),
