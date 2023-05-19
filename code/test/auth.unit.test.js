@@ -351,7 +351,7 @@ describe('logout', () => {
             }
         );
         expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith('logged out');
+        expect(res.json).toHaveBeenCalledWith({data:{message:'logged out'}});
     });
 
     test('should return an error message if the user does not exist', async () => {
@@ -363,7 +363,7 @@ describe('logout', () => {
         // Check if the appropriate functions were called
         expect(User.findOne).toHaveBeenCalledWith({ refreshToken: 'refreshToken123' });
         expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith('user not found');
+        expect(res.json).toHaveBeenCalledWith({error:'user not found'});
     });
 
     test('should return an error message if there is no refreshToken in the request', async () => {
@@ -374,19 +374,20 @@ describe('logout', () => {
 
         // Check if the appropriate functions were called
         expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith('user not found');
+        expect(res.json).toHaveBeenCalledWith({error:'user not found'});
     });
 
     test('should return an error if an exception occurs', async () => {
         // Mock the findOne function to throw an error
-        User.findOne.mockRejectedValue(new Error('Database error'));
+        const err = new Error('Database error');
+        User.findOne.mockRejectedValue(err);
 
         await logout(req, res);
 
         // Check if the appropriate functions were called
         expect(User.findOne).toHaveBeenCalledWith({ refreshToken: 'refreshToken123' });
         expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith(new Error('Database error'));
+        expect(res.json).toHaveBeenCalledWith({error:err.message});
     });
 });
 
