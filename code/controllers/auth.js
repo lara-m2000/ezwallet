@@ -13,15 +13,15 @@ import { verifyAuth } from './utils.js';
 export const register = async (req, res) => {
     try {
         const { username, email, password } = req.body;
-        const existingUser = await User.findOne({ email: req.body.email });
-        if (existingUser) return res.status(400).json({ message: "you are already registered" });
+        const existingUser = await User.findOne({ $or: [{email: email}, {username: username}] });
+        if (existingUser) return res.status(400).json({ error: "you are already registered" });
         const hashedPassword = await bcrypt.hash(password, 12);
         const newUser = await User.create({
             username,
             email,
             password: hashedPassword,
         });
-        res.status(200).json('user added succesfully');
+        res.status(200).json({data:{message:'user added succesfully'}});
     } catch (err) {
         res.status(400).json(err);
     }
@@ -37,8 +37,8 @@ export const register = async (req, res) => {
 export const registerAdmin = async (req, res) => {
     try {
         const { username, email, password } = req.body
-        const existingUser = await User.findOne({ email: req.body.email });
-        if (existingUser) return res.status(400).json({ message: "you are already registered" });
+        const existingUser = await User.findOne({ $or: [{email: email}, {username: username}] });
+        if (existingUser) return res.status(400).json({ error: "you are already registered" });
         const hashedPassword = await bcrypt.hash(password, 12);
         const newUser = await User.create({
             username,
@@ -46,7 +46,7 @@ export const registerAdmin = async (req, res) => {
             password: hashedPassword,
             role: "Admin"
         });
-        res.status(200).json('admin added succesfully');
+        res.status(200).json({data:{message:'admin added succesfully'}});
     } catch (err) {
         res.status(500).json(err);
     }
