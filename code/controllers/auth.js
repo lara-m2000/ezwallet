@@ -23,7 +23,7 @@ export const register = async (req, res) => {
         });
         res.status(200).json({data:{message:'user added succesfully'}});
     } catch (err) {
-        res.status(400).json(err);
+        res.status(400).json({error: err.message});
     }
 };
 
@@ -48,7 +48,7 @@ export const registerAdmin = async (req, res) => {
         });
         res.status(200).json({data:{message:'admin added succesfully'}});
     } catch (err) {
-        res.status(500).json(err);
+        res.status(500).json({error: err.message});
     }
 
 }
