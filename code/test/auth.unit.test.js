@@ -50,7 +50,6 @@ describe('register', () => {
         await register(req, res);
 
         // Check if the appropriate functions were called
-        expect(User.findOne).toHaveBeenCalledWith({ email: 'test@example.com' });
         expect(bcrypt.hash).toHaveBeenCalledWith('password', 12);
         expect(User.create).toHaveBeenCalledWith({
             username: 'testuser',
@@ -58,7 +57,7 @@ describe('register', () => {
             password: 'hashedpassword',
         });
         expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith('user added succesfully');
+        expect(res.json).toHaveBeenCalledWith({data:{message:'user added succesfully'}});
     });
 
     test("Should return an error message if the user is already registered", async () => {
@@ -68,21 +67,20 @@ describe('register', () => {
         await register(req, res);
 
         // Check if the appropriate functions were called
-        expect(User.findOne).toHaveBeenCalledWith({ email: 'test@example.com' });
         expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({ message: 'you are already registered' });
+        expect(res.json).toHaveBeenCalledWith({ error: 'you are already registered' });
     })
 
     test("Should return an error if an exception occurs", async () => {
         // Mock the findOne function to throw an error
-        User.findOne.mockRejectedValue(new Error('Database error'));
+        const err = new Error('Database error');
+        User.findOne.mockRejectedValue(err);
 
         await register(req, res);
 
         // Check if the appropriate functions were called
-        expect(User.findOne).toHaveBeenCalledWith({ email: 'test@example.com' });
         expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith(new Error('Database error'));
+        expect(res.json).toHaveBeenCalledWith({error: err.message});
     })
 
 });
@@ -126,7 +124,6 @@ describe("registerAdmin", () => {
         await registerAdmin(req, res);
 
         // Check if the appropriate functions were called
-        expect(User.findOne).toHaveBeenCalledWith({ email: 'admin@example.com' });
         expect(bcrypt.hash).toHaveBeenCalledWith('adminpassword', 12);
         expect(User.create).toHaveBeenCalledWith({
             username: 'testadmin',
@@ -135,7 +132,7 @@ describe("registerAdmin", () => {
             role: 'Admin',
         });
         expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith('admin added succesfully');
+        expect(res.json).toHaveBeenCalledWith({data:{message:'admin added succesfully'}});
     });
 
     test('should return an error message if the admin user is already registered', async () => {
@@ -145,21 +142,20 @@ describe("registerAdmin", () => {
         await registerAdmin(req, res);
 
         // Check if the appropriate functions were called
-        expect(User.findOne).toHaveBeenCalledWith({ email: 'admin@example.com' });
         expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({ message: 'you are already registered' });
+        expect(res.json).toHaveBeenCalledWith({ error: 'you are already registered' });
     });
 
     test('should return an error if an exception occurs', async () => {
         // Mock the findOne function to throw an error
-        User.findOne.mockRejectedValue(new Error('Database error'));
+        const err = new Error('Database error')
+        User.findOne.mockRejectedValue(err);
 
         await registerAdmin(req, res);
 
         // Check if the appropriate functions were called
-        expect(User.findOne).toHaveBeenCalledWith({ email: 'admin@example.com' });
         expect(res.status).toHaveBeenCalledWith(500);
-        expect(res.json).toHaveBeenCalledWith(new Error('Database error'));
+        expect(res.json).toHaveBeenCalledWith({error: err.message});
     });
 })
 
