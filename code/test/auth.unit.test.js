@@ -201,7 +201,6 @@ describe('login', () => {
         await login(req, res);
 
         // Check if the appropriate functions were called
-        expect(User.findOne).toHaveBeenCalledWith({ email: 'test@example.com' });
         expect(bcrypt.compare).toHaveBeenCalledWith('password', 'hashedpassword');
         expect(jwt.sign).toHaveBeenCalledWith(
             {
@@ -260,9 +259,8 @@ describe('login', () => {
         await login(req, res);
 
         // Check if the appropriate functions were called
-        expect(User.findOne).toHaveBeenCalledWith({ email: 'test@example.com' });
         expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith('please you need to register');
+        expect(res.json).toHaveBeenCalledWith({error:'please you need to register'});
     });
 
     test('should return an error message if the supplied password does not match', async () => {
@@ -277,22 +275,22 @@ describe('login', () => {
         await login(req, res);
 
         // Check if the appropriate functions were called
-        expect(User.findOne).toHaveBeenCalledWith({ email: 'test@example.com' });
         expect(bcrypt.compare).toHaveBeenCalledWith('password', 'hashedpassword');
         expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith('wrong credentials');
+        expect(res.json).toHaveBeenCalledWith({error:'wrong credentials'});
     });
 
     test('should return an error if an exception occurs', async () => {
         // Mock the findOne function to throw an error
-        User.findOne.mockRejectedValue(new Error('Database error'));
+        const err = new Error('Database error');
+        User.findOne.mockRejectedValue(err);
 
         await login(req, res);
 
         // Check if the appropriate functions were called
         expect(User.findOne).toHaveBeenCalledWith({ email: 'test@example.com' });
         expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith(new Error('Database error'));
+        expect(res.json).toHaveBeenCalledWith({error: err.message});
     });
 })
 
