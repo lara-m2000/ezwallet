@@ -66,9 +66,9 @@ export const login = async (req, res) => {
     const cookie = req.cookies
     try {
         const existingUser = await User.findOne({ email: email })
-    if (!existingUser) return res.status(400).json('please you need to register')
+    if (!existingUser) return res.status(400).json({error:'please you need to register'})
         const match = await bcrypt.compare(password, existingUser.password)
-        if (!match) return res.status(400).json('wrong credentials')
+        if (!match) return res.status(400).json({error:'wrong credentials'})
         //CREATE ACCESSTOKEN
         const accessToken = jwt.sign({
             email: existingUser.email,
@@ -90,7 +90,7 @@ export const login = async (req, res) => {
         res.cookie('refreshToken', refreshToken, { httpOnly: true, domain: "localhost", path: '/api', maxAge: 7 * 24 * 60 * 60 * 1000, sameSite: 'none', secure: true })
         res.status(200).json({ data: { accessToken: accessToken, refreshToken: refreshToken } })
     } catch (error) {
-        res.status(400).json(error)
+        res.status(400).json({error: error.message})
     }
 }
 
