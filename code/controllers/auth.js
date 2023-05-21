@@ -34,7 +34,7 @@ export const register = async (req, res) => {
         });
         res.status(200).json({data:{message:'user added succesfully'}});
     } catch (err) {
-        res.status(400).json({error: err.message});
+        res.status(500).json({error: err.message});
     }
 };
 
@@ -105,7 +105,7 @@ export const login = async (req, res) => {
         res.cookie('refreshToken', refreshToken, { httpOnly: true, domain: "localhost", path: '/api', maxAge: 7 * 24 * 60 * 60 * 1000, sameSite: 'none', secure: true })
         res.status(200).json({ data: { accessToken: accessToken, refreshToken: refreshToken } })
     } catch (error) {
-        res.status(400).json({error: error.message})
+        res.status(500).json({error: error.message})
     }
 }
 
@@ -129,6 +129,6 @@ export const logout = async (req, res) => {
         const savedUser = await user.save()
         res.status(200).json({data:{message:'logged out'}})
     } catch (error) {
-        res.status(400).json({error: error.message})
+        res.status(500).json({error: error.message})
     }
 }
