@@ -88,6 +88,22 @@ describe('register', () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({ error: 'you are already registered' });
   });
+
+  test('should return an error if the email is not a valid email', async () => {
+    const user = {
+      username: 'existinguser',
+      email: 'existing1example.com',
+      password: 'password123',
+    };
+    // Attempt to register with not valid email
+    const response = await request(app)
+      .post('/api/register')
+      .send(user);
+
+    // Check the response status code and error message
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'email is not in the correct format' });
+  });
 });
 
 
@@ -154,6 +170,22 @@ describe("registerAdmin", () => {
     // Check the response status code and error message
     expect(response.status).toBe(400);
     expect(response.body).toEqual({ error: 'you are already registered' });
+  });
+
+  test('should return an error if the email is not a valid email', async () => {
+    const user = {
+      username: 'existinguser',
+      email: 'existing1example.com',
+      password: 'password123',
+    };
+    // Attempt to register with not valid email
+    const response = await request(app)
+      .post('/api/admin')
+      .send(user);
+
+    // Check the response status code and error message
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'email is not in the correct format' });
   });
 })
 
