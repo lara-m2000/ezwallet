@@ -92,7 +92,7 @@ describe('register', () => {
   test('should return an error if the email is not a valid email', async () => {
     const user = {
       username: 'existinguser',
-      email: 'existing1example.com',
+      email: 'notValidEmail.com',
       password: 'password123',
     };
     // Attempt to register with not valid email
@@ -175,7 +175,7 @@ describe("registerAdmin", () => {
   test('should return an error if the email is not a valid email', async () => {
     const user = {
       username: 'existinguser',
-      email: 'existing1example.com',
+      email: 'notValidEmail.com',
       password: 'password123',
     };
     // Attempt to register with not valid email
