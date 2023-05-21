@@ -19,7 +19,7 @@ export const createCategory = async (req, res) => {
         const data = await new_categories.save();
         return res.status(200).json({ data: {type: data.type, color: data.color}, message: res.locals.message });
     } catch (error) {
-        res.status(400).json({ error: error.message })
+        res.status(500).json({ error: error.message })
     }
 }
 
@@ -44,7 +44,7 @@ export const updateCategory = async (req, res) => {
         //Detect if the category actually exists
         const oldCategory = await categories.findOne({ type: oldType });
         if (!oldCategory) {
-            return res.status(401).json({ data: { count: 0 }, message: "The category does not exist" });
+            return res.status(400).json({ error: "The category does not exist" });
         }
 
         //Update the target category
@@ -56,7 +56,7 @@ export const updateCategory = async (req, res) => {
         return res.status(200).json({ data: { count: changes.modifiedCount, message: "Successfully updated" }, message: res.locals.message });
     } catch (error) {
         //Return 401 as said in the docs (it was previously 400 by default)
-        res.status(401).json({ error: error.message })
+        res.status(500).json({ error: error.message })
     }
 }
 

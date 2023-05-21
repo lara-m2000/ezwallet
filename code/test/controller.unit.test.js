@@ -114,9 +114,7 @@ describe("updateCategory", () => {
         expect(res.json).toHaveBeenCalledWith({ error: "The category does not exist" });
     });
 
-    test.todo('should return error 400 if parameters are invalid', async () => {
-        
-    })
+    test.todo('should return error 400 if parameters are invalid');
 
     test('should update category and related transactions', async () => {
         // Mock the categories.findOne function to return a category
