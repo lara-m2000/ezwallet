@@ -41,6 +41,8 @@ export const updateCategory = async (req, res) => {
         //Retrieve from request Body the new fields for the category
         const { type, color } = req.body;
 
+        //Case of new parameters with invalid values (?) => need to ask what it means
+
         //Detect if the category actually exists
         const oldCategory = await categories.findOne({ type: oldType });
         if (!oldCategory) {
@@ -55,7 +57,6 @@ export const updateCategory = async (req, res) => {
 
         return res.status(200).json({ data: { count: changes.modifiedCount, message: "Successfully updated" }, message: res.locals.message });
     } catch (error) {
-        //Return 401 as said in the docs (it was previously 400 by default)
         res.status(500).json({ error: error.message })
     }
 }
@@ -74,33 +75,28 @@ export const updateCategory = async (req, res) => {
 export const deleteCategory = async (req, res) => {
     try {
         const cookie = req.cookies
-        /*if (!cookie.accessToken) {
-            return res.status(401).json({ message: "Unauthorized" }) // unauthorized
-        }*/
-        let numUpdTrans = 0, resp, type;
-        let types = req.body.types;
+        //Retrieve array of types from request body
+        const { types } = req.body
 
-        // Check if types exists
-        let NotExistArray = [];
-        for (let i = 0; i < types.length; i++) {
-                let category = await categories.findOne({ type: types[i] });
-                if (!category) {
-                    NotExistArray.push(types[i]);
-                }
+        //Check for the existence of all categories
+        const foundCategories = await categories.find({ type: { $in: types}});
+        
+        //Return an error if at least one category does not exist
+        if(foundCategories.length < types.length){
+            return res.status(400).json({ error: "All categories must exist"});
         }
-        if (NotExistArray.length > 0)
-            return res.status(401).json({ message: `The following categories do not exist: ${NotExistArray.join(", ")}` })
 
-        // Actual deletion
-        while (types.length > 0) {
-            type = types.pop();
-            await categories.deleteOne({ type: type });
-            resp = await transactions.updateMany({ type: type }, { $set: { type: "investment" } });
-            numUpdTrans += resp.modifiedCount;
+        //Get the total number of categories in the database
+        const totalCategories = (await categories.find({})).length;
+        
+        //Return an error if the deletion does not leave at least one category in the database
+        if(foundCategories.length >= totalCategories){
+            return res.status(400).json({ error: "You can't delete all the categories in the database"});
         }
-        return res.status(200).json({ data:{message: "Successfully deleted", count: numUpdTrans}, message: res.locals.message });
+
+
     } catch (error) {
-        res.status(400).json({ error: error.message })
+        res.status(500).json({ error: error.message })
     }
 }
 
