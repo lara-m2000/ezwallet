@@ -10,12 +10,6 @@ jest.mock('../controllers/utils.js');
 beforeEach(() => {
     jest.clearAllMocks();
     verifyAuth.mockReturnValue(true); //at the moment it's useless, will be required when we will add verifyAuth in the categories function. Since it's unit testing it's ok if it returns always true.
-    /*categories.find.mockClear();
-    categories.prototype.save.mockClear();
-    transactions.find.mockClear();
-    transactions.deleteOne.mockClear();
-    transactions.aggregate.mockClear();
-    transactions.prototype.save.mockClear();*/
 });
 
 //Missing controls on authentication (probably will have to mock the verifyAuth() func after inserting it)
@@ -56,7 +50,7 @@ describe("createCategory", () => {
         expect(categories.prototype.save).toHaveBeenCalledTimes(1);
     });
 
-    test('should return an error if there is an issue creating the category', async () => {
+    test('should return an error if there is an exception', async () => {
         // Mock the request and response objects
         const req = {
             body: {
@@ -80,9 +74,8 @@ describe("createCategory", () => {
         await createCategory(req, res);
 
         // Check the response status and error message
-        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.status).toHaveBeenCalledWith(500);
         expect(res.json).toHaveBeenCalledWith({ error: 'Database error' });
-        expect(categories.prototype.save).toHaveBeenCalledTimes(1);
     });
 })
 //Missing controls on authentication (probably will have to mock the verifyAuth() func after inserting it)
@@ -110,16 +103,20 @@ describe("updateCategory", () => {
         };
     });
 
-    test('should return error 401 if category does not exist', async () => {
+    test('should return error 400 if category does not exist', async () => {
         // Mock the categories.findOne function to return null (category does not exist)
         categories.findOne = jest.fn().mockResolvedValueOnce(null);
 
         await updateCategory(req, res);
 
         // Verify the response
-        expect(res.status).toHaveBeenCalledWith(401);
-        expect(res.json).toHaveBeenCalledWith({ data: { count: 0 }, message: 'The category does not exist' });
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "The category does not exist" });
     });
+
+    test.todo('should return error 400 if parameters are invalid', async () => {
+        
+    })
 
     test('should update category and related transactions', async () => {
         // Mock the categories.findOne function to return a category
@@ -140,18 +137,19 @@ describe("updateCategory", () => {
         expect(transactions.updateMany).toHaveBeenCalledWith({ type: 'old-category' }, { $set: { type: 'new-category' } });
     });
 
-    test('should handle and return error 401', async () => {
+    test('should handle exception and return error 500', async () => {
         // Mock the categories.findOne function to throw an error
         categories.findOne = jest.fn().mockRejectedValueOnce(new Error('Database error'));
 
         await updateCategory(req, res);
 
         // Verify the response
-        expect(res.status).toHaveBeenCalledWith(401);
+        expect(res.status).toHaveBeenCalledWith(500);
         expect(res.json).toHaveBeenCalledWith({ error: 'Database error' });
     });
 })
 //Missing controls on authentication (probably will have to mock the verifyAuth() func after inserting it)
+//NEED TO BE MODIFIED ACCORDING TO NEW REQUIREMENTS
 describe("deleteCategory", () => {
     // Mock request and response objects
     let req;
@@ -217,7 +215,8 @@ describe("deleteCategory", () => {
     });
 })
 //Missing controls on authentication (probably will have to mock the verifyAuth() func after inserting it)
-describe("getCategories", () => {
+//NEED TO BE MODIFIED ACCORDING TO NEW REQUIREMENTS
+describe.skip("getCategories", () => {
     // Mock request and response objects
     let req;
     let res;

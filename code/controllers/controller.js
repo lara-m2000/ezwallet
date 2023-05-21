@@ -28,15 +28,13 @@ export const createCategory = async (req, res) => {
   - Request Body Content: An object having attributes `type` and `color` equal to the new values to assign to the category
   - Response `data` Content: An object with parameter `message` that confirms successful editing and a parameter `count` that is equal to the count of transactions whose category was changed with the new type
   - Optional behavior:
-    - error 401 returned if the specified category does not exist
-    - error 401 is returned if new parameters have invalid values
+    - error 400 returned if the specified category does not exist
+    - error 400 is returned if new parameters have invalid values
  */
 export const updateCategory = async (req, res) => {
     try {
         const cookie = req.cookies
-        /*if (!cookie.accessToken) {
-            return res.status(401).json({ message: "Unauthorized" }) // unauthorized
-        }*/
+        
         //Retrieve from URL params the category to update
         const oldType = req.params.type;
 
@@ -67,7 +65,7 @@ export const updateCategory = async (req, res) => {
   - Request Body Content: An array of strings that lists the `types` of the categories to be deleted
   - Response `data` Content: An object with parameter `message` that confirms successful deletion and a parameter `count` that is equal to the count of affected transactions (deleting a category sets all transactions with that category to have `investment` as their new category)
   - Optional behavior:
-    - error 401 is returned if the specified category does not exist
+    - error 400 is returned if the specified category does not exist
     
     - Implementation: 
     -   The existence of all categories is checker, if at least one the passed category does not exist nothing is deleted; 
