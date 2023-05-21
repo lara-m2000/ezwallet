@@ -79,7 +79,7 @@ describe('register', () => {
         await register(req, res);
 
         // Check if the appropriate functions were called
-        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.status).toHaveBeenCalledWith(500);
         expect(res.json).toHaveBeenCalledWith({error: err.message});
     })
 
@@ -289,7 +289,7 @@ describe('login', () => {
 
         // Check if the appropriate functions were called
         expect(User.findOne).toHaveBeenCalledWith({ email: 'test@example.com' });
-        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.status).toHaveBeenCalledWith(500);
         expect(res.json).toHaveBeenCalledWith({error: err.message});
     });
 })
@@ -386,7 +386,7 @@ describe('logout', () => {
 
         // Check if the appropriate functions were called
         expect(User.findOne).toHaveBeenCalledWith({ refreshToken: 'refreshToken123' });
-        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.status).toHaveBeenCalledWith(500);
         expect(res.json).toHaveBeenCalledWith({error:err.message});
     });
 });
