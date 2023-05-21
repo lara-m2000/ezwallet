@@ -191,24 +191,19 @@ describe("registerAdmin", () => {
 
 describe('login', () => {
   test('should log in a user and return access and refresh tokens', async () => {
-    const userCredentials = {
+    const user = {
+      username: 'testuser',
       email: 'test@example.com',
       password: 'password123',
     };
 
-    // Register the user first
-    await request(app)
-      .post('/api/register')
-      .send({
-        username: 'testuser',
-        email: userCredentials.email,
-        password: userCredentials.password,
-      });
+    //Create the user in the database
+    await User.create(user);
 
     // Log in the user
     const response = await request(app)
       .post('/api/login')
-      .send(userCredentials);
+      .send({email: user.email, password: user.password});
 
     // Check the response status code and data content
     expect(response.status).toBe(200);
@@ -228,7 +223,7 @@ describe('login', () => {
 
     // Check the response status code and error message
     expect(response.status).toBe(400);
-    expect(response.body).toEqual('please you need to register');
+    expect(response.body).toEqual({error:'please you need to register'});
   });
 
   test('should return an error if the password is incorrect', async () => {
@@ -243,7 +238,7 @@ describe('login', () => {
 
     // Check the response status code and error message
     expect(response.status).toBe(400);
-    expect(response.body).toEqual('wrong credentials');
+    expect(response.body).toEqual({error:'wrong credentials'});
   });
 });
 
