@@ -26,7 +26,7 @@ afterAll(async () => {
 });
 
 describe('register', () => {
-  beforeEach(async() => {
+  beforeEach(async () => {
     await User.deleteMany();
   })
   test('should register a new user and return success message', async () => {
@@ -42,7 +42,7 @@ describe('register', () => {
 
     // Check the response status code and message
     expect(response.status).toBe(200);
-    expect(response.body).toEqual({data: {message: 'user added succesfully'}});
+    expect(response.body).toEqual({ data: { message: 'user added succesfully' } });
   });
 
   test('should return an error if the user email is already registered', async () => {
@@ -109,7 +109,7 @@ describe('register', () => {
 
 
 describe("registerAdmin", () => {
-  beforeEach(async() => {
+  beforeEach(async () => {
     await User.deleteMany();
   })
   test('should register a new admin and return success message', async () => {
@@ -125,7 +125,7 @@ describe("registerAdmin", () => {
 
     // Check the response status code and message
     expect(response.status).toBe(200);
-    expect(response.body).toEqual({data:{message:'admin added succesfully'}});
+    expect(response.body).toEqual({ data: { message: 'admin added succesfully' } });
   });
 
   test('should return an error if the admin email is already registered', async () => {
@@ -190,6 +190,9 @@ describe("registerAdmin", () => {
 })
 
 describe('login', () => {
+  beforeEach(async () => {
+    await User.deleteMany();
+  })
   test('should log in a user and return access and refresh tokens', async () => {
     const user = {
       username: 'testuser',
@@ -198,12 +201,17 @@ describe('login', () => {
     };
 
     //Create the user in the database
-    await User.create(user);
+    const hashedPassword = await bcrypt.hash(user.password, 12);
+    await User.create({
+      username: user.username,
+      email: user.email,
+      password: hashedPassword,
+    });
 
     // Log in the user
     const response = await request(app)
       .post('/api/login')
-      .send({email: user.email, password: user.password});
+      .send({ email: user.email, password: user.password });
 
     // Check the response status code and data content
     expect(response.status).toBe(200);
@@ -217,32 +225,44 @@ describe('login', () => {
       password: 'password123',
     };
 
+    //Try to login with non existing credentials
     const response = await request(app)
       .post('/api/login')
       .send(userCredentials);
 
     // Check the response status code and error message
     expect(response.status).toBe(400);
-    expect(response.body).toEqual({error:'please you need to register'});
+    expect(response.body).toEqual({ error: 'please you need to register' });
   });
 
   test('should return an error if the password is incorrect', async () => {
-    const userCredentials = {
+    const user = {
+      username: 'testuser',
       email: 'test@example.com',
       password: 'wrongpassword',
     };
-
+    //Create the user in the database with the real correct password
+    const hashedPassword = await bcrypt.hash('realpassword', 12);
+    await User.create({
+      username: user.username,
+      email: user.email,
+      password: hashedPassword,
+    });
+    //Try to login with the wrong password
     const response = await request(app)
       .post('/api/login')
-      .send(userCredentials);
+      .send(user);
 
     // Check the response status code and error message
     expect(response.status).toBe(400);
-    expect(response.body).toEqual({error:'wrong credentials'});
+    expect(response.body).toEqual({ error: 'wrong credentials' });
   });
 });
 
 describe('logout', () => {
+  beforeEach(async() => {
+    await User.deleteMany();
+  })
   test('should log out a user and return a success message', async () => {
     // Register and log in the user first
     const registerResponse = await request(app)
