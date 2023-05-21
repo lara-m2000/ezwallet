@@ -264,33 +264,24 @@ describe('logout', () => {
     await User.deleteMany();
   })
   test('should log out a user and return a success message', async () => {
-    // Register and log in the user first
-    const registerResponse = await request(app)
-      .post('/api/register')
-      .send({
-        username: 'testuser',
-        email: 'test@example.com',
-        password: 'password123',
-      });
-
-    const loginResponse = await request(app)
-      .post('/api/login')
-      .send({
-        email: 'test@example.com',
-        password: 'password123',
-      });
-
-    // Get the refresh token from the login response
-    const refreshToken = loginResponse.body.data.refreshToken;
+    const hashedPassword = await bcrypt.hash('realpassword', 12);
+    const user = {
+      username: 'testuser',
+      email: 'test@example.com',
+      password: hashedPassword,
+      refreshToken: 'refreshToken',
+    };
+    //Create the user in the database
+    await User.create(user);
 
     // Log out the user
     const response = await request(app)
       .get('/api/logout')
-      .set('Cookie', [`refreshToken=${refreshToken}`]);
+      .set('Cookie', [`refreshToken=refreshToken`]);
 
     // Check the response status code and data content
     expect(response.status).toBe(200);
-    expect(response.body).toEqual('logged out');
+    expect(response.body).toEqual({data:{message:'logged out'}});
   });
 
   test('should return an error if the user is not found', async () => {
@@ -303,7 +294,7 @@ describe('logout', () => {
 
     // Check the response status code and error message
     expect(response.status).toBe(400);
-    expect(response.body).toEqual('user not found');
+    expect(response.body).toEqual({error:'user not found'});
   });
 
   test('should return an error if the refresh token is not provided', async () => {
@@ -311,6 +302,6 @@ describe('logout', () => {
 
     // Check the response status code and error message
     expect(response.status).toBe(400);
-    expect(response.body).toEqual('user not found');
+    expect(response.body).toEqual({error:'user not found'});
   });
 });
