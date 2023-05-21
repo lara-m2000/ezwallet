@@ -3,6 +3,13 @@ import { User } from '../models/User.js';
 import jwt from 'jsonwebtoken';
 import { verifyAuth } from './utils.js';
 
+function isValidEmail(email) {
+    // Regular expression pattern for validating email addresses
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    // Test the email against the regex pattern
+    return emailRegex.test(email);
+  }
 /**
  * Register a new user in the system
   - Request Body Content: An object having attributes `username`, `email` and `password`
@@ -13,6 +20,10 @@ import { verifyAuth } from './utils.js';
 export const register = async (req, res) => {
     try {
         const { username, email, password } = req.body;
+        if (!isValidEmail(email)){
+            res.status(400).json({error: "email is not in the correct format"});
+            return;
+        }
         const existingUser = await User.findOne({ $or: [{email: email}, {username: username}] });
         if (existingUser) return res.status(400).json({ error: "you are already registered" });
         const hashedPassword = await bcrypt.hash(password, 12);
@@ -37,6 +48,10 @@ export const register = async (req, res) => {
 export const registerAdmin = async (req, res) => {
     try {
         const { username, email, password } = req.body
+        if (!isValidEmail(email)){
+            res.status(400).json({error: "email is not in the correct format"});
+            return;
+        }
         const existingUser = await User.findOne({ $or: [{email: email}, {username: username}] });
         if (existingUser) return res.status(400).json({ error: "you are already registered" });
         const hashedPassword = await bcrypt.hash(password, 12);
