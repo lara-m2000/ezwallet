@@ -15,8 +15,6 @@ describe("verifyAuth", () => {
         jest.resetAllMocks();
         req = { cookies: { accessToken: "acessToken", refreshToken: "refreshToken" } }
         res = {
-            status: jest.fn().mockReturnThis(),
-            json: jest.fn(),
             cookie: jest.fn(),
             locals: {},
         }
