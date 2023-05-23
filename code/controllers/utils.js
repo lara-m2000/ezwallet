@@ -53,6 +53,15 @@ export const verifyAuth = (req, res, info) => {
     try {
         const decodedAccessToken = jwt.verify(cookie.accessToken, process.env.ACCESS_KEY);
         const decodedRefreshToken = jwt.verify(cookie.refreshToken, process.env.ACCESS_KEY);
+        if (!decodedAccessToken.username || !decodedAccessToken.email || !decodedAccessToken.role) {
+            return {authorized:false, cause:"Token is missing information"};
+        }
+        if (!decodedRefreshToken.username || !decodedRefreshToken.email || !decodedRefreshToken.role) {
+            return {authorized:false, cause:"Token is missing information"};
+        }
+        if (decodedAccessToken.username !== decodedRefreshToken.username || decodedAccessToken.email !== decodedRefreshToken.email || decodedAccessToken.role !== decodedRefreshToken.role) {
+            return {authorized:false, cause:"Mismatched users"};
+        }
         if (info.authType === "Admin") {
             if (decodedAccessToken.role !== "Admin" || decodedRefreshToken.role !== "Admin") {
                 return {authorized:false, cause:"You need to be admin to perform this action"};
@@ -70,20 +79,15 @@ export const verifyAuth = (req, res, info) => {
                 return {authorized:false, cause:"You cannot request info about a group you don't belong to"};
             }
         }
-        if (!decodedAccessToken.username || !decodedAccessToken.email || !decodedAccessToken.role) {
-            return {authorized:false, cause:"Token is missing information"};
-        }
-        if (!decodedRefreshToken.username || !decodedRefreshToken.email || !decodedRefreshToken.role) {
-            return {authorized:false, cause:"Token is missing information"};
-        }
-        if (decodedAccessToken.username !== decodedRefreshToken.username || decodedAccessToken.email !== decodedRefreshToken.email || decodedAccessToken.role !== decodedRefreshToken.role) {
-            return {authorized:false, cause:"Mismatched users"};
-        }
         return {authorized:true, cause:"Authorized"};
     } catch (err) {
         if (err.name === "TokenExpiredError") {
             try {
-                const refreshToken = jwt.verify(cookie.refreshToken, process.env.ACCESS_KEY)
+                const refreshToken = jwt.verify(cookie.refreshToken, process.env.ACCESS_KEY);
+
+                if (!refreshToken.username || !refreshToken.email || !refreshToken.role) {
+                    return {authorized:false, cause:"Token is missing information"};
+                }                
                 if (info.authType === "Admin") {
                     if (refreshToken.role !== "Admin") {
                         return {authorized:false, cause:"You need to be admin to perform this action"};

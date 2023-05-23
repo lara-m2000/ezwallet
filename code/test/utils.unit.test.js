@@ -99,7 +99,7 @@ describe("verifyAuth", () => {
                 throw Object.assign(new Error('TokenExpiredError'), { name: 'TokenExpiredError' });
             }
             else
-                return {};
+                return {username:"testname", email:"test_email", role:"Regular"};
         })
         //Mock jwt.sign to return the new accessToken
         jwt.sign.mockReturnValue("newAccessToken");
