@@ -81,6 +81,7 @@ describe('verifyAuth', () => {
         expect(result.authorized).toBe(false);
         expect(result.cause).toBe("Unauthorized");
     });
+    
     //Combination of missing information in accessToken
     test('Should return false for non valid simple authentication with accessToken missing username information (authType=Simple)', () => {
         const info = { authType: 'Simple' };
@@ -198,7 +199,8 @@ describe('verifyAuth', () => {
         expect(result.cause).toBe("Perform login again");
     });
 
-    test('Should return false when refreshToken not valid and accessToken expired (authType=Simple)', () => {
+    //Combination of missing information when accessToken expired
+    test('Should return false when refreshToken is missing username information and accessToken expired (authType=Simple)', () => {
         const info = { authType: 'Simple' };
         res.cookie = jest.fn();
         req.cookies.accessToken = generateToken({username:'test_user', email:'test@email.com', role: 'Regular', password: 'test_password'}, '0');
@@ -207,19 +209,49 @@ describe('verifyAuth', () => {
         const result = verifyAuth(req, res, info);
 
         expect(result.authorized).toBe(false);
-        expect(result.cause).toBe("DecodeError");
+        expect(result.cause).toBe("Token is missing information");
     });
-
-    test.skip('Should return false when error occurs in jwt.verify (authType=Simple)', () => {
+    test('Should return false when refreshToken is missing email information and accessToken expired (authType=Simple)', () => {
         const info = { authType: 'Simple' };
-        //Mock jwt.verify to throw TokenExpiredError
-        jwt.verify.mockImplementation(() => {
-            throw Object.assign(new Error('DecodeError'), { name: 'DecodeError' });
-        })
+        res.cookie = jest.fn();
+        req.cookies.accessToken = generateToken({username:'test_user', email:'test@email.com', role: 'Regular', password: 'test_password'}, '0');
+        req.cookies.refreshToken = generateToken({username:'test_user', role: 'Regular', password: 'test_password'});
+
         const result = verifyAuth(req, res, info);
 
         expect(result.authorized).toBe(false);
-        expect(result.cause).toBe("DecodeError");
+        expect(result.cause).toBe("Token is missing information");
+    });
+    test('Should return false when refreshToken is missing role information and accessToken expired (authType=Simple)', () => {
+        const info = { authType: 'Simple' };
+        res.cookie = jest.fn();
+        req.cookies.accessToken = generateToken({username:'test_user', email:'test@email.com', role: 'Regular', password: 'test_password'}, '0');
+        req.cookies.refreshToken = generateToken({username:'test_user', email:'test@email.com', password: 'test_password'});
+
+        const result = verifyAuth(req, res, info);
+
+        expect(result.authorized).toBe(false);
+        expect(result.cause).toBe("Token is missing information");
+    });
+
+    test('Should return false when accessToken expired and error occurs in jwt.verify (authType=Simple)', () => {
+        const info = { authType: 'Simple' };
+        req.cookies.accessToken = generateToken({username:'test_user', email:'test@email.com', role: 'Regular', password: 'test_password'}, '0');
+        req.cookies.refreshToken = 'dummy'
+        const result = verifyAuth(req, res, info);
+
+        expect(result.authorized).toBe(false);
+        expect(result.cause).toBe("JsonWebTokenError");
+    });
+
+    test('Should return false when error occurs in jwt.verify (authType=Simple)', () => {
+        const info = { authType: 'Simple' };
+        req.cookies.accessToken = 'dummy'
+        req.cookies.refreshToken = 'dummy'
+        const result = verifyAuth(req, res, info);
+
+        expect(result.authorized).toBe(false);
+        expect(result.cause).toBe("JsonWebTokenError");
     });
 
 });
