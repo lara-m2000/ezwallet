@@ -18,9 +18,7 @@ beforeAll(async () => {
       role: "Admin or Regular"
       password: "test_password"
     }*/
-    const adminToken = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE2ODQ4Njk5OTgsImV4cCI6MTcxNjQwNjEwMSwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoianJvY2tldEBleGFtcGxlLmNvbSIsInVzZXJuYW1lIjoidGVzdF91c2VybmFtZSIsImVtYWlsIjoidGVzdEBlbWFpbC5jb20iLCJyb2xlIjoiQWRtaW4iLCJwYXNzd29yZCI6InRlc3RfcGFzc3dvcmQifQ.HGHUs8SOOiZznUVu4pVGn4ESCpCDoQIgbTpNbHk-IXQ'
-    const userToken = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE2ODQ4Njk5OTgsImV4cCI6MTcxNjQwNjEwMSwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoianJvY2tldEBleGFtcGxlLmNvbSIsInVzZXJuYW1lIjoidGVzdF91c2VybmFtZSIsImVtYWlsIjoidGVzdEBlbWFpbC5jb20iLCJyb2xlIjoiUmVndWxhciIsInBhc3N3b3JkIjoidGVzdF9wYXNzd29yZCJ9.uYhzQWjTqiXtNf_9Ds0bjDgd-5q7iWNqPXOZnAGPqb4'
-
+    
     await mongoose.connect(url, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
@@ -304,67 +302,46 @@ describe('verifyAuth', () => {
     });
 
     //AuthType=User
-    test.skip('Should return true for valid User authentication when req.params.username == refreshToken.username == acessToken.username (authType=User)', () => {
-        const info = { authType: 'User', username: 'testname' };
-        //Mock jwt.verify to return a valid decodedToken
-        jwt.verify.mockReturnValue({ username: "testname", email: "test@email", role: "Regular" })
+    test('Should return true for valid User authentication when req.params.username == refreshToken.username == acessToken.username (authType=User)', () => {
+        const info = { authType: 'User', username: 'test_user' };
+        req.cookies.accessToken = generateToken({username:'test_user', email:'test@email.com', role: 'Regular', password: 'test_password'});
+        req.cookies.refreshToken = generateToken({username:'test_user', email:'test@email.com', role: 'Regular', password: 'test_password'});
 
         const result = verifyAuth(req, res, info);
 
-        //Check if the appropriate functions were called
         expect(result.authorized).toBe(true);
         expect(result.cause).toBe("Authorized");
     });
 
-    test.skip('Should return false for non valid user authentication when req.params.username != refreshToken.username or != acessToken.username(authType=User)', () => {
-        const info = { authType: 'User', username: 'different_testname'};
-        //Mock jwt.verify to return a valid decodedToken
-        jwt.verify.mockReturnValue({ username: "testname", email: "test@email", role: "Regular" })
+    test('Should return false for non valid user authentication when req.params.username != refreshToken.username or != acessToken.username(authType=User)', () => {
+        const info = { authType: 'User', username: 'test_user' };
+        req.cookies.accessToken = generateToken({username:'different_test_user', email:'test@email.com', role: 'Regular', password: 'test_password'});
+        req.cookies.refreshToken = generateToken({username:'different_test_user', email:'test@email.com', role: 'Regular', password: 'test_password'});
 
         const result = verifyAuth(req, res, info);
 
-        //Check if the appropriate functions were called
         expect(result.authorized).toBe(false);
         expect(result.cause).toBe("You cannot request info about another user");
     });
 
-    test.skip('Should return true when refreshToken not expired and accessToken expired and req.params.username == refreshToken.username (authType=User)', () => {
-        const info = { authType: 'User', username: 'testname'};
-        req.params = { username: 'testname' };
-        let counter = 0;
-        //Mock jwt.verify to throw TokenExpiredError the first time it's called
-        jwt.verify.mockImplementation(() => {
-            if (counter == 0) {
-                counter++;
-                throw Object.assign(new Error('TokenExpiredError'), { name: 'TokenExpiredError' });
-            }
-            else
-                return { username: "testname", email: "test@email", role: "Regular" };
-        })
-        //Mock jwt.sign to return the new accessToken
-        jwt.sign.mockReturnValue("newAccessToken");
+    test('Should return true when refreshToken not expired and accessToken expired and req.params.username == refreshToken.username (authType=User)', () => {
+        const info = { authType: 'User', username: 'test_user' };
+        res.cookie = jest.fn();
+        req.cookies.accessToken = generateToken({username:'test_user', email:'test@email.com', role: 'Regular', password: 'test_password'}, 0);
+        req.cookies.refreshToken = generateToken({username:'test_user', email:'test@email.com', role: 'Regular', password: 'test_password'});
 
         const result = verifyAuth(req, res, info);
 
-        //Check if the appropriate functions were called
         expect(result.authorized).toBe(true);
         expect(result.cause).toBe("Authorized");
-        expect(res.cookie).toHaveBeenCalledWith('accessToken', 'newAccessToken', { httpOnly: true, path: '/api', maxAge: 60 * 60 * 1000, sameSite: 'none', secure: true });
         expect(res.locals.message).toBe('Access token has been refreshed. Remember to copy the new one in the headers of subsequent calls');
     });
 
-    test.skip('Should return false when refreshToken not expired and accessToken expired and req.params.username != refreshToken.username (authType=User)', () => {
-        const info = { authType: 'User', username: 'different_testname' };
-        let counter = 0;
-        //Mock jwt.verify to throw TokenExpiredError the first time it's called
-        jwt.verify.mockImplementation(() => {
-            if (counter == 0) {
-                counter++;
-                throw Object.assign(new Error('TokenExpiredError'), { name: 'TokenExpiredError' });
-            }
-            else
-                return { username: "testname", email: "test@email", role: "Regular" };
-        })
+    test('Should return false when refreshToken not expired and accessToken expired and req.params.username != refreshToken.username (authType=User)', () => {
+        const info = { authType: 'User', username: 'test_user' };
+        res.cookie = jest.fn();
+        req.cookies.accessToken = generateToken({username:'test_user', email:'test@email.com', role: 'Regular', password: 'test_password'}, 0);
+        req.cookies.refreshToken = generateToken({username:'different_test_user', email:'test@email.com', role: 'Regular', password: 'test_password'});
 
         const result = verifyAuth(req, res, info);
 
@@ -373,10 +350,10 @@ describe('verifyAuth', () => {
     });
 
     //AuthType=Group
-    test.skip('Should return true for valid Group authentication when accessToken and refreshToken have a `email` which is in the requested group (authType=Group)', () => {
-        const info = { authType: 'Group', emails:["test@email", "test2@email", "test3@email"] };
-        //Mock jwt.verify to return a valid decodedToken
-        jwt.verify.mockReturnValue({ username: "testname", email: "test@email", role: "Regular" })
+    test('Should return true for valid Group authentication when accessToken and refreshToken have a `email` which is in the requested group (authType=Group)', () => {
+        const info = { authType: 'Group', emails:["test@email.com", "test2@email.com", "test3@email.com"] };
+        req.cookies.accessToken = generateToken({username:'test_user', email:'test@email.com', role: 'Regular', password: 'test_password'});
+        req.cookies.refreshToken = generateToken({username:'test_user', email:'test@email.com', role: 'Regular', password: 'test_password'});
 
         const result = verifyAuth(req, res, info);
 
@@ -384,10 +361,10 @@ describe('verifyAuth', () => {
         expect(result.cause).toBe("Authorized");
     });
 
-    test.skip('Should return false for non valid user authentication when accessToken and refreshToken have a `email` which is not the requested group(authType=Group)', () => {
-        const info = { authType: 'Group', emails:["test@email", "test2@email", "test3@email"] };
-        //Mock jwt.verify to return a valid decodedToken
-        jwt.verify.mockReturnValue({ username: "testname", email: "test@email4", role: "Regular" })
+    test('Should return false for non valid user authentication when accessToken and refreshToken have a `email` which is not the requested group(authType=Group)', () => {
+        const info = { authType: 'Group', emails:["test@email.com", "test2@email.com", "test3@email.com"] };
+        req.cookies.accessToken = generateToken({username:'test_user', email:'test4@email.com', role: 'Regular', password: 'test_password'});
+        req.cookies.refreshToken = generateToken({username:'test_user', email:'test4@email.com', role: 'Regular', password: 'test_password'});
 
         const result = verifyAuth(req, res, info);
 
@@ -395,42 +372,25 @@ describe('verifyAuth', () => {
         expect(result.cause).toBe("You cannot request info about a group you don't belong to");
     });
 
-    test.skip('Should return true when refreshToken not expired and accessToken expired and req.params.username == refreshToken.username (authType=User)', () => {
-        const info = { authType: 'Group', emails:["test@email", "test2@email", "test3@email"] };
-        let counter = 0;
-        //Mock jwt.verify to throw TokenExpiredError the first time it's called
-        jwt.verify.mockImplementation(() => {
-            if (counter == 0) {
-                counter++;
-                throw Object.assign(new Error('TokenExpiredError'), { name: 'TokenExpiredError' });
-            }
-            else
-                return { username: "testname", email: "test@email", role: "Regular" };
-        })
-        //Mock jwt.sign to return the new accessToken
-        jwt.sign.mockReturnValue("newAccessToken");
+    test('Should return true when refreshToken not expired and accessToken expired and refreshToken has an email which is in the requested group (authType=Group)', () => {
+        const info = { authType: 'Group', emails:["test@email.com", "test2@email.com", "test3@email.com"] };
+        res.cookie = jest.fn();
+        req.cookies.accessToken = generateToken({username:'test_user', email:'test@email.com', role: 'Regular', password: 'test_password'}, '0');
+        req.cookies.refreshToken = generateToken({username:'test_user', email:'test@email.com', role: 'Regular', password: 'test_password'});
 
         const result = verifyAuth(req, res, info);
 
         //Check if the appropriate functions were called
         expect(result.authorized).toBe(true);
         expect(result.cause).toBe("Authorized");
-        expect(res.cookie).toHaveBeenCalledWith('accessToken', 'newAccessToken', { httpOnly: true, path: '/api', maxAge: 60 * 60 * 1000, sameSite: 'none', secure: true });
         expect(res.locals.message).toBe('Access token has been refreshed. Remember to copy the new one in the headers of subsequent calls');
     });
 
-    test.skip('Should return false when refreshToken not expired and accessToken expired and req.params.username != refreshToken.username (authType=User)', () => {
-        const info = { authType: 'Group', emails:["test@email", "test2@email", "test3@email"] };
-        let counter = 0;
-        //Mock jwt.verify to throw TokenExpiredError the first time it's called
-        jwt.verify.mockImplementation(() => {
-            if (counter == 0) {
-                counter++;
-                throw Object.assign(new Error('TokenExpiredError'), { name: 'TokenExpiredError' });
-            }
-            else
-                return { username: "testname", email: "test@email4", role: "Regular" };
-        })
+    test('Should return false when refreshToken not expired and accessToken expired and refreshToken has an email which is not in the requested group (authType=Group)', () => {
+        const info = { authType: 'Group', emails:["test@email.com", "test2@email.com", "test3@email.com"] };
+        res.cookie = jest.fn();
+        req.cookies.accessToken = generateToken({username:'test_user', email:'test@email.com', role: 'Regular', password: 'test_password'}, '0');
+        req.cookies.refreshToken = generateToken({username:'test_user', email:'test4@email.com', role: 'Regular', password: 'test_password'});
 
         const result = verifyAuth(req, res, info);
 
