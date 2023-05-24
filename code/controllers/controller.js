@@ -11,11 +11,12 @@ import { handleDateFilterParams, handleAmountFilterParams, verifyAuth } from "./
 export const createCategory = async (req, res) => {
     try {
         const cookie = req.cookies
-        /*if (!cookie.accessToken) {
-            return res.status(401).json({ message: "Unauthorized" }) // unauthorized
-        }*/
         const { type, color } = req.body;
-
+        
+        //Check the validity of the req.body
+        if (typeof type !== 'string' || typeof color !== 'string') {
+            return res.status(400).json({ error: 'Type and color must be strings' });
+        }
         //Check if the category already exists
         const category = await categories.findOne({type: type});
         if(category){
