@@ -63,7 +63,7 @@ describe('createCategory', () => {
         expect(res.json).toHaveBeenCalledWith({ error: unauthorizedError });
     });
 
-    test('should return an error if type or color is not a string', async () => {
+    test('should return an error if type or color is not valid', async () => {
         const invalidType = 123;
         const invalidColor = true;
         req.body.type = invalidType;
@@ -72,7 +72,7 @@ describe('createCategory', () => {
         await createCategory(req, res);
 
         expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({ error: 'Type and color must be strings' });
+        expect(res.json).toHaveBeenCalledWith({ error: 'Invalid type or color' });
     });
 
     test('should return an error if category with the same type already exists', async () => {
