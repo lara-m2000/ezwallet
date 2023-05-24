@@ -15,6 +15,13 @@ export const createCategory = async (req, res) => {
             return res.status(401).json({ message: "Unauthorized" }) // unauthorized
         }*/
         const { type, color } = req.body;
+
+        //Check if the category already exists
+        const category = await categories.findOne({type: type});
+        if(category){
+            return res.status(400).json({error: "Category with same type already exists"});
+        }
+
         const new_categories = new categories({ type, color });
         const data = await new_categories.save();
         return res.status(200).json({ data: {type: data.type, color: data.color}, message: res.locals.message });
@@ -64,7 +71,7 @@ export const updateCategory = async (req, res) => {
 /**
  * Delete a category
   - Request Body Content: An array of strings that lists the `types` of the categories to be deleted
-  - Response `data` Content: An object with parameter `message` that confirms successful deletion and a parameter `count` that is equal to the count of affected transactions (deleting a category sets all transactions with that category to have `investment` as their new category)
+  - Response `data` Content: An object with parameter `message` that confirms successful deletion and a parameter `count` that is equal to the count of affected transactions (deleting a category sets all transactions with that category to have the first category as their new category)
   - Optional behavior:
     - error 400 is returned if the specified category does not exist
     
@@ -78,23 +85,39 @@ export const deleteCategory = async (req, res) => {
         //Retrieve array of types from request body
         const { types } = req.body
 
-        //Check for the existence of all categories
-        const foundCategories = await categories.find({ type: { $in: types}});
-        
+        //Check for the existence of all categories, return categories sorted in ascending order of creationTime
+        const foundCategories = await categories.find({ type: { $in: types}}).sort({ createdAt: 1 });
+
         //Return an error if at least one category does not exist
         if(foundCategories.length < types.length){
             return res.status(400).json({ error: "All categories must exist"});
         }
 
         //Get the total number of categories in the database
-        const totalCategories = (await categories.find({})).length;
-        
-        //Return an error if the deletion does not leave at least one category in the database
-        if(foundCategories.length >= totalCategories){
-            return res.status(400).json({ error: "You can't delete all the categories in the database"});
+        const nCategories = await categories.countDocuments();
+
+        //Check if categories to be deleted cover all the categories in the DB
+        if(foundCategories.length >= nCategories){
+            //Retrieve all types to delete except for the first element (the first according to creationTime)
+            const typesToDelete = foundCategories.map(e => e.type).slice(1);
+            const oldestType = foundCategories[0].type;
+
+            //Delete all categories except the first one
+            await categories.deleteMany({ type: {$in: typesToDelete}});
+            //Update all transactions involved with the type of the category with first creation time
+            const result = await transactions.updateMany( { type: {$in: typesToDelete} }, { $set: { type: oldestType}});
+            return res.status(200).json({message: "Succesfully deleted", count: result.modifiedCount});
         }
 
-
+        //Delete all categories present in req.body.types 
+        const typesToDelete = types;
+        await categories.deleteMany({ type: {$in: typesToDelete}});
+        //Retrieve the first created category among the remaining ones
+        const oldestCategory = await categories.findOne().sort({ createdAt: 1 });
+        const oldestType = oldestCategory.type;
+        //Update all transactions involved with the type of the category with first creation time
+        const result = await transactions.updateMany( {type: {$in: typesToDelete}}, {$set: {type: oldestType}})
+        return res.status(200).json({message: "Succesfully deleted", count: result.modifiedCount});
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
