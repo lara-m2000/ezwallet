@@ -12,7 +12,12 @@ export const createCategory = async (req, res) => {
     try {
         const cookie = req.cookies
         const { type, color } = req.body;
-        
+
+        const adminAuth = verifyAuth(req, res, {authType: "Admin"});
+        if (!adminAuth.authorized){
+            return res.status(401).json({error: adminAuth.cause});
+        }
+
         //Check the validity of the req.body
         if (typeof type !== 'string' || typeof color !== 'string') {
             return res.status(400).json({ error: 'Type and color must be strings' });
