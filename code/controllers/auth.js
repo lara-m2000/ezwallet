@@ -3,6 +3,13 @@ import { User } from '../models/User.js';
 import jwt from 'jsonwebtoken';
 import { verifyAuth } from './utils.js';
 
+function isValidEmail(email) {
+    // Regular expression pattern for validating email addresses
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    // Test the email against the regex pattern
+    return emailRegex.test(email);
+  }
 /**
  * Register a new user in the system
   - Request Body Content: An object having attributes `username`, `email` and `password`
@@ -13,17 +20,21 @@ import { verifyAuth } from './utils.js';
 export const register = async (req, res) => {
     try {
         const { username, email, password } = req.body;
-        const existingUser = await User.findOne({ email: req.body.email });
-        if (existingUser) return res.status(400).json({ message: "you are already registered" });
+        if (!isValidEmail(email)){
+            res.status(400).json({error: "email is not in the correct format"});
+            return;
+        }
+        const existingUser = await User.findOne({ $or: [{email: email}, {username: username}] });
+        if (existingUser) return res.status(400).json({ error: "you are already registered" });
         const hashedPassword = await bcrypt.hash(password, 12);
         const newUser = await User.create({
             username,
             email,
             password: hashedPassword,
         });
-        res.status(200).json('user added succesfully');
+        res.status(200).json({data:{message:'user added succesfully'}});
     } catch (err) {
-        res.status(400).json(err);
+        res.status(500).json({error: err.message});
     }
 };
 
@@ -37,8 +48,12 @@ export const register = async (req, res) => {
 export const registerAdmin = async (req, res) => {
     try {
         const { username, email, password } = req.body
-        const existingUser = await User.findOne({ email: req.body.email });
-        if (existingUser) return res.status(400).json({ message: "you are already registered" });
+        if (!isValidEmail(email)){
+            res.status(400).json({error: "email is not in the correct format"});
+            return;
+        }
+        const existingUser = await User.findOne({ $or: [{email: email}, {username: username}] });
+        if (existingUser) return res.status(400).json({ error: "you are already registered" });
         const hashedPassword = await bcrypt.hash(password, 12);
         const newUser = await User.create({
             username,
@@ -46,9 +61,9 @@ export const registerAdmin = async (req, res) => {
             password: hashedPassword,
             role: "Admin"
         });
-        res.status(200).json('admin added succesfully');
+        res.status(200).json({data:{message:'admin added succesfully'}});
     } catch (err) {
-        res.status(500).json(err);
+        res.status(500).json({error: err.message});
     }
 
 }
@@ -64,11 +79,11 @@ export const registerAdmin = async (req, res) => {
 export const login = async (req, res) => {
     const { email, password } = req.body
     const cookie = req.cookies
-    const existingUser = await User.findOne({ email: email })
-    if (!existingUser) return res.status(400).json('please you need to register')
     try {
+        const existingUser = await User.findOne({ email: email })
+    if (!existingUser) return res.status(400).json({error:'please you need to register'})
         const match = await bcrypt.compare(password, existingUser.password)
-        if (!match) return res.status(400).json('wrong credentials')
+        if (!match) return res.status(400).json({error:'wrong credentials'})
         //CREATE ACCESSTOKEN
         const accessToken = jwt.sign({
             email: existingUser.email,
@@ -90,7 +105,7 @@ export const login = async (req, res) => {
         res.cookie('refreshToken', refreshToken, { httpOnly: true, domain: "localhost", path: '/api', maxAge: 7 * 24 * 60 * 60 * 1000, sameSite: 'none', secure: true })
         res.status(200).json({ data: { accessToken: accessToken, refreshToken: refreshToken } })
     } catch (error) {
-        res.status(400).json(error)
+        res.status(500).json({error: error.message})
     }
 }
 
@@ -104,16 +119,16 @@ export const login = async (req, res) => {
  */
 export const logout = async (req, res) => {
     const refreshToken = req.cookies.refreshToken
-    if (!refreshToken) return res.status(400).json("user not found")
-    const user = await User.findOne({ refreshToken: refreshToken })
-    if (!user) return res.status(400).json('user not found')
+    if (!refreshToken) return res.status(400).json({error:"user not found"})
     try {
+        const user = await User.findOne({ refreshToken: refreshToken })
+        if (!user) return res.status(400).json({error:'user not found'})
         user.refreshToken = null
         res.cookie("accessToken", "", { httpOnly: true, path: '/api', maxAge: 0, sameSite: 'none', secure: true })
         res.cookie('refreshToken', "", { httpOnly: true, path: '/api', maxAge: 0, sameSite: 'none', secure: true })
         const savedUser = await user.save()
-        res.status(200).json('logged out')
+        res.status(200).json({data:{message:'logged out'}})
     } catch (error) {
-        res.status(400).json(error)
+        res.status(500).json({error: error.message})
     }
 }
