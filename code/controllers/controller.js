@@ -48,7 +48,7 @@ export const updateCategory = async (req, res) => {
     try {
         //Perform control on authentication
         const adminAuth = verifyAuth(req, res, { authType: "Admin" });
-        if (!adminAuth) {
+        if (!adminAuth.authorized) {
             return res.status(401).json({ error: adminAuth.cause });
         }
 
@@ -101,7 +101,7 @@ export const deleteCategory = async (req, res) => {
     try {
         //Perform control on authentication
         const adminAuth = verifyAuth(req, res, { authType: "Admin" });
-        if (!adminAuth) {
+        if (!adminAuth.authorized) {
             return res.status(401).json({ error: adminAuth.cause });
         }
         //Retrieve array of types from request body
@@ -137,6 +137,7 @@ export const deleteCategory = async (req, res) => {
 
             //Delete all categories except the first one
             await categories.deleteMany({ type: { $in: typesToDelete } });
+
             //Update all transactions involved with the type of the category with first creation time
             const result = await transactions.updateMany({ type: { $in: typesToDelete } }, { $set: { type: oldestType } });
             return res.status(200).json({ message: "Succesfully deleted", count: result.modifiedCount });
@@ -145,9 +146,11 @@ export const deleteCategory = async (req, res) => {
         //Delete all categories present in req.body.types 
         const typesToDelete = types;
         await categories.deleteMany({ type: { $in: typesToDelete } });
+
         //Retrieve the first created category among the remaining ones
         const oldestCategory = await categories.findOne().sort({ createdAt: 1 });
         const oldestType = oldestCategory.type;
+
         //Update all transactions involved with the type of the category with first creation time
         const result = await transactions.updateMany({ type: { $in: typesToDelete } }, { $set: { type: oldestType } })
         return res.status(200).json({ message: "Succesfully deleted", count: result.modifiedCount });
@@ -166,9 +169,9 @@ export const deleteCategory = async (req, res) => {
 export const getCategories = async (req, res) => {
     try {
         //Perform control on authentication
-        const adminAuth = verifyAuth(req, res, { authType: "Admin" });
-        if (!adminAuth) {
-            return res.status(401).json({ error: adminAuth.cause });
+        const simpleAuth = verifyAuth(req, res, { authType: "Simple" });
+        if (!simpleAuth.authorized) {
+            return res.status(401).json({ error: simpleAuth.cause });
         }
         
         let data = await categories.find({})
