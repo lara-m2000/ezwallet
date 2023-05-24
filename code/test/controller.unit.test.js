@@ -90,7 +90,7 @@ describe('createCategory', () => {
         expect(res.json).toHaveBeenCalledWith({ error: errorMessage });
     });
 });
-//Missing controls on authentication (probably will have to mock the verifyAuth() func after inserting it)
+
 describe('updateCategory', () => {
     let req;
     let res;
