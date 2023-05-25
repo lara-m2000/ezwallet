@@ -29,10 +29,11 @@ export const getUsers = async (req, res) => {
 
     res.status(200).json({
       data: users.map((u) => userSchemaMapper(u)),
-      message: res.locals.message,
+      refreshedTokenMessage: res.locals.refreshedTokenMessage,
     });
   } catch (error) {
-    res.status(500).json(error.message);
+    console.log(error);
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -47,20 +48,34 @@ export const getUser = async (req, res) => {
   try {
     // TODO: auth
 
-    const username = req.params.username;
+    const paramsSchema = yup.object({
+      username: yup.string().required(),
+    });
+
+    // Validate params
+    const { isValidationOk, params, errorMessage } = validateRequest(
+      req,
+      paramsSchema
+    );
+    if (!isValidationOk) {
+      return res.status(400).json({ error: errorMessage });
+    }
+    const { username } = params;
 
     const user = await User.findOne({ username: username });
 
+    // check if user exist
     if (!user) {
-      return res.status(401).json({ message: res.locals.message });
+      return res.status(400).json({ error: "User doesn't exist" });
     }
 
     res.status(200).json({
       data: userSchemaMapper(user),
-      message: res.locals.message,
+      refreshedTokenMessage: res.locals.refreshedTokenMessage,
     });
   } catch (error) {
-    res.status(500).json(error.message);
+    console.log(error);
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -415,11 +430,26 @@ export const deleteUser = async (req, res) => {
   try {
     // TODO: auth
 
-    const { email } = req.body;
+    const bodySchema = yup.object({
+      email: yup.string().email().required(),
+    });
+
+    // Validate params
+    const { isValidationOk, body, errorMessage } = validateRequest(
+      req,
+      null,
+      bodySchema
+    );
+    if (!isValidationOk) {
+      return res.status(400).json({ error: errorMessage });
+    }
+    const { email } = body;
 
     const user = await User.findOneAndDelete({ email: email });
+
+    // check if user exist
     if (!user) {
-      return res.status(401).json({ message: res.locals.message });
+      return res.status(400).json({ error: "User doesn't exist" });
     }
 
     let deletedFromGroup = false;
@@ -460,7 +490,8 @@ export const deleteUser = async (req, res) => {
       message: res.locals.message,
     });
   } catch (err) {
-    res.status(500).json(err.message);
+    console.log(err);
+    res.status(500).json({ error: err.message });
   }
 };
 
