@@ -2,13 +2,17 @@ import { Group, User } from "../models/User.js";
 import { transactions } from "../models/model.js";
 import { arrayIntersection } from "./array.utils.js";
 import {
+  addEmail,
   findExistingUsers,
   findUsersGroup,
-  getUserReference,
+  getUserFromToken,
+  getUserReferen,
   groupSchemaMapper,
 } from "./group.utils.js";
 import { userSchemaMapper } from "./users.utils.js";
 import { verifyAuth } from "./utils.js";
+import * as yup from "yup";
+import { validateRequest } from "./validate.js";
 
 /**
  * Return all the users
@@ -73,20 +77,37 @@ export const getUser = async (req, res) => {
  */
 export const createGroup = async (req, res) => {
   try {
+    const currUser = await getUserFromToken(req.cookies.refreshToken);
     // TODO: check for auth
     // ...
 
-    const { name, memberEmails } = req.body;
+    // validate params
+    const schema = yup.object({
+      name: yup.string().required(),
+      memberEmails: yup.array(yup.string().email().required()).required(),
+    });
 
-    // bad formatting
-    if (!name || !memberEmails) {
-      return res.status(401).json({ message: "Bad formatting" });
+    const { body, errorMessage, isValidationOk } = validateRequest(
+      req,
+      null,
+      schema,
+      null
+    );
+    if (!isValidationOk) {
+      return res.state(400).json({ error: errorMessage });
+    }
+
+    const { name, memberEmails } = body;
+
+    // add currUser to memberEmails if not inside
+    if (!memberEmails.includes(currUser.email)) {
+      memberEmails.push(currUser.email);
     }
 
     // check for existing group
     const group = await Group.findOne({ name: name });
     if (group) {
-      return res.status(401).json({ message: "Group already exists" });
+      return res.status(400).json({ error: "Group already exists" });
     }
 
     // find existing users
@@ -101,10 +122,9 @@ export const createGroup = async (req, res) => {
 
     // check if every user is non-existing or if is part of a group
     if (membersFound.length === membersInGroup.length) {
-      return res.status(401).json({
-        data: { alreadyInGroup: membersInGroup, notInGroup: membersNotInGroup },
-        message: "Users don't exist or already in a group",
-      });
+      return res
+        .status(400)
+        .json({ error: "User don't exit or already in a group" });
     }
 
     const members = await getUserReference(membersNotInGroup);
@@ -116,10 +136,11 @@ export const createGroup = async (req, res) => {
         alreadyInGroup: membersInGroup,
         membersNotFound: membersNotFound,
       },
-      message: "Group added successfully",
+      refreshedTokenMessage: res.locals.refreshedTokenMessage,
     });
   } catch (err) {
-    res.status(500).json(err.message);
+    console.log(err);
+    res.status(500).json({ error: err.message });
   }
 };
 
@@ -154,10 +175,11 @@ export const getGroups = async (req, res) => {
 
     res.status(200).json({
       data: { groups: groups },
-      message: "All groups information",
+      refreshedTokenMessage: res.locals.refreshedTokenMessage,
     });
   } catch (err) {
-    res.status(500).json(err.message);
+    console.log(err);
+    res.status(500).json({ error: err.message });
   }
 };
 
@@ -174,19 +196,35 @@ export const getGroup = async (req, res) => {
     // TODO: check for auth
     // ...
 
-    const name = req.params.name;
+    const schema = yup.object({
+      name: yup.string().required(),
+    });
+
+    // validate params
+    const { params, errorMessage, isValidationOk } = validateRequest(
+      req,
+      schema
+    );
+    if (!isValidationOk) {
+      return res.state(400).json({ error: errorMessage });
+    }
+
+    const { name } = params;
+
+    // check if group exist
     const group = await Group.findOne({ name: name });
 
     if (!group) {
-      return res.status(401).json({ message: "Group does not exists" });
+      return res.status(400).json({ error: "Group does not exists" });
     }
 
     res.status(200).json({
       data: groupSchemaMapper(group),
-      message: "Group information",
+      refreshedTokenMessage: res.locals.refreshedTokenMessage,
     });
   } catch (err) {
-    res.status(500).json(err.message);
+    console.log(err);
+    res.status(500).json({ error: err.message });
   }
 };
 
@@ -205,22 +243,35 @@ export const addToGroup = async (req, res) => {
   try {
     // TOOD: add auth
 
-    const emails = req.body;
+    const schemaBody = yup.object({
+      emails: yup.array(yup.string().email().required()).required(),
+    });
 
-    if (!emails) {
-      return res.status(401).json({ message: "Bad formatting" });
+    const schemaParams = yup.object({
+      name: yup.string().required(),
+    });
+
+    const { body, params, errorMessage, isValidationOk } = validateRequest(
+      req,
+      schemaBody,
+      schemaParams
+    );
+    if (!isValidationOk) {
+      return res.status(400).json({ error: errorMessage });
     }
+
+    const { emails } = body;
+    const { name } = params;
 
     if (emails.length === 0) {
-      return res.status(401).json({ message: "List is empty" });
+      return res.status(400).json({ error: "List is empty" });
     }
 
-    const name = req.params.name;
     const group = await Group.findOne({ name: name });
 
     // check if group exists
     if (!group) {
-      return res.status(401).json({ message: "Group does not exist" });
+      return res.status(400).json({ error: "Group does not exist" });
     }
 
     // find existing users
@@ -234,8 +285,8 @@ export const addToGroup = async (req, res) => {
     // check if every user is non-existing or if is part of a group
     if (membersFound.length === membersInGroup.length) {
       return res
-        .status(401)
-        .json({ message: "Users don't exist or already in a group" });
+        .status(400)
+        .json({ error: "Users don't exist or already in a group" });
     }
 
     const members = await getUserReference(membersNotInGroup);
@@ -251,10 +302,11 @@ export const addToGroup = async (req, res) => {
         alreadyInGroup: membersInGroup,
         membersNotFound: membersNotFound,
       },
-      message: "Users added successfully to a group",
+      refreshedTokenMessage: res.locals.refreshedTokenMessage,
     });
   } catch (err) {
-    res.status(500).json(err.message);
+    console.log(err);
+    res.status(500).json({ error: err.message });
   }
 };
 
@@ -272,22 +324,35 @@ export const removeFromGroup = async (req, res) => {
   try {
     // TODO: auth
 
-    const emails = req.body;
+    const bodySchema = yup.object({
+      emails: yup.array(yup.string().email().required()).required(),
+    });
 
-    if (!emails) {
-      return res.status(401).json({ message: "Bad formatting" });
+    const paramsSchema = yup.object({
+      name: yup.string().required(),
+    });
+
+    const { isValidationOk, body, params, errorMessage } = validateRequest(
+      req,
+      paramsSchema,
+      bodySchema
+    );
+    if (!isValidationOk) {
+      return res.status(400).json({ error: errorMessage });
     }
+
+    const { emails } = body;
+    const { name } = params;
 
     if (emails.length === 0) {
-      return res.status(401).json({ message: "List is empty" });
+      return res.status(400).json({ error: "List is empty" });
     }
 
-    const name = req.params.name;
     const group = await Group.findOne({ name: name });
 
     // check if group exists
     if (!group) {
-      return res.status(401).json({ message: "Group does not exist" });
+      return res.status(400).json({ error: "Group does not exist" });
     }
 
     // find existing users
@@ -301,8 +366,8 @@ export const removeFromGroup = async (req, res) => {
     // check if at least one user exist or is not part of a group
     if (membersFound.length === membersNotInGroup.length) {
       return res
-        .status(401)
-        .json({ message: "Users don't exist or not in a group" });
+        .status(400)
+        .json({ error: "Users don't exist or not in a group" });
     }
 
     // find members to remove
@@ -311,6 +376,7 @@ export const removeFromGroup = async (req, res) => {
       group.members.map((m) => m.email)
     );
 
+    // TODO: chiedere sul gruppo per ultimo membro di un gruppo
     const updatedGroup = await Group.findOneAndUpdate(
       { name: name },
       { $pull: { members: { email: { $in: membersToRemove } } } },
@@ -328,10 +394,11 @@ export const removeFromGroup = async (req, res) => {
         notInGroup: membersNotInGroup,
         membersNotFound: membersNotFound,
       },
-      message: "Users removed successfully from a group",
+      refreshedTokenMessage: res.locals.refreshedTokenMessage,
     });
   } catch (err) {
-    res.status(500).json(err.message);
+    console.log(err);
+    res.status(500).json({ error: err.message });
   }
 };
 
@@ -408,17 +475,33 @@ export const deleteGroup = async (req, res) => {
   try {
     // TODO: auth
 
-    const { name } = req.body;
+    const bodySchema = yup.object({
+      name: yup.string().required(),
+    });
+
+    const { isValidationOk, body, errorMessage } = validateRequest(
+      req,
+      null,
+      bodySchema
+    );
+    if (!isValidationOk) {
+      return res.status(400).json({ error: errorMessage });
+    }
+    const { name } = body;
 
     const group = await Group.findOneAndDelete({ name: name });
 
     // check if group exists
     if (!group) {
-      return res.status(401).json({ message: "Group does not exists" });
+      return res.status(400).json({ error: "Group does not exists" });
     }
 
-    res.status(200).json({ message: "Group successfully deleted" });
+    res.status(200).json({
+      data: { message: "Group delete successfully" },
+      refreshedTokenMessage: res.locals.refreshedTokenMessage,
+    });
   } catch (err) {
-    res.status(500).json(err.message);
+    console.log(err);
+    res.status(500).json({ error: err.message });
   }
 };
