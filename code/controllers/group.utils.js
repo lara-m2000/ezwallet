@@ -78,12 +78,21 @@ export const findExistingUsers = async (emails) => {
 
 /**
  *
- * @param {*} group
- * @returns {{ name: string, members: string[]}}
+ * @param {typeof Group.schema.obj} group
+ * @returns {{ name: string, members: {email:string}[]}}
  */
 export const groupSchemaMapper = (group) => {
   return {
     name: group.name,
-    members: group.members.map((m) => m.email),
+    members: group.members.map((m) => ({ email: m.email })),
   };
+};
+
+/**
+ *
+ * @param {string} refreshToken
+ * @returns {Promise<typeof User.schema.obj>}
+ */
+export const getUserFromToken = async (refreshToken) => {
+  return await User.findOne({ refreshToken: refreshToken });
 };
