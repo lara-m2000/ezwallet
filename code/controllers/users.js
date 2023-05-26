@@ -6,7 +6,7 @@ import {
   findExistingUsers,
   findUsersGroup,
   getUserFromToken,
-  getUserReferen,
+  getUserReference,
   groupSchemaMapper,
 } from "./group.utils.js";
 import { verifyAuth } from "./utils.js";
@@ -146,24 +146,10 @@ export const getGroups = async (req, res) => {
     // TODO: check for admin auth
     // ...
 
-    const groups = await Group.aggregate([
-      {
-        $project: {
-          _id: 0,
-          name: "$name",
-          members: {
-            $map: {
-              input: "$members.email",
-              as: "email",
-              in: "$$email",
-            },
-          },
-        },
-      },
-    ]);
+    const groups = await Group.find();
 
     res.status(200).json({
-      data: { groups: groups },
+      data: { groups: groups.map(groupSchemaMapper) },
       refreshedTokenMessage: res.locals.refreshedTokenMessage,
     });
   } catch (err) {
@@ -242,8 +228,8 @@ export const addToGroup = async (req, res) => {
 
     const { body, params, errorMessage, isValidationOk } = validateRequest(
       req,
-      schemaBody,
-      schemaParams
+      schemaParams,
+      schemaBody
     );
     if (!isValidationOk) {
       return res.status(400).json({ error: errorMessage });

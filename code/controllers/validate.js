@@ -1,3 +1,5 @@
+import * as yup from "yup";
+
 export const validateObject = (yupSchema, objectToBeValidated) => {
   let validatedObject = {};
   let validationError = "default";
