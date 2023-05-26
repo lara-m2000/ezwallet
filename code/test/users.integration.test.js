@@ -78,18 +78,31 @@ describe("Groups", () => {
     username: user,
     email: `${user}@${user}.it`,
     password: user,
+    refreshToken: user,
   });
 
   describe("createGroup", () => {
     const groupStub = () => ({
       name: "test",
-      memberEmails: ["bre@bre.it", "fra@fra.it"],
+      members: [{ email: "bre@bre.it" }, { email: "fra@fra.it" }],
     });
 
-    const sendRequest = async (body) => {
+    const bodyStub = () => ({
+      name: groupStub().name,
+      memberEmails: groupStub().members.map((m) => m.email),
+    });
+
+    const paramsStub = () => ({
+      refreshToken: "bre",
+    });
+
+    const sendRequest = async (body, refreshToken = null) => {
       return await request(app)
         .post("/api/groups")
         .set("Content-Type", "application/json")
+        .set("Cookie", [
+          `refreshToken=${refreshToken ?? "bre"}`
+        ])
         .send(body);
     };
 
@@ -100,30 +113,33 @@ describe("Groups", () => {
     test("should create a new group", async () => {
       await User.create([newUser("bre"), newUser("fra")]);
 
-      const res = await sendRequest(groupStub());
+      const res = await sendRequest(bodyStub());
 
       expect(res.status).toBe(200);
-      expect(res.body.data.group.name).toBe(groupStub().name);
-      expect(res.body.data.group.members).toEqual(groupStub().memberEmails);
+      expect(res.body.data.group).toEqual(groupStub());
       expect(res.body.data.alreadyInGroup).toEqual([]);
       expect(res.body.data.membersNotFound).toEqual([]);
     });
 
     test("should return error if group already exists", async () => {
+      await User.create(newUser("bre"));
       await Group.create({ name: groupStub().name });
 
-      const res = await sendRequest(groupStub());
+      const res = await sendRequest(bodyStub());
 
-      expect(res.status).toBe(401);
+      expect(res.status).toBe(400);
     });
 
     test("should return non exising users", async () => {
-      await User.create(newUser("fra"));
+      const fra = newUser("fra");
+      await User.create(fra);
 
-      const res = await sendRequest(groupStub());
+      const res = await sendRequest(bodyStub(), fra.refreshToken);
 
       expect(res.status).toBe(200);
-      expect(res.body.data.group.members).toEqual([newUser("fra").email]);
+      expect(res.body.data.group.members).toEqual([
+        { email: newUser("fra").email },
+      ]);
       expect(res.body.data.membersNotFound).toEqual([newUser("bre").email]);
     });
 
@@ -134,23 +150,28 @@ describe("Groups", () => {
         members: [{ email: newUser("fra").email }],
       });
 
-      const res = await sendRequest(groupStub());
+      const res = await sendRequest(bodyStub());
 
       expect(res.status).toBe(200);
       expect(res.body.data.alreadyInGroup).toEqual([newUser("fra").email]);
-      expect(res.body.data.group.members).toEqual([newUser("bre").email]);
+      expect(res.body.data.group.members).toEqual([
+        {
+          email: newUser("bre").email,
+        },
+      ]);
     });
 
     test("should return error if users do not exist or belog to a group", async () => {
-      await User.create([newUser("fra")]);
+      const fra = newUser("fra");
+      await User.create(fra);
       await Group.create({
         name: "pippo",
-        members: [{ email: newUser("fra").email }],
+        members: [{ email: fra.email }],
       });
 
-      const res = await sendRequest(groupStub());
+      const res = await sendRequest(bodyStub(), fra.refreshToken);
 
-      expect(res.status).toBe(401);
+      expect(res.status).toBe(400);
     });
   });
 
@@ -219,7 +240,7 @@ describe("Groups", () => {
     test("should return error if groups does not exist", async () => {
       const res = await sendRequest("test", {});
 
-      expect(res.status).toBe(401);
+      expect(res.status).toBe(400);
     });
   });
 
@@ -241,6 +262,10 @@ describe("Groups", () => {
       ],
     });
 
+    const bodyStub = () => ({
+      emails: usersToAdd,
+    });
+
     beforeEach(async () => {
       await Promise.all([User.deleteMany({}), Group.deleteMany({})]);
     });
@@ -256,7 +281,7 @@ describe("Groups", () => {
       ]);
       await Group.create(groupStub());
 
-      const res = await sendRequest(groupStub().name, usersToAdd);
+      const res = await sendRequest(groupStub().name, bodyStub());
 
       expect(res.status).toBe(200);
       expect(res.body.data.group).toEqual(groupSchemaMapper(updatedGroup));
@@ -267,9 +292,9 @@ describe("Groups", () => {
     test("should return error if group doesn't exist", async () => {
       await Group.create(groupStub());
 
-      const res = await sendRequest(groupStub().name, usersToAdd);
+      const res = await sendRequest(groupStub().name, bodyStub());
 
-      expect(res.status).toBe(401);
+      expect(res.status).toBe(400);
     });
 
     test("should return non exising users", async () => {
@@ -285,7 +310,7 @@ describe("Groups", () => {
       await User.create([newUser("bre"), newUser("fra"), newUser("lar")]);
       await Group.create(groupStub());
 
-      const res = await sendRequest(groupStub().name, usersToAdd);
+      const res = await sendRequest(groupStub().name, bodyStub());
 
       expect(res.status).toBe(200);
       expect(res.body.data.membersNotFound).toEqual([newUser("mat").email]);
@@ -308,7 +333,7 @@ describe("Groups", () => {
       const updatedGroup = groupStub();
       updatedGroup.members.push({ email: newUser("lar").email });
 
-      const res = await sendRequest(groupStub().name, usersToAdd);
+      const res = await sendRequest(groupStub().name, bodyStub());
 
       expect(res.status).toBe(200);
       expect(res.body.data.alreadyInGroup).toEqual([newUser("mat").email]);
@@ -323,9 +348,9 @@ describe("Groups", () => {
         members: [{ email: newUser("mat").email }],
       });
 
-      const res = await sendRequest(groupStub().name, usersToAdd);
+      const res = await sendRequest(groupStub().name, bodyStub());
 
-      expect(res.status).toBe(401);
+      expect(res.status).toBe(400);
     });
   });
 
@@ -338,6 +363,10 @@ describe("Groups", () => {
     };
 
     const usersToRemove = [newUser("bre").email, newUser("fra").email];
+
+    const bodyStub = () => ({
+      emails: usersToRemove,
+    });
 
     const groupStub = () => ({
       name: "test",
@@ -354,7 +383,7 @@ describe("Groups", () => {
       await User.create([newUser("bre"), newUser("fra")]);
       await Group.create(groupStub());
 
-      const res = await sendRequest(groupStub().name, usersToRemove);
+      const res = await sendRequest(groupStub().name, bodyStub());
 
       expect(res.status).toBe(200);
       expect(res.body.data.group).toEqual(groupSchemaMapper(updatedGroup));
@@ -365,9 +394,9 @@ describe("Groups", () => {
     test("should return error if group doesn't exist", async () => {
       await Group.create(groupStub());
 
-      const res = await sendRequest(groupStub().name, usersToRemove);
+      const res = await sendRequest(groupStub().name, bodyStub());
 
-      expect(res.status).toBe(401);
+      expect(res.status).toBe(400);
     });
 
     test("should return non existing users", async () => {
@@ -379,7 +408,7 @@ describe("Groups", () => {
       await User.create([newUser("bre"), newUser("fra")]);
       await Group.create(groupStub());
 
-      const res = await sendRequest(groupStub().name, usersToRemove);
+      const res = await sendRequest(groupStub().name, { emails: usersToRemove });
 
       expect(res.status).toBe(200);
       expect(res.body.data.membersNotFound).toEqual([userNotExist]);
@@ -395,7 +424,7 @@ describe("Groups", () => {
       await User.create([newUser("bre"), newUser("fra"), newUser("lar")]);
       await Group.create(groupStub());
 
-      const res = await sendRequest(groupStub().name, usersToRemove);
+      const res = await sendRequest(groupStub().name, { emails: usersToRemove });
 
       expect(res.status).toBe(200);
       expect(res.body.data.notInGroup).toEqual([userNotInGroup]);
@@ -410,9 +439,9 @@ describe("Groups", () => {
       await User.create(newUser("mat"));
       await Group.create(groupStub());
 
-      const res = await sendRequest(groupStub().name, usersToRemove);
+      const res = await sendRequest(groupStub().name, { emails: usersToRemove });
 
-      expect(res.status).toBe(401);
+      expect(res.status).toBe(400);
     });
   });
 
@@ -446,7 +475,7 @@ describe("Groups", () => {
     test("should return error if group does not exist", async () => {
       const res = await sendRequest({ name: "test" });
 
-      expect(res.status).toBe(401);
+      expect(res.status).toBe(400);
     });
   });
 });
