@@ -20,6 +20,16 @@ import { groupSchemaMapper } from "../controllers/group.utils";
  * `jest.mock()` must be called for every external module that is called in the functions under test.
  */
 jest.mock("../models/User.js");
+jest.mock("../controllers/group.utils.js", () => {
+  const originalModule = jest.requireActual("../controllers/group.utils.js");
+  return {
+    __esModule: true,
+    ...originalModule,
+    getUserFromToken: jest.fn(),
+  };
+});
+
+import { getUserFromToken } from "../controllers/group.utils";
 
 /**
  * Defines code to be executed before each test case is launched
@@ -69,11 +79,18 @@ describe("Group", () => {
     return {
       status: jest.fn().mockReturnThis(),
       json: jest.fn().mockReturnThis(),
+      locals: {
+        refreshedTokenMessage: "rToken",
+      },
     };
   };
 
   // TODO: substitu aggregate calls with the ones in `group.utils.js`
 
+  /**
+   * Get all groups
+   */
+  const GroupFind = jest.spyOn(Group, "find");
   /**
    * Find the group
    */
@@ -106,14 +123,24 @@ describe("Group", () => {
           name: groupStub().name,
           memberEmails: groupStub().members.map((m) => m.email),
         },
+        cookies: {
+          refreshToken: "rToken",
+        },
       };
     };
+
+    const userCallingStub = () => ({
+      name: "bre",
+      email: "bre@bre.it",
+      refreshToken: "rToken",
+    });
 
     beforeEach(async () => {
       jest.resetAllMocks();
     });
 
     test("result status should be 200", async () => {
+      getUserFromToken.mockResolvedValue(userCallingStub());
       GroupFindOne.mockResolvedValueOnce();
       UserAggregate.mockResolvedValueOnce(
         groupStub().members.map((m) => ({ email: m.email }))
@@ -125,30 +152,32 @@ describe("Group", () => {
       const res = mockRes();
       await createGroup(reqStub(), res);
 
-      expect(res.status).toBeCalledWith(200);
+      expect(GroupFindOne).toHaveBeenCalledWith({ name: groupStub().name });
+      expect(GroupCreate).toHaveBeenCalledWith([groupStub()]);
       expect(res.json).toBeCalledWith({
         data: {
           group: groupSchemaMapper(groupStub()),
           alreadyInGroup: [],
           membersNotFound: [],
         },
-        message: "Group added successfully",
+        refreshedTokenMessage: mockRes().locals.refreshedTokenMessage,
       });
-      expect(GroupFindOne).toHaveBeenCalledWith({ name: groupStub().name });
-      expect(GroupCreate).toHaveBeenCalledWith([groupStub()]);
+      expect(res.status).toBeCalledWith(200);
     });
 
-    test("result status should be 401 when group already exists", async () => {
+    test("result status should be 400 when group already exists", async () => {
+      getUserFromToken.mockResolvedValue(userCallingStub());
       GroupFindOne.mockResolvedValue(groupStub());
       const res = mockRes();
       await createGroup(reqStub(), res);
 
       expect(GroupFindOne).toHaveBeenCalled();
-      expect(res.status).toBeCalledWith(401);
+      expect(res.status).toBeCalledWith(400);
       expect(res.json).toBeCalled();
     });
 
-    test("result status should be 401 when all users don't exists", async () => {
+    test("result status should be 400 when all users don't exists", async () => {
+      getUserFromToken.mockResolvedValue(userCallingStub());
       GroupFindOne.mockResolvedValue();
       UserAggregate.mockResolvedValue([]);
       GroupAggregate.mockResolvedValue([]);
@@ -160,10 +189,11 @@ describe("Group", () => {
       expect(UserAggregate).toHaveBeenCalled();
       expect(GroupAggregate).toHaveBeenCalled();
 
-      expect(res.status).toBeCalledWith(401);
+      expect(res.status).toBeCalledWith(400);
     });
 
-    test("result status should be 401 when all user belong to a group or don't exist", async () => {
+    test("result status should be 400 when all user belong to a group or don't exist", async () => {
+      getUserFromToken.mockResolvedValue(userCallingStub());
       GroupFindOne.mockResolvedValue();
       UserAggregate.mockResolvedValueOnce([
         groupStub().members.map((u) => ({ email: u.email }))[0],
@@ -179,13 +209,18 @@ describe("Group", () => {
       expect(UserAggregate).toHaveBeenCalled();
       expect(GroupAggregate).toHaveBeenCalled();
 
-      expect(res.status).toBeCalledWith(401);
+      expect(res.status).toBeCalledWith(400);
     });
 
     test("result should get non-exising users and already in a group", async () => {
       let userNotExist = "lar@lar.it";
       let userInGroup = "mat@mat.it";
 
+      getUserFromToken.mockResolvedValue({
+        name: "mat",
+        email: userInGroup,
+        refreshToken: "rToken",
+      });
       GroupFindOne.mockResolvedValueOnce();
       const existingUsers = groupStub().members.map((m) => {
         return { email: m.email };
@@ -208,7 +243,7 @@ describe("Group", () => {
           alreadyInGroup: [userInGroup],
           membersNotFound: [userNotExist],
         },
-        message: "Group added successfully",
+        refreshedTokenMessage: mockRes().locals.refreshedTokenMessage,
       });
     });
   });
@@ -219,30 +254,30 @@ describe("Group", () => {
     });
 
     test("should return a list of all groups", async () => {
-      GroupAggregate.mockResolvedValue([groupSchemaMapper(groupStub())]);
+      GroupFind.mockResolvedValue([groupStub()]);
 
       const res = mockRes();
       await getGroups({}, res);
 
-      expect(GroupAggregate).toBeCalled();
+      expect(GroupFind).toHaveBeenCalled();
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
         data: { groups: [groupSchemaMapper(groupStub())] },
-        message: "All groups information",
+        refreshedTokenMessage: mockRes().locals.refreshedTokenMessage,
       });
     });
 
     test("should return an empty list", async () => {
-      GroupAggregate.mockResolvedValue([]);
+      GroupFind.mockResolvedValue([]);
 
       const res = mockRes();
       await getGroups({}, res);
 
-      expect(GroupAggregate).toBeCalled();
+      expect(GroupFind).toBeCalled();
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
         data: { groups: [] },
-        message: "All groups information",
+        refreshedTokenMessage: mockRes().locals.refreshedTokenMessage,
       });
     });
   });
@@ -266,18 +301,18 @@ describe("Group", () => {
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
         data: groupSchemaMapper(groupStub()),
-        message: "Group information",
+        refreshedTokenMessage: mockRes().locals.refreshedTokenMessage,
       });
     });
 
-    test("should return 401 because the group does not exist", async () => {
+    test("should return 400 when the group does not exist", async () => {
       GroupFindOne.mockResolvedValue();
 
       const res = mockRes();
       await getGroup(reqStub(), res);
 
       expect(GroupFindOne).toHaveBeenCalled();
-      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.status).toHaveBeenCalledWith(400);
     });
   });
 
@@ -296,7 +331,10 @@ describe("Group", () => {
       return g;
     })();
 
-    const reqStub = () => ({ body: emailsToAdd, params: { name: group.name } });
+    const reqStub = () => ({
+      body: { emails: emailsToAdd },
+      params: { name: group.name },
+    });
 
     test("should return the updated group", async () => {
       const res = mockRes();
@@ -318,21 +356,21 @@ describe("Group", () => {
           alreadyInGroup: [],
           membersNotFound: [],
         },
-        message: "Users added successfully to a group",
+        refreshedTokenMessage: mockRes().locals.refreshedTokenMessage,
       });
     });
 
-    test("sould return 401 if group does not exist", async () => {
+    test("sould return 400 if group does not exist", async () => {
       GroupFindOne.mockResolvedValue();
 
       const res = mockRes();
       await addToGroup(reqStub(), res);
 
       expect(GroupFindOne).toHaveBeenCalled();
-      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.status).toHaveBeenCalledWith(400);
     });
 
-    test("result status should be 401 when all users don't exists", async () => {
+    test("result status should be 400 when all users don't exists", async () => {
       GroupFindOne.mockResolvedValueOnce(groupStub());
       UserAggregate.mockResolvedValueOnce([]);
       GroupAggregate.mockResolvedValueOnce([]);
@@ -344,10 +382,10 @@ describe("Group", () => {
       expect(UserAggregate).toHaveBeenCalled();
       expect(GroupAggregate).toHaveBeenCalled();
 
-      expect(res.status).toBeCalledWith(401);
+      expect(res.status).toBeCalledWith(400);
     });
 
-    test("result status should be 401 when all user belong to a group or don't exist", async () => {
+    test("result status should be 400 when all user belong to a group or don't exist", async () => {
       GroupFindOne.mockResolvedValueOnce(groupStub());
       UserAggregate.mockResolvedValueOnce([{ email: emailsToAdd[0] }]);
       GroupAggregate.mockResolvedValue([{ _id: emailsToAdd[0] }]);
@@ -359,7 +397,7 @@ describe("Group", () => {
       expect(UserAggregate).toHaveBeenCalled();
       expect(GroupAggregate).toHaveBeenCalled();
 
-      expect(res.status).toBeCalledWith(401);
+      expect(res.status).toBeCalledWith(400);
     });
 
     test("result should get non-exising users and already in a group", async () => {
@@ -380,7 +418,7 @@ describe("Group", () => {
       GroupFindOneAndUpdate.mockResolvedValueOnce(groupStub());
 
       const req = reqStub();
-      req.body.push(...groupStub().members.map((m) => m.email));
+      req.body.emails.push(...groupStub().members.map((m) => m.email));
       const res = mockRes();
       await addToGroup(req, res);
 
@@ -391,7 +429,7 @@ describe("Group", () => {
           alreadyInGroup: [userInGroup],
           membersNotFound: [userNotExist],
         },
-        message: "Users added successfully to a group",
+        refreshedTokenMessage: mockRes().locals.refreshedTokenMessage,
       });
     });
   });
@@ -415,7 +453,9 @@ describe("Group", () => {
     })();
 
     const reqStub = () => ({
-      body: emailsToRemove,
+      body: {
+        emails: emailsToRemove,
+      },
       params: { name: group.name },
     });
 
@@ -441,21 +481,21 @@ describe("Group", () => {
           notInGroup: [],
           membersNotFound: [],
         },
-        message: "Users removed successfully from a group",
+        refreshedTokenMessage: mockRes().locals.refreshedTokenMessage,
       });
     });
 
-    test("sould return 401 if group does not exist", async () => {
+    test("sould return 400 if group does not exist", async () => {
       GroupFindOne.mockResolvedValue();
 
       const res = mockRes();
       await removeFromGroup(reqStub(), res);
 
       expect(GroupFindOne).toHaveBeenCalled();
-      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.status).toHaveBeenCalledWith(400);
     });
 
-    test("result status should be 401 when all users don't exists", async () => {
+    test("result status should be 400 when all users don't exists", async () => {
       GroupFindOne.mockResolvedValueOnce(groupStub());
       UserAggregate.mockResolvedValueOnce([]);
       GroupAggregate.mockResolvedValueOnce([]);
@@ -467,10 +507,10 @@ describe("Group", () => {
       expect(UserAggregate).toHaveBeenCalled();
       expect(GroupAggregate).toHaveBeenCalled();
 
-      expect(res.status).toBeCalledWith(401);
+      expect(res.status).toBeCalledWith(400);
     });
 
-    test("result status should be 401 when all users don't belong to a group or don't exist", async () => {
+    test("result status should be 400 when all users don't belong to a group or don't exist", async () => {
       GroupFindOne.mockResolvedValueOnce(groupStub());
       UserAggregate.mockResolvedValueOnce([{ email: emailsToRemove[0] }]);
       GroupAggregate.mockResolvedValue([{ _id: emailsToRemove[1] }]);
@@ -482,7 +522,7 @@ describe("Group", () => {
       expect(UserAggregate).toHaveBeenCalled();
       expect(GroupAggregate).toHaveBeenCalled();
 
-      expect(res.status).toBeCalledWith(401);
+      expect(res.status).toBeCalledWith(400);
     });
 
     test("result should get non-exising users and not in a group", async () => {
@@ -505,7 +545,7 @@ describe("Group", () => {
       GroupFindOneAndUpdate.mockResolvedValueOnce(updatedGroup);
 
       const req = reqStub();
-      req.body.push(userNotExist, userNotInGroup);
+      req.body.emails.push(userNotExist, userNotInGroup);
       const res = mockRes();
       await removeFromGroup(req, res);
 
@@ -516,7 +556,7 @@ describe("Group", () => {
           notInGroup: [userNotInGroup],
           membersNotFound: [userNotExist],
         },
-        message: "Users removed successfully from a group",
+        refreshedTokenMessage: mockRes().locals.refreshedTokenMessage,
       });
     });
   });
@@ -546,7 +586,7 @@ describe("Group", () => {
       const res = mockRes();
       await deleteGroup(reqStub(), res);
 
-      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.status).toHaveBeenCalledWith(400);
     });
   });
 });
