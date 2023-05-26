@@ -115,15 +115,19 @@ export const deleteCategory = async (req, res) => {
         const { types } = req.body
 
         //Check validity of req.body
-        if (!Array.isArray(types)) {
-            return res.status(400).json({ error: 'Types must be an array' });
+        if (!Array.isArray(types) || types.length === 0) {
+            return res.status(400).json({ error: 'Types must be a non-void array' });
         }
         for (const type of types) {
-            if (typeof type !== 'string') {
-                return res.status(400).json({ error: 'Types must be an array of strings' });
+            if (!type || typeof type !== 'string') {
+                return res.status(400).json({ error: 'Types must be an array of non-void strings' });
             }
         }
 
+        //Get the total number of categories in the database
+        const nCategories = await categories.countDocuments();
+        if(nCategories <= 1)
+            return res.status(400).json({error: 'Not enough categories to perform a deletion'});
 
         //Check for the existence of all categories, return categories sorted in ascending order of creationTime
         const foundCategories = await categories.find({ type: { $in: types } }).sort({ createdAt: 1 });
@@ -133,11 +137,8 @@ export const deleteCategory = async (req, res) => {
             return res.status(400).json({ error: "All categories must exist" });
         }
 
-        //Get the total number of categories in the database
-        const nCategories = await categories.countDocuments();
-
         //Check if categories to be deleted cover all the categories in the DB
-        if (foundCategories.length >= nCategories) {
+        if (foundCategories.length === nCategories) {
             //Retrieve all types to delete except for the first element (the first according to creationTime)
             const typesToDelete = foundCategories.map(e => e.type).slice(1);
             const oldestType = foundCategories[0].type;
@@ -147,20 +148,19 @@ export const deleteCategory = async (req, res) => {
 
             //Update all transactions involved with the type of the category with first creation time
             const result = await transactions.updateMany({ type: { $in: typesToDelete } }, { $set: { type: oldestType } });
-            return res.status(200).json({ message: "Succesfully deleted", count: result.modifiedCount });
+        } else {
+            //Delete all categories present in req.body.types 
+            const typesToDelete = types;
+            await categories.deleteMany({ type: { $in: typesToDelete } });
+
+            //Retrieve the first created category among the remaining ones
+            const oldestCategory = await categories.findOne().sort({ createdAt: 1 });
+            const oldestType = oldestCategory.type;
+
+            //Update all transactions involved with the type of the category with first creation time
+            const result = await transactions.updateMany({ type: { $in: typesToDelete } }, { $set: { type: oldestType } })
         }
-
-        //Delete all categories present in req.body.types 
-        const typesToDelete = types;
-        await categories.deleteMany({ type: { $in: typesToDelete } });
-
-        //Retrieve the first created category among the remaining ones
-        const oldestCategory = await categories.findOne().sort({ createdAt: 1 });
-        const oldestType = oldestCategory.type;
-
-        //Update all transactions involved with the type of the category with first creation time
-        const result = await transactions.updateMany({ type: { $in: typesToDelete } }, { $set: { type: oldestType } })
-        return res.status(200).json({ message: "Succesfully deleted", count: result.modifiedCount });
+        return res.status(200).json({data: {message: "Categories deleted", count: result.modifiedCount}, refreshedTokenMessage: res.locals.refreshedTokenMessage});
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
@@ -184,7 +184,7 @@ export const getCategories = async (req, res) => {
         let data = await categories.find({})
         let filter = data.map(v => Object.assign({}, { type: v.type, color: v.color }))
 
-        return res.json({ data: filter, message: res.locals.message })
+        return res.status(200).json({data: filter, refreshedTokenMessage: res.locals.refreshedTokenMessage});
     } catch (error) {
         res.status(400).json({ error: error.message })
     }
