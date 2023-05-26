@@ -18,10 +18,11 @@ export const createCategory = async (req, res) => {
 
         const { type, color } = req.body;
 
-        //Check the validity of the req.body
-        if (typeof type !== 'string' || typeof color !== 'string') {
-            return res.status(400).json({ error: 'Invalid type or color' });
+        // Check attributes' validity
+        if(!type || !color || typeof type !== 'string' || typeof color !== 'string'){
+            return res.status(400).json({ error: 'Invalid attribute' });
         }
+
         //Check if the category already exists
         const category = await categories.findOne({ type: type });
         if (category) {
@@ -30,7 +31,7 @@ export const createCategory = async (req, res) => {
 
         const new_categories = new categories({ type, color });
         const data = await new_categories.save();
-        return res.status(200).json({ data: { type: data.type, color: data.color }, message: res.locals.message });
+        return res.status(200).json({ data: { type: data.type, color: data.color }, refreshedTokenMessage: res.locals.refreshedTokenMessage });
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
@@ -63,15 +64,21 @@ export const updateCategory = async (req, res) => {
         //Retrieve from request Body the new fields for the category
         const { type, color } = req.body;
 
-        //Check the validity of the req.body
-        if (typeof type !== 'string' || typeof color !== 'string') {
-            return res.status(400).json({ error: 'Invalid type or color' });
+        // Check attributes' validity
+        if(!type || !color || typeof type !== 'string' || typeof color !== 'string'){
+            return res.status(400).json({ error: 'Invalid attribute' });
         }
 
-        //Detect if the category actually exists
+        //Detect if the old category actually exists
         const oldCategory = await categories.findOne({ type: oldType });
         if (!oldCategory) {
             return res.status(400).json({ error: "The category does not exist" });
+        }
+
+        // Detect if the new type already exist
+        const newExist = await categories.findOne({type : type});
+        if(newExist){
+            return res.status(400).json({error: 'Category type already exists'});
         }
 
         //Update the target category
@@ -80,7 +87,7 @@ export const updateCategory = async (req, res) => {
         //Update all the related transactions and retrieve the number of changed transactions
         const changes = await transactions.updateMany({ type: oldType }, { $set: { type: type } });
 
-        return res.status(200).json({ data: { count: changes.modifiedCount, message: "Successfully updated" }, message: res.locals.message });
+        return res.status(200).json({data: {message: "Category edited successfully", count: changes.modifiedCount}, refreshedTokenMessage: res.locals.refreshedTokenMessage});
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
