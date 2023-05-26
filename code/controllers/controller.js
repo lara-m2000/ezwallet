@@ -19,7 +19,7 @@ export const createCategory = async (req, res) => {
         const { type, color } = req.body;
 
         // Check attributes' validity
-        if(!type || !color || typeof type !== 'string' || typeof color !== 'string'){
+        if(typeof type !== 'string' || typeof color !== 'string' || !type.trim() || !color.trim()){
             return res.status(400).json({ error: 'Invalid attribute' });
         }
 
@@ -65,7 +65,7 @@ export const updateCategory = async (req, res) => {
         const { type, color } = req.body;
 
         // Check attributes' validity
-        if(!type || !color || typeof type !== 'string' || typeof color !== 'string'){
+        if(typeof type !== 'string' || typeof color !== 'string' || !type.trim() || !color.trim()){
             return res.status(400).json({ error: 'Invalid attribute' });
         }
 
@@ -119,7 +119,7 @@ export const deleteCategory = async (req, res) => {
             return res.status(400).json({ error: 'Types must be a non-void array' });
         }
         for (const type of types) {
-            if (!type || typeof type !== 'string') {
+            if (typeof type !== 'string' || !String.prototype.trim(type)) {
                 return res.status(400).json({ error: 'Types must be an array of non-void strings' });
             }
         }

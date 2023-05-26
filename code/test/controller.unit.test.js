@@ -58,7 +58,7 @@ describe('createCategory', () => {
         expect(res.json).toHaveBeenCalledWith({ error: unauthorizedError });
     });
 
-    test('should return an error if type or color is not valid', async () => {
+    test('should return an error if type or color is not a string', async () => {
         const invalidType = 123;
         const invalidColor = true;
         req.body.type = invalidType;
@@ -67,7 +67,19 @@ describe('createCategory', () => {
         await createCategory(req, res);
 
         expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({ error: 'Invalid type or color' });
+        expect(res.json).toHaveBeenCalledWith({ error: 'Invalid attribute' });
+    });
+
+    test('should return an error if type or color is empty', async () => {
+        const invalidType = "   ";
+        const invalidColor = "";
+        req.body.type = invalidType;
+        req.body.color = invalidColor;
+
+        await createCategory(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Invalid attribute' });
     });
 
     test('should return an error if category with the same type already exists', async () => {
@@ -149,14 +161,24 @@ describe('updateCategory', () => {
         expect(res.json).toHaveBeenCalledWith({ error: 'Invalid parameter in request' });
     });
 
-    test('should return an error if invalid type or color', async () => {
+    test('should return an error if type or color are not strings', async () => {
         req.body.type = 123;
         req.body.color = true;
 
         await updateCategory(req, res);
 
         expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({ error: 'Invalid type or color' });
+        expect(res.json).toHaveBeenCalledWith({ error: 'Invalid attribute' });
+    });
+
+    test('should return an error if type or color are void strings', async () => {
+        req.body.type = "   ";
+        req.body.color = "";
+
+        await updateCategory(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Invalid attribute' });
     });
 
     test('should return an error if the category does not exist', async () => {
