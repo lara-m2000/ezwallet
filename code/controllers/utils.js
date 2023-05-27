@@ -33,18 +33,25 @@ export const handleDateFilterParams = (req) => {
  *              - both the accessToken and the refreshToken have a `role` which is equal to Admin => {flag: true, cause:"flag"}
  *              - the accessToken is expired and the refreshToken has a `role` which is equal to Admin => {flag: true, cause:"flag"}
  *          - authType === "Group":
- *              - either the accessToken or the refreshToken have a `email` which is not in the requested group => {flag: false, cause:"<cause>"}
- *              - the accessToken is expired and the refreshToken has a `email` which is not in the requested group => {flag: false, cause:"<cause>"}
- *              - both the accessToken and the refreshToken have a `email` which is in the requested group => {flag: true, cause:"flag"}
- *              - the accessToken is expired and the refreshToken has a `email` which is in the requested group => {flag: true, cause:"flag"}
- * @returns an object {flag: <bool>, cause:<string>} flag is true if the user satisfies all the conditions of the specified `authType` and false if at least one condition is not satisfied
+ *              - either the accessToken or the refreshToken have a `email` which is not in the requested group => {authorized: false, cause:"<cause>"}
+ *              - the accessToken is expired and the refreshToken has a `email` which is not in the requested group => {authorized: false, cause:"<cause>"}
+ *              - both the accessToken and the refreshToken have a `email` which is in the requested group => {authorized: true, cause:"Authorized"}
+ *              - the accessToken is expired and the refreshToken has a `email` which is in the requested group => {authorized: true, cause:"Authorized"}
+ * @returns an object {authorized: <bool>, cause:<string>} authorized is true if the user satisfies all the conditions of the specified `authType` and false if at least one condition is not satisfied
+ * 
  *  Refreshes the accessToken if it has expired and the refreshToken is still valid
+ * 
  * Examples of different auths:
+ * 
  * -const simpleAuth = verifyAuth(req, res, {authType: "Simple"})
+ * 
  * -const userAuth = verifyAuth(req, res, {authType: "User", username: req.params.username})
+ * 
  * -const adminAuth = verifyAuth(req, res, {authType: "Admin"})
+ * 
  * -const groupAuth = verifyAuth(req, res, {authType: "Group", emails: <array of emails>})
- */
+ * 
+ **/
 export const verifyAuth = (req, res, info) => {
     const cookie = req.cookies
     if (!cookie.accessToken || !cookie.refreshToken) {
