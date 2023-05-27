@@ -12,7 +12,10 @@ export const isValidEmail = (email) => {
 }
 
 export const isValidBody = (body) => {
-    if (body.username && body.email && body.password) {
+    const username = body.username ? body.username.trim() : undefined;
+    const email = body.email ? body.email.trim() : undefined;
+    const password = body.password ? body.password.trim() : undefined;
+    if (username && email && password) {
         return true;
     }
     else {
@@ -96,7 +99,7 @@ export const login = async (req, res) => {
         const { email, password } = req.body;
         const body = req.body;
         //Dummy property to use isValidBody also for login
-        body.username = body.email;
+        body.username = 'dummy';
         if (!isValidBody(body)) {
             return res.status(400).json({ error: "Non valid req.body" });
         }

@@ -22,7 +22,7 @@ describe('isValidBody', () => {
     });
 
     test('returns false if body contains empty string', () => {
-        const body = { username: 'john', email: '', password: 'password123' };
+        const body = { username: 'john', email: ' ', password: 'password123' };
         const result = isValidBody(body);
         expect(result).toBe(false);
     });

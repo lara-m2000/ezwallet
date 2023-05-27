@@ -425,6 +425,73 @@ describe('login', () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({ error: 'wrong credentials' });
   });
+
+  test('should return an error if the email is not a valid email', async () => {
+    const user = {
+      email: 'notValidEmail.com',
+      password: 'password123',
+    };
+    // Attempt to register with not valid email
+    const response = await request(app)
+      .post('/api/login')
+      .send(user);
+
+    // Check the response status code and error message
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'email is not in the correct format' });
+  });
+
+  test('should return an error if email is missing in req.body', async () => {
+    const user = {
+      password: 'password123',
+    };
+
+    const response = await request(app)
+      .post('/api/login')
+      .send(user);
+    // Check the response status code and error message
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'Non valid req.body' });
+  })
+  test('should return an error if password is missing in req.body', async () => {
+    const user = {
+      email: 'valid@email.com',
+    };
+
+    const response = await request(app)
+      .post('/api/login')
+      .send(user);
+    // Check the response status code and error message
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'Non valid req.body' });
+  })
+
+  test('should return an error if email is empty in req.body', async () => {
+    const user = {
+      email: ' ',
+      password: 'password123',
+    };
+
+    const response = await request(app)
+      .post('/api/login')
+      .send(user);
+    // Check the response status code and error message
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'Non valid req.body' });
+  })
+  test('should return an error if password is empty in req.body', async () => {
+    const user = {
+      user: 'ddd',
+      email: 'valid@email.com',
+      password: ' ',
+    };
+    const response = await request(app)
+      .post('/api/login')
+      .send(user);
+    // Check the response status code and error message
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'Non valid req.body' });
+  })
 });
 
 describe('logout', () => {
