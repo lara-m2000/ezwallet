@@ -25,7 +25,7 @@ describe('createCategory', () => {
         res = {
             status: jest.fn().mockReturnThis(),
             json: jest.fn(),
-            locals: {},
+            locals: {refreshedTokenMessage: "RefreshToken"},
         };
         verifyAuth.mockReturnValue({ authorized: true, cause: "cause" });
     });
@@ -44,8 +44,8 @@ describe('createCategory', () => {
             data: {
                 type: req.body.type,
                 color: req.body.color
-            }
-        });
+            },
+        refreshedTokenMessage: "RefreshToken"});
     });
 
     test('should return an error if user is not authorized', async () => {
@@ -121,7 +121,7 @@ describe('updateCategory', () => {
         res = {
             status: jest.fn().mockReturnThis(),
             json: jest.fn(),
-            locals: {message: "message"},
+            locals: {refreshedTokenMessage: "RefreshToken"},
         };
         verifyAuth.mockReturnValue({authorized: true, cause:"cause"});
     });
@@ -137,8 +137,8 @@ describe('updateCategory', () => {
 
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({
-            data: { count: modifiedCount, message: 'Successfully updated' },
-            message: "message",
+            data: { message: "Category edited successfully", count: modifiedCount },
+            refreshedTokenMessage: "RefreshToken",
         });
     });
 
@@ -189,6 +189,19 @@ describe('updateCategory', () => {
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith({ error: 'The category does not exist' });
     });
+
+    test('should return an error if category with the same type already exists', async () => {
+        const existingCategory = { type: 'ExistingType', color: 'ExistingColor' };
+        // The mock category is returned also for the old type search in the db
+        // so we have to keep the mock on findOne for more than one call
+        categories.findOne.mockResolvedValue(existingCategory);
+
+        await updateCategory(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Category type already exists' });
+    });
+
 
     test('should return a server error if an exception occurs', async () => {
         const errorMessage = 'Internal Server Error';
