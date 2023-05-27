@@ -183,7 +183,7 @@ describe('verifyAuth', () => {
 
         expect(result.flag).toBe(true);
         expect(result.cause).toBe("Authorized");
-        expect(res.locals.message).toBe('Access token has been refreshed. Remember to copy the new one in the headers of subsequent calls');
+        expect(res.locals.refreshedTokenMessage).toBe('Access token has been refreshed. Remember to copy the new one in the headers of subsequent calls');
     });
 
     test('Should return false when refreshToken expired and accessToken expired (authType=Simple)', () => {
@@ -286,7 +286,7 @@ describe('verifyAuth', () => {
         //Check if the appropriate functions were called
         expect(result.flag).toBe(true);
         expect(result.cause).toBe("Authorized");
-        expect(res.locals.message).toBe('Access token has been refreshed. Remember to copy the new one in the headers of subsequent calls');
+        expect(res.locals.refreshedTokenMessage).toBe('Access token has been refreshed. Remember to copy the new one in the headers of subsequent calls');
     });
 
     test('Should return false when refreshToken not expired and accessToken expired and role != Admin (authType=Admin)', () => {
@@ -334,7 +334,7 @@ describe('verifyAuth', () => {
 
         expect(result.flag).toBe(true);
         expect(result.cause).toBe("Authorized");
-        expect(res.locals.message).toBe('Access token has been refreshed. Remember to copy the new one in the headers of subsequent calls');
+        expect(res.locals.refreshedTokenMessage).toBe('Access token has been refreshed. Remember to copy the new one in the headers of subsequent calls');
     });
 
     test('Should return false when refreshToken not expired and accessToken expired and req.params.username != refreshToken.username (authType=User)', () => {
@@ -383,7 +383,7 @@ describe('verifyAuth', () => {
         //Check if the appropriate functions were called
         expect(result.flag).toBe(true);
         expect(result.cause).toBe("Authorized");
-        expect(res.locals.message).toBe('Access token has been refreshed. Remember to copy the new one in the headers of subsequent calls');
+        expect(res.locals.refreshedTokenMessage).toBe('Access token has been refreshed. Remember to copy the new one in the headers of subsequent calls');
     });
 
     test('Should return false when refreshToken not expired and accessToken expired and refreshToken has an email which is not in the requested group (authType=Group)', () => {

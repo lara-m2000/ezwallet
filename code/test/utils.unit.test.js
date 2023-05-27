@@ -110,7 +110,7 @@ describe("verifyAuth", () => {
         expect(result.flag).toBe(true);
         expect(result.cause).toBe("Authorized");
         expect(res.cookie).toHaveBeenCalledWith('accessToken', 'newAccessToken', { httpOnly: true, path: '/api', maxAge: 60 * 60 * 1000, sameSite: 'none', secure: true });
-        expect(res.locals.message).toBe('Access token has been refreshed. Remember to copy the new one in the headers of subsequent calls');
+        expect(res.locals.refreshedTokenMessage).toBe('Access token has been refreshed. Remember to copy the new one in the headers of subsequent calls');
     });
 
     test('Should return false when refreshToken expired and accessToken expired (authType=Simple)', () => {
@@ -202,7 +202,7 @@ describe("verifyAuth", () => {
         expect(result.flag).toBe(true);
         expect(result.cause).toBe("Authorized");
         expect(res.cookie).toHaveBeenCalledWith('accessToken', 'newAccessToken', { httpOnly: true, path: '/api', maxAge: 60 * 60 * 1000, sameSite: 'none', secure: true });
-        expect(res.locals.message).toBe('Access token has been refreshed. Remember to copy the new one in the headers of subsequent calls');
+        expect(res.locals.refreshedTokenMessage).toBe('Access token has been refreshed. Remember to copy the new one in the headers of subsequent calls');
     });
 
     test('Should return false when refreshToken not expired and accessToken expired and role != Admin (authType=Admin)', () => {
@@ -270,7 +270,7 @@ describe("verifyAuth", () => {
         expect(result.flag).toBe(true);
         expect(result.cause).toBe("Authorized");
         expect(res.cookie).toHaveBeenCalledWith('accessToken', 'newAccessToken', { httpOnly: true, path: '/api', maxAge: 60 * 60 * 1000, sameSite: 'none', secure: true });
-        expect(res.locals.message).toBe('Access token has been refreshed. Remember to copy the new one in the headers of subsequent calls');
+        expect(res.locals.refreshedTokenMessage).toBe('Access token has been refreshed. Remember to copy the new one in the headers of subsequent calls');
     });
 
     test('Should return false when refreshToken not expired and accessToken expired and req.params.username != refreshToken.username (authType=User)', () => {
@@ -335,7 +335,7 @@ describe("verifyAuth", () => {
         expect(result.flag).toBe(true);
         expect(result.cause).toBe("Authorized");
         expect(res.cookie).toHaveBeenCalledWith('accessToken', 'newAccessToken', { httpOnly: true, path: '/api', maxAge: 60 * 60 * 1000, sameSite: 'none', secure: true });
-        expect(res.locals.message).toBe('Access token has been refreshed. Remember to copy the new one in the headers of subsequent calls');
+        expect(res.locals.refreshedTokenMessage).toBe('Access token has been refreshed. Remember to copy the new one in the headers of subsequent calls');
     });
 
     test('Should return false when refreshToken not expired and accessToken expired and req.params.username != refreshToken.username (authType=User)', () => {

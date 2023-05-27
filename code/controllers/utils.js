@@ -112,7 +112,7 @@ export const verifyAuth = (req, res, info) => {
                     role: refreshToken.role
                 }, process.env.ACCESS_KEY, { expiresIn: '1h' })
                 res.cookie('accessToken', newAccessToken, { httpOnly: true, path: '/api', maxAge: 60 * 60 * 1000, sameSite: 'none', secure: true })
-                res.locals.message = 'Access token has been refreshed. Remember to copy the new one in the headers of subsequent calls'
+                res.locals.refreshedTokenMessage = 'Access token has been refreshed. Remember to copy the new one in the headers of subsequent calls'
                 return {flag:true, cause:"Authorized"};
             } catch (err) {
                 if (err.name === "TokenExpiredError") {
