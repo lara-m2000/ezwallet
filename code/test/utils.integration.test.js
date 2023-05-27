@@ -65,7 +65,7 @@ describe('verifyAuth', () => {
         const result = verifyAuth(req, res, info);
 
         //Check if the appropriate results are returned
-        expect(result.authorized).toBe(true);
+        expect(result.flag).toBe(true);
         expect(result.cause).toBe("Authorized");
     });
 
@@ -76,7 +76,7 @@ describe('verifyAuth', () => {
 
         const result = verifyAuth(req, res, info);
 
-        expect(result.authorized).toBe(false);
+        expect(result.flag).toBe(false);
         expect(result.cause).toBe("Unauthorized");
     });
 
@@ -88,7 +88,7 @@ describe('verifyAuth', () => {
 
         const result = verifyAuth(req, res, info);
 
-        expect(result.authorized).toBe(false);
+        expect(result.flag).toBe(false);
         expect(result.cause).toBe("Token is missing information");
     });
     test('Should return false for non valid simple authentication with accessToken missing email information (authType=Simple)', () => {
@@ -98,7 +98,7 @@ describe('verifyAuth', () => {
 
         const result = verifyAuth(req, res, info);
 
-        expect(result.authorized).toBe(false);
+        expect(result.flag).toBe(false);
         expect(result.cause).toBe("Token is missing information");
     });
     test('Should return false for non valid simple authentication with accessToken missing role information (authType=Simple)', () => {
@@ -108,7 +108,7 @@ describe('verifyAuth', () => {
 
         const result = verifyAuth(req, res, info);
 
-        expect(result.authorized).toBe(false);
+        expect(result.flag).toBe(false);
         expect(result.cause).toBe("Token is missing information");
     });
 
@@ -120,7 +120,7 @@ describe('verifyAuth', () => {
 
         const result = verifyAuth(req, res, info);
 
-        expect(result.authorized).toBe(false);
+        expect(result.flag).toBe(false);
         expect(result.cause).toBe("Token is missing information");
     });
     test('Should return false for non valid simple authentication with refreshToken missing email information (authType=Simple)', () => {
@@ -130,7 +130,7 @@ describe('verifyAuth', () => {
 
         const result = verifyAuth(req, res, info);
 
-        expect(result.authorized).toBe(false);
+        expect(result.flag).toBe(false);
         expect(result.cause).toBe("Token is missing information");
     });
     test('Should return false for non valid simple authentication with refreshToken missing role information (authType=Simple)', () => {
@@ -140,7 +140,7 @@ describe('verifyAuth', () => {
 
         const result = verifyAuth(req, res, info);
 
-        expect(result.authorized).toBe(false);
+        expect(result.flag).toBe(false);
         expect(result.cause).toBe("Token is missing information");
     });
 
@@ -151,7 +151,7 @@ describe('verifyAuth', () => {
         req.cookies.refreshToken = generateToken({username:'test_user2', email:'test@email.com', role: 'Regular', password: 'test_password'});
         const result = verifyAuth(req, res, info);
 
-        expect(result.authorized).toBe(false);
+        expect(result.flag).toBe(false);
         expect(result.cause).toBe("Mismatched users");
     });
     test('Should return false for non valid simple authentication with mismatch of email in the tokens (authType=Simple)', () => {
@@ -160,7 +160,7 @@ describe('verifyAuth', () => {
         req.cookies.refreshToken = generateToken({username:'test_user', email:'test2@email.com', role: 'Regular', password: 'test_password'});
         const result = verifyAuth(req, res, info);
 
-        expect(result.authorized).toBe(false);
+        expect(result.flag).toBe(false);
         expect(result.cause).toBe("Mismatched users");
     });
     test('Should return false for non valid simple authentication with mismatch of role in the tokens (authType=Simple)', () => {
@@ -169,7 +169,7 @@ describe('verifyAuth', () => {
         req.cookies.refreshToken = generateToken({username:'test_user', email:'test@email.com', role: 'Admin', password: 'test_password'});
         const result = verifyAuth(req, res, info);
 
-        expect(result.authorized).toBe(false);
+        expect(result.flag).toBe(false);
         expect(result.cause).toBe("Mismatched users");
     });
 
@@ -181,7 +181,7 @@ describe('verifyAuth', () => {
 
         const result = verifyAuth(req, res, info);
 
-        expect(result.authorized).toBe(true);
+        expect(result.flag).toBe(true);
         expect(result.cause).toBe("Authorized");
         expect(res.locals.message).toBe('Access token has been refreshed. Remember to copy the new one in the headers of subsequent calls');
     });
@@ -193,7 +193,7 @@ describe('verifyAuth', () => {
 
         const result = verifyAuth(req, res, info);
 
-        expect(result.authorized).toBe(false);
+        expect(result.flag).toBe(false);
         expect(result.cause).toBe("Perform login again");
     });
 
@@ -206,7 +206,7 @@ describe('verifyAuth', () => {
 
         const result = verifyAuth(req, res, info);
 
-        expect(result.authorized).toBe(false);
+        expect(result.flag).toBe(false);
         expect(result.cause).toBe("Token is missing information");
     });
     test('Should return false when refreshToken is missing email information and accessToken expired (authType=Simple)', () => {
@@ -217,7 +217,7 @@ describe('verifyAuth', () => {
 
         const result = verifyAuth(req, res, info);
 
-        expect(result.authorized).toBe(false);
+        expect(result.flag).toBe(false);
         expect(result.cause).toBe("Token is missing information");
     });
     test('Should return false when refreshToken is missing role information and accessToken expired (authType=Simple)', () => {
@@ -228,7 +228,7 @@ describe('verifyAuth', () => {
 
         const result = verifyAuth(req, res, info);
 
-        expect(result.authorized).toBe(false);
+        expect(result.flag).toBe(false);
         expect(result.cause).toBe("Token is missing information");
     });
 
@@ -238,7 +238,7 @@ describe('verifyAuth', () => {
         req.cookies.refreshToken = 'dummy'
         const result = verifyAuth(req, res, info);
 
-        expect(result.authorized).toBe(false);
+        expect(result.flag).toBe(false);
         expect(result.cause).toBe("JsonWebTokenError");
     });
 
@@ -248,7 +248,7 @@ describe('verifyAuth', () => {
         req.cookies.refreshToken = 'dummy'
         const result = verifyAuth(req, res, info);
 
-        expect(result.authorized).toBe(false);
+        expect(result.flag).toBe(false);
         expect(result.cause).toBe("JsonWebTokenError");
     });
 
@@ -260,7 +260,7 @@ describe('verifyAuth', () => {
 
         const result = verifyAuth(req, res, info);
 
-        expect(result.authorized).toBe(true);
+        expect(result.flag).toBe(true);
         expect(result.cause).toBe("Authorized");
     });
 
@@ -271,7 +271,7 @@ describe('verifyAuth', () => {
 
         const result = verifyAuth(req, res, info);
 
-        expect(result.authorized).toBe(false);
+        expect(result.flag).toBe(false);
         expect(result.cause).toBe("You need to be admin to perform this action");
     });
 
@@ -284,7 +284,7 @@ describe('verifyAuth', () => {
         const result = verifyAuth(req, res, info);
 
         //Check if the appropriate functions were called
-        expect(result.authorized).toBe(true);
+        expect(result.flag).toBe(true);
         expect(result.cause).toBe("Authorized");
         expect(res.locals.message).toBe('Access token has been refreshed. Remember to copy the new one in the headers of subsequent calls');
     });
@@ -297,7 +297,7 @@ describe('verifyAuth', () => {
 
         const result = verifyAuth(req, res, info);
 
-        expect(result.authorized).toBe(false);
+        expect(result.flag).toBe(false);
         expect(result.cause).toBe("You need to be admin to perform this action");
     });
 
@@ -309,7 +309,7 @@ describe('verifyAuth', () => {
 
         const result = verifyAuth(req, res, info);
 
-        expect(result.authorized).toBe(true);
+        expect(result.flag).toBe(true);
         expect(result.cause).toBe("Authorized");
     });
 
@@ -320,7 +320,7 @@ describe('verifyAuth', () => {
 
         const result = verifyAuth(req, res, info);
 
-        expect(result.authorized).toBe(false);
+        expect(result.flag).toBe(false);
         expect(result.cause).toBe("You cannot request info about another user");
     });
 
@@ -332,7 +332,7 @@ describe('verifyAuth', () => {
 
         const result = verifyAuth(req, res, info);
 
-        expect(result.authorized).toBe(true);
+        expect(result.flag).toBe(true);
         expect(result.cause).toBe("Authorized");
         expect(res.locals.message).toBe('Access token has been refreshed. Remember to copy the new one in the headers of subsequent calls');
     });
@@ -345,7 +345,7 @@ describe('verifyAuth', () => {
 
         const result = verifyAuth(req, res, info);
 
-        expect(result.authorized).toBe(false);
+        expect(result.flag).toBe(false);
         expect(result.cause).toBe("You cannot request info about another user");
     });
 
@@ -357,7 +357,7 @@ describe('verifyAuth', () => {
 
         const result = verifyAuth(req, res, info);
 
-        expect(result.authorized).toBe(true);
+        expect(result.flag).toBe(true);
         expect(result.cause).toBe("Authorized");
     });
 
@@ -368,7 +368,7 @@ describe('verifyAuth', () => {
 
         const result = verifyAuth(req, res, info);
 
-        expect(result.authorized).toBe(false);
+        expect(result.flag).toBe(false);
         expect(result.cause).toBe("You cannot request info about a group you don't belong to");
     });
 
@@ -381,7 +381,7 @@ describe('verifyAuth', () => {
         const result = verifyAuth(req, res, info);
 
         //Check if the appropriate functions were called
-        expect(result.authorized).toBe(true);
+        expect(result.flag).toBe(true);
         expect(result.cause).toBe("Authorized");
         expect(res.locals.message).toBe('Access token has been refreshed. Remember to copy the new one in the headers of subsequent calls');
     });
@@ -394,7 +394,7 @@ describe('verifyAuth', () => {
 
         const result = verifyAuth(req, res, info);
 
-        expect(result.authorized).toBe(false);
+        expect(result.flag).toBe(false);
         expect(result.cause).toBe("You cannot request info about a group you don't belong to");
     });
 
