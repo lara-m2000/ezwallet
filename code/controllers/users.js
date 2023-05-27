@@ -9,7 +9,12 @@ import {
   getUserReference,
   groupSchemaMapper,
 } from "./group.utils.js";
-import { verifyAuth } from "./utils.js";
+import {
+  verifyAdmin,
+  verifyAuth,
+  verifyUser,
+  verifyUserOrAdmin,
+} from "./utils.js";
 import * as yup from "yup";
 import { validateRequest } from "./validate.js";
 
@@ -66,9 +71,14 @@ export const getUser = async (req, res) => {
  */
 export const createGroup = async (req, res) => {
   try {
-    const currUser = await getUserFromToken(req.cookies.refreshToken);
-    // TODO: check for auth
-    // ...
+    // Check if request user exist
+    const { flag, cause, currUser, isAdmin } = await verifyUserOrAdmin(
+      req,
+      res
+    );
+    if (!flag) {
+      return res.status(401).json({ error: cause });
+    }
 
     // validate params
     const schema = yup.object({
@@ -143,8 +153,11 @@ export const createGroup = async (req, res) => {
  */
 export const getGroups = async (req, res) => {
   try {
-    // TODO: check for admin auth
-    // ...
+    // Check if request user exist
+    const { flag, cause } = await verifyAdmin(req, res);
+    if (!flag) {
+      return res.staus(401).json({ error: cause });
+    }
 
     const groups = await Group.find();
 
@@ -168,14 +181,20 @@ export const getGroups = async (req, res) => {
  */
 export const getGroup = async (req, res) => {
   try {
-    // TODO: check for auth
-    // ...
+    // Check if request user exist
+    const { flag, cause, currUser, isAdmin } = await verifyUserOrAdmin(
+      req,
+      res
+    );
+    if (!flag) {
+      return res.status(401).json({ error: cause });
+    }
 
+    // validate params
     const schema = yup.object({
       name: yup.string().required(),
     });
 
-    // validate params
     const { params, errorMessage, isValidationOk } = validateRequest(
       req,
       schema
@@ -191,6 +210,17 @@ export const getGroup = async (req, res) => {
 
     if (!group) {
       return res.status(400).json({ error: "Group does not exists" });
+    }
+
+    // Can only get a group if user is inside,
+    // admin can get any group.
+    if (!isAdmin) {
+      const userInGroup = group.members
+        .map((m) => m.email)
+        .includes(currUser.email);
+
+      if (!userInGroup)
+        return res.status(401).json({ error: "Not part of a group" });
     }
 
     res.status(200).json({
@@ -216,8 +246,28 @@ export const getGroup = async (req, res) => {
  */
 export const addToGroup = async (req, res) => {
   try {
-    // TOOD: add auth
+    /** @type {typeof User.schema.obj} */
+    let currUser;
+    let isAdmin = false;
+    // Can be called by user
+    if (req.path.endsWith("/add")) {
+      const { flag, cause, currUser: user } = await verifyUser(req, res);
+      if (!flag) return res.status(401).json({ error: cause });
 
+      currUser = user;
+    }
+    // Can only be called by admin
+    else if (req.path.endsWith("/insert")) {
+      const { flag, cause, currUser: user } = await verifyAdmin(req, res);
+      if (!flag) return res.status(401).json({ error: cause });
+
+      currUser = user;
+      isAdmin = true;
+    } else {
+      throw Error(`Wrong req.path: ${req.path}`);
+    }
+
+    // Validation
     const schemaBody = yup.object({
       emails: yup.array(yup.string().email().required()).required(),
     });
@@ -247,6 +297,16 @@ export const addToGroup = async (req, res) => {
     // check if group exists
     if (!group) {
       return res.status(400).json({ error: "Group does not exist" });
+    }
+
+    // If user request can only add to group where he belongs
+    if (!isAdmin) {
+      const userInGroup = group.members
+        .map((m) => m.email)
+        .includes(currUser.email);
+
+      if (!userInGroup)
+        return res.status(401).json({ error: "User not in group" });
     }
 
     // find existing users
@@ -297,7 +357,21 @@ export const addToGroup = async (req, res) => {
  */
 export const removeFromGroup = async (req, res) => {
   try {
-    // TODO: auth
+    let currUser;
+    let isAdmin = false;
+
+    if (req.path.endsWith("/remove")) {
+      const { flag, cause, currUser: user } = await verifyUserOrAdmin(req, res);
+      if (!flag) return res.status(401).json({ error: cause });
+
+      currUser = user;
+    } else if (req.path.endsWith("/pull")) {
+      const { flag, cause, currUser: user } = await verifyAdmin(req, res);
+      if (!flag) return res.status(401).json({ error: cause });
+
+      currUser = user;
+      isAdmin = true;
+    }
 
     const bodySchema = yup.object({
       emails: yup.array(yup.string().email().required()).required(),
@@ -330,6 +404,16 @@ export const removeFromGroup = async (req, res) => {
       return res.status(400).json({ error: "Group does not exist" });
     }
 
+    // check if user is in group
+    if (!isAdmin) {
+      const userInGroup = group.members
+        .map((m) => m.email)
+        .includes(currUser.email);
+
+      if (!userInGroup)
+        return res.status(401).json({ error: "User not in group" });
+    }
+
     // find existing users
     const [membersFound, membersNotFound] = await findExistingUsers(emails);
 
@@ -351,17 +435,20 @@ export const removeFromGroup = async (req, res) => {
       group.members.map((m) => m.email)
     );
 
-    // TODO: chiedere sul gruppo per ultimo membro di un gruppo
+    // It's not possible to delete all members from a group
+    const leaveOneMember = membersToRemove.length === group.members.length;
+
     const updatedGroup = await Group.findOneAndUpdate(
       { name: name },
-      { $pull: { members: { email: { $in: membersToRemove } } } },
+      {
+        $pull: {
+          members: {
+            email: { $in: membersToRemove, $slice: leaveOneMember ? 1 : 0 },
+          },
+        },
+      },
       { new: true }
     );
-
-    // If all users were removed from a group also remove the group
-    if (updatedGroup.members.length === 0) {
-      await Group.findOneAndDelete({ name: name });
-    }
 
     res.status(200).json({
       data: {
@@ -402,7 +489,10 @@ export const deleteUser = async (req, res) => {
  */
 export const deleteGroup = async (req, res) => {
   try {
-    // TODO: auth
+    const { flag, cause } = await verifyUser(req, res);
+    if (!flag) {
+      return res.status(401).json({ error: cause });
+    }
 
     const bodySchema = yup.object({
       name: yup.string().required(),

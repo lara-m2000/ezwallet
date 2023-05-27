@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken'
 import { Group, User } from "../models/User.js"
+import { getUserFromToken } from './group.utils.js'
 
 /**
  * Handle possible date filtering options in the query parameters for getTransactionsByUser when called by a Regular user.
@@ -16,7 +17,11 @@ export const handleDateFilterParams = (req) => {
  * Handle possible authentication modes depending on `authType`
  * @param req the request object that contains cookie information
  * @param res the result object of the request
- * @param info an object that specifies the `authType` and that contains additional information (see examples at the end of docs)
+ * @param {{authType:"User", username:string}|
+ * {authType:"Group", emails:string[]}|
+ * {authType:"Simple"}|
+ * {authType:"Admin"}
+ * } info an object that specifies the `authType` and that contains additional information (see examples at the end of docs)
  *
  *      AuthTypes:
  *          -authType === "Simple":
@@ -132,6 +137,63 @@ export const verifyAuth = (req, res, info) => {
             return {flag:false, cause:err.name};
         }
     }
+}
+
+/**
+ * Check from req.cookies if user requesting is Admin
+ * @param {*} req
+ * @param {*} res
+ * @returns 
+ */
+export const verifyAdmin = async (req, res) => {
+    const currUser = await getUserFromToken(req.cookies.refreshToken);
+    if (!currUser) {
+        return { flag: false, cause: "User not found", currUser: currUser };
+    }
+
+    return { ...verifyAuth(req, res, { authType: "Admin" }), currUser };
+}
+
+/**
+ * Check from req.cookies if user requesting is User
+ * @param {*} req
+ * @param {*} res
+ * @returns 
+ */
+export const verifyUser = async (req, res) => {
+    const currUser = await getUserFromToken(req.cookies.refreshToken);
+    if (!currUser) {
+        return { flag: false, cause: "User not found", currUser: currUser };
+    }
+
+    return { ...verifyAuth(req, res, { authType: "User", username: currUser.username }), currUser };
+}
+
+/**
+ * Checks if requesting User is either a User or Admin
+ * @param {*} req 
+ * @param {*} res 
+ * @returns 
+ */
+export const verifyUserOrAdmin = async (req, res) => {
+    const currUser = await getUserFromToken(req.cookies.refreshToken);
+    if (!currUser) {
+        return { flag: false, cause: "User not found", currUser: currUser, isAdmin: false};
+    }
+
+    let isAdmin = false;
+    let isFlag = false;
+    let { flag, cause } = verifyAuth(req, res, {
+        authType: "User",
+        username: currUser.username,
+    });
+    isFlag |= flag;
+
+    ({ flag, cause } = verifyAuth(req, res, { authType: "Admin" }));
+    isFlag |= flag;
+    isAdmin = flag;
+
+    return { flag: isFlag, cause: cause, currUser: currUser, isAdmin: isAdmin };
 }
 
 /**
