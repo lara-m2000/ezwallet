@@ -2,7 +2,7 @@ import request from 'supertest';
 import { app } from '../app';
 import { User } from '../models/User.js';
 import jwt from 'jsonwebtoken';
-import { register, registerAdmin, login, logout } from '../controllers/auth';
+import { register, registerAdmin, login, logout, isValidBody } from '../controllers/auth';
 const bcrypt = require("bcryptjs")
 
 
@@ -12,7 +12,34 @@ jest.mock('jsonwebtoken');
 
 beforeEach(() => {
     jest.clearAllMocks();
+    isValidBody.mockReturnValue(true);
 })
+
+describe('isValidBody', () => {
+    test('returns false if body is missing attributes', () => {
+      const body = { username: 'john', password: 'password123' };
+      const result = isValidBody(body);
+      expect(result).toBe(false);
+    });
+  
+    test('returns false if body contains empty string', () => {
+      const body = { username: 'john', email: '', password: 'password123' };
+      const result = isValidBody(body);
+      expect(result).toBe(false);
+    });
+  
+    test('returns false if email is not in valid format', () => {
+      const body = { username: 'john', email: 'invalid_email', password: 'password123' };
+      const result = isValidBody(body);
+      expect(result).toBe(false);
+    });
+  
+    test('returns true if body contains all necessary attributes and email is valid', () => {
+      const body = { username: 'john', email: 'john@example.com', password: 'password123' };
+      const result = isValidBody(body);
+      expect(result).toBe(true);
+    });
+  });
 
 describe('register', () => {
     let req;

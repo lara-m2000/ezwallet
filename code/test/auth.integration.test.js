@@ -145,9 +145,10 @@ describe('register', () => {
     expect(response.body).toEqual({ error: 'Non valid req.body' });
   })
 
+
   test('should return an error if username is empty in req.body', async () => {
     const user = {
-      user: '',
+      user: ' ',
       email: 'valid@email.com',
       password: 'password123',
     };
@@ -162,7 +163,7 @@ describe('register', () => {
   test('should return an error if email is empty in req.body', async () => {
     const user = {
       user: 'validUser',
-      email: '',
+      email: ' ',
       password: 'password123',
     };
     // Attempt to register with not valid email
@@ -177,7 +178,7 @@ describe('register', () => {
     const user = {
       user: 'validUser',
       email: 'valid@email.com',
-      password: '',
+      password: ' ',
     };
     // Attempt to register with not valid email
     const response = await request(app)

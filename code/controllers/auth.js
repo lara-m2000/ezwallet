@@ -10,6 +10,10 @@ function isValidEmail(email) {
     // Test the email against the regex pattern
     return emailRegex.test(email);
   }
+
+function isValidBody(body) {
+    return body.username && body.email && body.password;
+}
 /**
  * Register a new user in the system
   - Request Body Content: An object having attributes `username`, `email` and `password`
@@ -20,6 +24,9 @@ function isValidEmail(email) {
 export const register = async (req, res) => {
     try {
         const { username, email, password } = req.body;
+        if (!isValidBody(req.body)) {
+            return res.status(400).json({error: "Non valid req.body"});
+        }
         if (!isValidEmail(email)){
             res.status(400).json({error: "email is not in the correct format"});
             return;
