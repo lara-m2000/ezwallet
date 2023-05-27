@@ -1,3 +1,4 @@
+import { Model, model } from "mongoose";
 import { categories, transactions } from "../models/model.js";
 import { Group, User } from "../models/User.js";
 import { handleDateFilterParams, handleAmountFilterParams, verifyAuth } from "./utils.js";
@@ -7,19 +8,32 @@ import { handleDateFilterParams, handleAmountFilterParams, verifyAuth } from "./
   - Request Body Content: An object having attributes `type` and `color`
   - Response `data` Content: An object having attributes `type` and `color`
  */
-export const createCategory = (req, res) => {
+export const createCategory = async (req, res) => {
     try {
-        const cookie = req.cookies
-        if (!cookie.accessToken) {
-            return res.status(401).json({ message: "Unauthorized" }) // unauthorized
+        //Perform control on authentication
+        const adminAuth = verifyAuth(req, res, { authType: "Admin" });
+        if (!adminAuth.authorized) {
+            return res.status(401).json({ error: adminAuth.cause });
         }
+
         const { type, color } = req.body;
+
+        // Check attributes' validity
+        if(typeof type !== 'string' || typeof color !== 'string' || !type.trim() || !color.trim()){
+            return res.status(400).json({ error: 'Invalid attribute' });
+        }
+
+        //Check if the category already exists
+        const category = await categories.findOne({ type: type });
+        if (category) {
+            return res.status(400).json({ error: "Category with same type already exists" });
+        }
+
         const new_categories = new categories({ type, color });
-        new_categories.save()
-            .then(data => res.json(data))
-            .catch(err => { throw err })
+        const data = await new_categories.save();
+        return res.status(200).json({ data: { type: data.type, color: data.color }, refreshedTokenMessage: res.locals.refreshedTokenMessage });
     } catch (error) {
-        res.status(400).json({ error: error.message })
+        res.status(500).json({ error: error.message })
     }
 }
 
@@ -28,29 +42,127 @@ export const createCategory = (req, res) => {
   - Request Body Content: An object having attributes `type` and `color` equal to the new values to assign to the category
   - Response `data` Content: An object with parameter `message` that confirms successful editing and a parameter `count` that is equal to the count of transactions whose category was changed with the new type
   - Optional behavior:
-    - error 401 returned if the specified category does not exist
-    - error 401 is returned if new parameters have invalid values
+    - error 400 returned if the specified category does not exist
+    - error 400 is returned if new parameters have invalid values
  */
 export const updateCategory = async (req, res) => {
     try {
+        //Perform control on authentication
+        const adminAuth = verifyAuth(req, res, { authType: "Admin" });
+        if (!adminAuth.authorized) {
+            return res.status(401).json({ error: adminAuth.cause });
+        }
 
+        //Retrieve from URL params the category to update
+        const oldType = req.params.type;
+
+        //Check the validity of req.params.type
+        if (!oldType) {
+            return res.status(400).json({ error: "Invalid parameter in request" });
+        }
+
+        //Retrieve from request Body the new fields for the category
+        const { type, color } = req.body;
+
+        // Check attributes' validity
+        if(typeof type !== 'string' || typeof color !== 'string' || !type.trim() || !color.trim()){
+            return res.status(400).json({ error: 'Invalid attribute' });
+        }
+
+        //Detect if the old category actually exists
+        const oldCategory = await categories.findOne({ type: oldType });
+        if (!oldCategory) {
+            return res.status(400).json({ error: "The category does not exist" });
+        }
+
+        // Detect if the new type already exist
+        const newExist = await categories.findOne({type : type});
+        if(newExist){
+            return res.status(400).json({error: 'Category type already exists'});
+        }
+
+        //Update the target category
+        await categories.updateOne({ type: oldType }, { $set: { type: type, color: color } });  // Update the category
+
+        //Update all the related transactions and retrieve the number of changed transactions
+        const changes = await transactions.updateMany({ type: oldType }, { $set: { type: type } });
+
+        return res.status(200).json({data: {message: "Category edited successfully", count: changes.modifiedCount}, refreshedTokenMessage: res.locals.refreshedTokenMessage});
     } catch (error) {
-        res.status(400).json({ error: error.message })
+        res.status(500).json({ error: error.message })
     }
 }
 
 /**
  * Delete a category
   - Request Body Content: An array of strings that lists the `types` of the categories to be deleted
-  - Response `data` Content: An object with parameter `message` that confirms successful deletion and a parameter `count` that is equal to the count of affected transactions (deleting a category sets all transactions with that category to have `investment` as their new category)
+  - Response `data` Content: An object with parameter `message` that confirms successful deletion and a parameter `count` that is equal to the count of affected transactions (deleting a category sets all transactions with that category to have the first category as their new category)
   - Optional behavior:
-    - error 401 is returned if the specified category does not exist
+    - error 400 is returned if the specified category does not exist
+    
+    - Implementation: 
+    -   The existence of all categories is checker, if at least one the passed category does not exist nothing is deleted; 
+    -   All non existent categories are specified in the error message.
  */
 export const deleteCategory = async (req, res) => {
     try {
+        //Perform control on authentication
+        const adminAuth = verifyAuth(req, res, { authType: "Admin" });
+        if (!adminAuth.authorized) {
+            return res.status(401).json({ error: adminAuth.cause });
+        }
+        //Retrieve array of types from request body
+        const { types } = req.body
 
+        //Check validity of req.body
+        if (!Array.isArray(types) || types.length === 0) {
+            return res.status(400).json({ error: 'Types must be a non-void array' });
+        }
+        for (const type of types) {
+            if (typeof type !== 'string' || !String.prototype.trim(type)) {
+                return res.status(400).json({ error: 'Types must be an array of non-void strings' });
+            }
+        }
+
+        //Get the total number of categories in the database
+        const nCategories = await categories.countDocuments();
+        if(nCategories <= 1)
+            return res.status(400).json({error: 'Not enough categories to perform a deletion'});
+
+        //Check for the existence of all categories, return categories sorted in ascending order of creationTime
+        const foundCategories = await categories.find({ type: { $in: types } }).sort({ createdAt: 1 });
+
+        //Return an error if at least one category does not exist
+        if (foundCategories.length < types.length) {
+            return res.status(400).json({ error: "All categories must exist" });
+        }
+
+        //Check if categories to be deleted cover all the categories in the DB
+        if (foundCategories.length === nCategories) {
+            //Retrieve all types to delete except for the first element (the first according to creationTime)
+            const typesToDelete = foundCategories.map(e => e.type).slice(1);
+            const oldestType = foundCategories[0].type;
+
+            //Delete all categories except the first one
+            await categories.deleteMany({ type: { $in: typesToDelete } });
+
+            //Update all transactions involved with the type of the category with first creation time
+            const result = await transactions.updateMany({ type: { $in: typesToDelete } }, { $set: { type: oldestType } });
+        } else {
+            //Delete all categories present in req.body.types 
+            const typesToDelete = types;
+            await categories.deleteMany({ type: { $in: typesToDelete } });
+
+            //Retrieve the first created category among the remaining ones
+            const oldestCategory = await categories.findOne().sort({ createdAt: 1 });
+            const oldestType = oldestCategory.type;
+
+            //Update all transactions involved with the type of the category with first creation time
+            const result = await transactions.updateMany({ type: { $in: typesToDelete } }, { $set: { type: oldestType } })
+        }
+        return res.status(200).json({data: {message: "Categories deleted", count: result.modifiedCount}, refreshedTokenMessage: res.locals.refreshedTokenMessage});
     } catch (error) {
-        res.status(400).json({ error: error.message })
+        res.status(500).json({ error: error.message })
     }
 }
 
@@ -63,15 +175,16 @@ export const deleteCategory = async (req, res) => {
  */
 export const getCategories = async (req, res) => {
     try {
-        const cookie = req.cookies
-        if (!cookie.accessToken) {
-            return res.status(401).json({ message: "Unauthorized" }) // unauthorized
+        //Perform control on authentication
+        const simpleAuth = verifyAuth(req, res, { authType: "Simple" });
+        if (!simpleAuth.authorized) {
+            return res.status(401).json({ error: simpleAuth.cause });
         }
+        
         let data = await categories.find({})
-
         let filter = data.map(v => Object.assign({}, { type: v.type, color: v.color }))
 
-        return res.json(filter)
+        return res.status(200).json({data: filter, refreshedTokenMessage: res.locals.refreshedTokenMessage});
     } catch (error) {
         res.status(400).json({ error: error.message })
     }
