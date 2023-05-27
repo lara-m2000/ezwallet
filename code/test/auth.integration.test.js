@@ -104,6 +104,118 @@ describe('register', () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({ error: 'email is not in the correct format' });
   });
+
+  test('should return an error if username is missing in req.body', async () => {
+    const user = {
+      email: 'valid@email.com',
+      password: 'password123',
+    };
+
+    const response = await request(app)
+      .post('/api/register')
+      .send(user);
+    // Check the response status code and error message
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'Non valid req.body' });
+  })
+  test('should return an error if email is missing in req.body', async () => {
+    const user = {
+      user: 'validUser',
+      password: 'password123',
+    };
+
+    const response = await request(app)
+      .post('/api/register')
+      .send(user);
+    // Check the response status code and error message
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'Non valid req.body' });
+  })
+  test('should return an error if password is missing in req.body', async () => {
+    const user = {
+      user: 'validUser',
+      email: 'valid@email.com',
+    };
+
+    const response = await request(app)
+      .post('/api/register')
+      .send(user);
+    // Check the response status code and error message
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'Non valid req.body' });
+  })
+
+
+  test('should return an error if username is empty in req.body', async () => {
+    const user = {
+      user: ' ',
+      email: 'valid@email.com',
+      password: 'password123',
+    };
+
+    const response = await request(app)
+      .post('/api/register')
+      .send(user);
+    // Check the response status code and error message
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'Non valid req.body' });
+  })
+  test('should return an error if email is empty in req.body', async () => {
+    const user = {
+      user: 'validUser',
+      email: ' ',
+      password: 'password123',
+    };
+
+    const response = await request(app)
+      .post('/api/register')
+      .send(user);
+    // Check the response status code and error message
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'Non valid req.body' });
+  })
+  test('should return an error if password is empty in req.body', async () => {
+    const user = {
+      user: 'validUser',
+      email: 'valid@email.com',
+      password: ' ',
+    };
+    const response = await request(app)
+      .post('/api/register')
+      .send(user);
+    // Check the response status code and error message
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'Non valid req.body' });
+  })
+
+  test('should return an error if an element is not a string in req.body', async () => {
+    const user1 = {
+      user: 123,
+      email: "valid@email.com",
+      password: "password",
+    };
+    const user2 = {
+      user: "validUser",
+      email: 123,
+      password: "password",
+    };
+    const user3 = {
+      user: "validUser",
+      email: "valid@email.com",
+      password: 123,
+    };
+    const userList = [user1, user2, user3];
+    userList.forEach(async (user) => {
+      const response = await request(app)
+        .post('/api/register')
+        .send(user);
+      // Check the response status code and error message
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({ error: 'Non valid req.body' });
+    })
+
+  });
+
 });
 
 
@@ -187,6 +299,118 @@ describe("registerAdmin", () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({ error: 'email is not in the correct format' });
   });
+
+  test('should return an error if username is missing in req.body', async () => {
+    const user = {
+      email: 'valid@email.com',
+      password: 'password123',
+    };
+
+    const response = await request(app)
+      .post('/api/admin')
+      .send(user);
+    // Check the response status code and error message
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'Non valid req.body' });
+  })
+  test('should return an error if email is missing in req.body', async () => {
+    const user = {
+      user: 'validUser',
+      password: 'password123',
+    };
+
+    const response = await request(app)
+      .post('/api/admin')
+      .send(user);
+    // Check the response status code and error message
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'Non valid req.body' });
+  })
+  test('should return an error if password is missing in req.body', async () => {
+    const user = {
+      user: 'validUser',
+      email: 'valid@email.com',
+    };
+
+    const response = await request(app)
+      .post('/api/admin')
+      .send(user);
+    // Check the response status code and error message
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'Non valid req.body' });
+  })
+
+
+  test('should return an error if username is empty in req.body', async () => {
+    const user = {
+      user: ' ',
+      email: 'valid@email.com',
+      password: 'password123',
+    };
+
+    const response = await request(app)
+      .post('/api/admin')
+      .send(user);
+    // Check the response status code and error message
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'Non valid req.body' });
+  })
+  test('should return an error if email is empty in req.body', async () => {
+    const user = {
+      user: 'validUser',
+      email: ' ',
+      password: 'password123',
+    };
+
+    const response = await request(app)
+      .post('/api/admin')
+      .send(user);
+    // Check the response status code and error message
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'Non valid req.body' });
+  })
+  test('should return an error if password is empty in req.body', async () => {
+    const user = {
+      user: 'validUser',
+      email: 'valid@email.com',
+      password: ' ',
+    };
+    const response = await request(app)
+      .post('/api/admin')
+      .send(user);
+    // Check the response status code and error message
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'Non valid req.body' });
+  })
+
+  test('should return an error if an element is not a string in req.body', async () => {
+    const user1 = {
+      user: 123,
+      email: "valid@email.com",
+      password: "password",
+    };
+    const user2 = {
+      user: "validUser",
+      email: 123,
+      password: "password",
+    };
+    const user3 = {
+      user: "validUser",
+      email: "valid@email.com",
+      password: 123,
+    };
+    const userList = [user1, user2, user3];
+    userList.forEach(async (user) => {
+      const response = await request(app)
+        .post('/api/admin')
+        .send(user);
+      // Check the response status code and error message
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({ error: 'Non valid req.body' });
+    })
+
+  });
+
 })
 
 describe('login', () => {
@@ -257,10 +481,97 @@ describe('login', () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({ error: 'wrong credentials' });
   });
+
+  test('should return an error if the email is not a valid email', async () => {
+    const user = {
+      email: 'notValidEmail.com',
+      password: 'password123',
+    };
+    // Attempt to register with not valid email
+    const response = await request(app)
+      .post('/api/login')
+      .send(user);
+
+    // Check the response status code and error message
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'email is not in the correct format' });
+  });
+
+  test('should return an error if email is missing in req.body', async () => {
+    const user = {
+      password: 'password123',
+    };
+
+    const response = await request(app)
+      .post('/api/login')
+      .send(user);
+    // Check the response status code and error message
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'Non valid req.body' });
+  })
+  test('should return an error if password is missing in req.body', async () => {
+    const user = {
+      email: 'valid@email.com',
+    };
+
+    const response = await request(app)
+      .post('/api/login')
+      .send(user);
+    // Check the response status code and error message
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'Non valid req.body' });
+  })
+
+  test('should return an error if email is empty in req.body', async () => {
+    const user = {
+      email: ' ',
+      password: 'password123',
+    };
+
+    const response = await request(app)
+      .post('/api/login')
+      .send(user);
+    // Check the response status code and error message
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'Non valid req.body' });
+  })
+  test('should return an error if password is empty in req.body', async () => {
+    const user = {
+      email: 'valid@email.com',
+      password: ' ',
+    };
+    const response = await request(app)
+      .post('/api/login')
+      .send(user);
+    // Check the response status code and error message
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: 'Non valid req.body' });
+  })
+
+  test('should return an error if an element is not a string in req.body', async () => {
+    const user1 = {
+      email: 123,
+      password: "password",
+    };
+    const user2 = {
+      email: "valid@email.com",
+      password: 123,
+    };
+    const userList = [user1, user2];
+    userList.forEach(async (user) => {
+      const response = await request(app)
+        .post('/api/register')
+        .send(user);
+      // Check the response status code and error message
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({ error: 'Non valid req.body' });
+    })
+
+  });
 });
 
 describe('logout', () => {
-  beforeEach(async() => {
+  beforeEach(async () => {
     await User.deleteMany();
   })
   test('should log out a user and return a success message', async () => {
@@ -281,7 +592,7 @@ describe('logout', () => {
 
     // Check the response status code and data content
     expect(response.status).toBe(200);
-    expect(response.body).toEqual({data:{message:'logged out'}});
+    expect(response.body).toEqual({ data: { message: 'logged out' } });
   });
 
   test('should return an error if the user is not found', async () => {
@@ -294,7 +605,7 @@ describe('logout', () => {
 
     // Check the response status code and error message
     expect(response.status).toBe(400);
-    expect(response.body).toEqual({error:'user not found'});
+    expect(response.body).toEqual({ error: 'user not found' });
   });
 
   test('should return an error if the refresh token is not provided', async () => {
@@ -302,6 +613,6 @@ describe('logout', () => {
 
     // Check the response status code and error message
     expect(response.status).toBe(400);
-    expect(response.body).toEqual({error:'user not found'});
+    expect(response.body).toEqual({ error: 'user not found' });
   });
 });
