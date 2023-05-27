@@ -188,6 +188,34 @@ describe('register', () => {
     expect(response.body).toEqual({ error: 'Non valid req.body' });
   })
 
+  test('should return an error if an element is not a string in req.body', async () => {
+    const user1 = {
+      user: 123,
+      email: "valid@email.com",
+      password: "password",
+    };
+    const user2 = {
+      user: "validUser",
+      email: 123,
+      password: "password",
+    };
+    const user3 = {
+      user: "validUser",
+      email: "valid@email.com",
+      password: 123,
+    };
+    const userList = [user1, user2, user3];
+    userList.forEach(async (user) => {
+      const response = await request(app)
+        .post('/api/register')
+        .send(user);
+      // Check the response status code and error message
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({ error: 'Non valid req.body' });
+    })
+
+  });
+
 });
 
 
@@ -355,6 +383,34 @@ describe("registerAdmin", () => {
     expect(response.body).toEqual({ error: 'Non valid req.body' });
   })
 
+  test('should return an error if an element is not a string in req.body', async () => {
+    const user1 = {
+      user: 123,
+      email: "valid@email.com",
+      password: "password",
+    };
+    const user2 = {
+      user: "validUser",
+      email: 123,
+      password: "password",
+    };
+    const user3 = {
+      user: "validUser",
+      email: "valid@email.com",
+      password: 123,
+    };
+    const userList = [user1, user2, user3];
+    userList.forEach(async (user) => {
+      const response = await request(app)
+        .post('/api/admin')
+        .send(user);
+      // Check the response status code and error message
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({ error: 'Non valid req.body' });
+    })
+
+  });
+
 })
 
 describe('login', () => {
@@ -491,10 +547,31 @@ describe('login', () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({ error: 'Non valid req.body' });
   })
+
+  test('should return an error if an element is not a string in req.body', async () => {
+    const user1 = {
+      email: 123,
+      password: "password",
+    };
+    const user2 = {
+      email: "valid@email.com",
+      password: 123,
+    };
+    const userList = [user1, user2];
+    userList.forEach(async (user) => {
+      const response = await request(app)
+        .post('/api/register')
+        .send(user);
+      // Check the response status code and error message
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({ error: 'Non valid req.body' });
+    })
+
+  });
 });
 
 describe('logout', () => {
-  beforeEach(async() => {
+  beforeEach(async () => {
     await User.deleteMany();
   })
   test('should log out a user and return a success message', async () => {
@@ -515,7 +592,7 @@ describe('logout', () => {
 
     // Check the response status code and data content
     expect(response.status).toBe(200);
-    expect(response.body).toEqual({data:{message:'logged out'}});
+    expect(response.body).toEqual({ data: { message: 'logged out' } });
   });
 
   test('should return an error if the user is not found', async () => {
@@ -528,7 +605,7 @@ describe('logout', () => {
 
     // Check the response status code and error message
     expect(response.status).toBe(400);
-    expect(response.body).toEqual({error:'user not found'});
+    expect(response.body).toEqual({ error: 'user not found' });
   });
 
   test('should return an error if the refresh token is not provided', async () => {
@@ -536,6 +613,6 @@ describe('logout', () => {
 
     // Check the response status code and error message
     expect(response.status).toBe(400);
-    expect(response.body).toEqual({error:'user not found'});
+    expect(response.body).toEqual({ error: 'user not found' });
   });
 });
