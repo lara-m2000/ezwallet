@@ -27,6 +27,18 @@ describe('isValidBody', () => {
         expect(result).toBe(false);
     });
 
+    test('returns false if body contains string with only space', () => {
+        const body = { username: 'john', email: '     ', password: 'password123' };
+        const result = isValidBody(body);
+        expect(result).toBe(false);
+    });
+
+    test('returns false if body contains element which is not a string', () => {
+        const body = { username: 'john', email: {string: 'string'}, password: 'password123' };
+        const result = isValidBody(body);
+        expect(result).toBe(false);
+    });
+
     test('returns true if body contains all necessary attributes', () => {
         const body = { username: 'john', email: 'john@example.com', password: 'password123' };
         const result = isValidBody(body);

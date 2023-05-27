@@ -481,7 +481,6 @@ describe('login', () => {
   })
   test('should return an error if password is empty in req.body', async () => {
     const user = {
-      user: 'ddd',
       email: 'valid@email.com',
       password: ' ',
     };

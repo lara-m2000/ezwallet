@@ -12,6 +12,9 @@ export const isValidEmail = (email) => {
 }
 
 export const isValidBody = (body) => {
+    if (typeof body.username !== 'string' || typeof body.email !== 'string' || typeof body.password !== 'string') {
+        return false;
+    }
     const username = body.username ? body.username.trim() : undefined;
     const email = body.email ? body.email.trim() : undefined;
     const password = body.password ? body.password.trim() : undefined;
