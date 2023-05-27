@@ -2,7 +2,7 @@ import request from 'supertest';
 import { app } from '../app';
 import { User } from '../models/User.js';
 import jwt from 'jsonwebtoken';
-import { register, registerAdmin, login, logout, isValidBody } from '../controllers/auth';
+import { register, registerAdmin, login, logout, isValidBody, isValidEmail } from '../controllers/auth';
 const bcrypt = require("bcryptjs")
 
 
@@ -12,34 +12,54 @@ jest.mock('jsonwebtoken');
 
 beforeEach(() => {
     jest.clearAllMocks();
-    isValidBody.mockReturnValue(true);
 })
 
 describe('isValidBody', () => {
     test('returns false if body is missing attributes', () => {
-      const body = { username: 'john', password: 'password123' };
-      const result = isValidBody(body);
-      expect(result).toBe(false);
+        const body = { username: 'john', password: 'password123' };
+        const result = isValidBody(body);
+        expect(result).toBe(false);
     });
-  
+
     test('returns false if body contains empty string', () => {
-      const body = { username: 'john', email: '', password: 'password123' };
-      const result = isValidBody(body);
-      expect(result).toBe(false);
+        const body = { username: 'john', email: '', password: 'password123' };
+        const result = isValidBody(body);
+        expect(result).toBe(false);
     });
-  
-    test('returns false if email is not in valid format', () => {
-      const body = { username: 'john', email: 'invalid_email', password: 'password123' };
-      const result = isValidBody(body);
-      expect(result).toBe(false);
+
+    test('returns true if body contains all necessary attributes', () => {
+        const body = { username: 'john', email: 'john@example.com', password: 'password123' };
+        const result = isValidBody(body);
+        expect(result).toBe(true);
     });
-  
-    test('returns true if body contains all necessary attributes and email is valid', () => {
-      const body = { username: 'john', email: 'john@example.com', password: 'password123' };
-      const result = isValidBody(body);
-      expect(result).toBe(true);
+});
+
+describe('isValidEmail', () => {
+    test('returns true for a valid email address', () => {
+        const validEmails = [
+            'test@example.com',
+            'john.doe@example.co.uk',
+            'user1234@test.domain',
+        ];
+        validEmails.forEach((email) => {
+            const result = isValidEmail(email);
+            expect(result).toBe(true);
+        });
     });
-  });
+
+    test('returns false for an invalid email address', () => {
+        const invalidEmails = [
+            'invalidemail',
+            'test@',
+            '@example.com',
+            'user@.domain',
+        ];
+        invalidEmails.forEach((email) => {
+            const result = isValidEmail(email);
+            expect(result).toBe(false);
+        });
+    });
+});
 
 describe('register', () => {
     let req;
@@ -84,7 +104,7 @@ describe('register', () => {
             password: 'hashedpassword',
         });
         expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith({data:{message:'user added succesfully'}});
+        expect(res.json).toHaveBeenCalledWith({ data: { message: 'user added succesfully' } });
     });
 
     test("Should return an error message if the user is already registered", async () => {
@@ -107,7 +127,7 @@ describe('register', () => {
 
         // Check if the appropriate functions were called
         expect(res.status).toHaveBeenCalledWith(500);
-        expect(res.json).toHaveBeenCalledWith({error: err.message});
+        expect(res.json).toHaveBeenCalledWith({ error: err.message });
     })
 
 });
@@ -159,7 +179,7 @@ describe("registerAdmin", () => {
             role: 'Admin',
         });
         expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith({data:{message:'admin added succesfully'}});
+        expect(res.json).toHaveBeenCalledWith({ data: { message: 'admin added succesfully' } });
     });
 
     test('should return an error message if the admin user is already registered', async () => {
@@ -182,7 +202,7 @@ describe("registerAdmin", () => {
 
         // Check if the appropriate functions were called
         expect(res.status).toHaveBeenCalledWith(500);
-        expect(res.json).toHaveBeenCalledWith({error: err.message});
+        expect(res.json).toHaveBeenCalledWith({ error: err.message });
     });
 })
 
@@ -287,7 +307,7 @@ describe('login', () => {
 
         // Check if the appropriate functions were called
         expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({error:'please you need to register'});
+        expect(res.json).toHaveBeenCalledWith({ error: 'please you need to register' });
     });
 
     test('should return an error message if the supplied password does not match', async () => {
@@ -304,7 +324,7 @@ describe('login', () => {
         // Check if the appropriate functions were called
         expect(bcrypt.compare).toHaveBeenCalledWith('password', 'hashedpassword');
         expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({error:'wrong credentials'});
+        expect(res.json).toHaveBeenCalledWith({ error: 'wrong credentials' });
     });
 
     test('should return an error if an exception occurs', async () => {
@@ -317,7 +337,7 @@ describe('login', () => {
         // Check if the appropriate functions were called
         expect(User.findOne).toHaveBeenCalledWith({ email: 'test@example.com' });
         expect(res.status).toHaveBeenCalledWith(500);
-        expect(res.json).toHaveBeenCalledWith({error: err.message});
+        expect(res.json).toHaveBeenCalledWith({ error: err.message });
     });
 })
 
@@ -378,7 +398,7 @@ describe('logout', () => {
             }
         );
         expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith({data:{message:'logged out'}});
+        expect(res.json).toHaveBeenCalledWith({ data: { message: 'logged out' } });
     });
 
     test('should return an error message if the user does not exist', async () => {
@@ -390,7 +410,7 @@ describe('logout', () => {
         // Check if the appropriate functions were called
         expect(User.findOne).toHaveBeenCalledWith({ refreshToken: 'refreshToken123' });
         expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({error:'user not found'});
+        expect(res.json).toHaveBeenCalledWith({ error: 'user not found' });
     });
 
     test('should return an error message if there is no refreshToken in the request', async () => {
@@ -401,7 +421,7 @@ describe('logout', () => {
 
         // Check if the appropriate functions were called
         expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({error:'user not found'});
+        expect(res.json).toHaveBeenCalledWith({ error: 'user not found' });
     });
 
     test('should return an error if an exception occurs', async () => {
@@ -414,7 +434,7 @@ describe('logout', () => {
         // Check if the appropriate functions were called
         expect(User.findOne).toHaveBeenCalledWith({ refreshToken: 'refreshToken123' });
         expect(res.status).toHaveBeenCalledWith(500);
-        expect(res.json).toHaveBeenCalledWith({error:err.message});
+        expect(res.json).toHaveBeenCalledWith({ error: err.message });
     });
 });
 

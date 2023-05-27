@@ -3,7 +3,7 @@ import { User } from '../models/User.js';
 import jwt from 'jsonwebtoken';
 import { verifyAuth } from './utils.js';
 
-function isValidEmail(email) {
+export const isValidEmail = (email) => {
     // Regular expression pattern for validating email addresses
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     
@@ -11,8 +11,13 @@ function isValidEmail(email) {
     return emailRegex.test(email);
   }
 
-function isValidBody(body) {
-    return body.username && body.email && body.password;
+export const isValidBody = (body) => {
+    if (body.username && body.email && body.password){
+        return true;
+    }
+    else {
+        return false;
+    }
 }
 /**
  * Register a new user in the system
