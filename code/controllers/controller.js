@@ -86,31 +86,30 @@ export const getCategories = async (req, res) => {
  */
 export const createTransaction = async (req, res) => {
     try {
-        const cookie = req.cookies
-        if (!cookie.accessToken) {//TODO: check auth
-            return res.status(401).json({ message: "Unauthorized" }) // unauthorized
-        }
         const { username, amount, type } = req.body;
+        if(!username || !amount || !type || username==="" || amount==="" || type===""){
+            throw new Error("Missing body attributes")
+        }
+        const auth=verifyAuth(req, res,{authType: "User", username:username});
+        if(!auth.flag){
+            return res.status(401).json({error:"Unauthorized"})
+        }
         if(username!==req.params.username){
-            return res.status(400).json({error: "Unauthorized"});
+            throw new Error("Username mismatch");
         }
         const user=await User.findOne({username:username});
         if(!user){
-            return res.status(401).json({message: "User not found"})
-        }
-        if(user.refreshToken!==cookie.refreshToken){
-            return res.status(401).json({ message: "Unauthorized" });
+            throw new Error("User not found")
         }
         const category= await categories.findOne({type: type});
         if(!category){
-            return res.status(401).json({message: "Category not found"})
+            throw new Error("Category not found")
         }
-        //const new_transactions = new transactions({ username, amount, type });
-        const savedTransaction= await transactions.create({username, amount, type});
-        /*new_transactions.save()
-            .then(data => res.json({data:data, message: res.locals.message}))
-            .catch(err => { throw err })*/
-        res.json({data: savedTransaction, message: res.locals.message})
+        const checkedAmount=Number(amount);
+        if(isNaN(checkedAmount))
+            throw new Error("Invalid 'amount' value")
+        const savedTransaction= await transactions.create({username, checkedAmount, type});
+        res.status(200).json({data: savedTransaction, refreshedTokenMessage: res.locals.refreshedTokenMessage})
     } catch (error) {
         res.status(400).json({ error: error.message })
     }
@@ -125,9 +124,9 @@ export const createTransaction = async (req, res) => {
  */
 export const getAllTransactions = async (req, res) => {
     try {
-        const cookie = req.cookies
-        if (!cookie.accessToken) {//checked in Auth; role="Admin"
-            return res.status(401).json({ message: "Unauthorized" }) // unauthorized
+        const auth=verifyAuth(req,res,{authType:"Admin"});
+        if (!auth.flag) {
+            return res.status(401).json({ error: "Unauthorized" }) // unauthorized
         }
         /**
          * MongoDB equivalent to the query "SELECT * FROM transactions, categories WHERE transactions.type = categories.type"
@@ -144,7 +143,7 @@ export const getAllTransactions = async (req, res) => {
             { $unwind: "$categories_info" }
         ]).then((result) => {
             let data = result.map(v => Object.assign({}, { _id: v._id, username: v.username, amount: v.amount, type: v.type, color: v.categories_info.color, date: v.date }))
-            res.json({data: data, message:res.locals.message});
+            res.json({data: data, refreshedTokenMessage: res.locals.refreshedTokenMessage});
         }).catch(error => { throw (error) })
     } catch (error) {
         res.status(400).json({ error: error.message })
@@ -162,32 +161,28 @@ export const getAllTransactions = async (req, res) => {
  */
 export const getTransactionsByUser = async (req, res) => {
     try {
-        const cookie = req.cookies
-        if (!cookie.accessToken || !cookie.refreshToken) {
-            return res.status(401).json({ message: "Unauthorized" }) // unauthorized
-        }
         const username = req.params.username;
         let matchObj = {username: username};
+        let auth;
         //Distinction between route accessed by Admins or Regular users for functions that can be called by both
         //and different behaviors and access rights
         if (req.url.indexOf("/transactions/users/") >= 0) {
             //ADMIN
-            //TODO: auth type
-            const user = await User.findOne({username: username });
-            if (!user) 
-                return res.status(401).json({ message: "User not found" });
-                
+            auth=verifyAuth(req,res,{authType:"Admin"});   
         } else {
             //SIMPLE USER
-            //TODO: auth type
-            const user = await User.findOne({ refreshToken: cookie.refreshToken });
-            if (!user) return res.status(401).json({ message: "User not found" });
-            if (user.username !== username) // the requested user is not the one logged in
-                return res.status(401).json({ message: "Unauthorized" });
+            auth=verifyAuth(req,res,{authType:"User", username:username});
             const dateFilter=handleDateFilterParams(req);
             const amountFilter=handleAmountFilterParams(req);
             Object.assign(matchObj, dateFilter, amountFilter);
         }
+        if(!auth.flag){
+            return res.status(401).json({error:"Unauthorized"})
+        }
+        const user = await User.findOne({username: username });
+        if (!user) 
+            throw new Error("User not found");
+              
         transactions.aggregate([
             {
                 $match: matchObj
@@ -203,7 +198,7 @@ export const getTransactionsByUser = async (req, res) => {
             { $unwind: "$categories_info" }
         ]).then((result) => {
             let data = result.map(v => Object.assign({}, { _id: v._id, username: v.username, amount: v.amount, type: v.type, color: v.categories_info.color, date: v.date }))
-            res.json({data:data, message:res.locals.message});
+            res.json({data:data, refreshedTokenMessage: res.locals.refreshedTokenMessage});
         }).catch(error => { throw (error) })
     } catch (error) {
         res.status(400).json({ error: error.message })
@@ -221,24 +216,23 @@ export const getTransactionsByUser = async (req, res) => {
 export const getTransactionsByUserByCategory = async (req, res) => {
     try {
         const {username, category}=req.params;
-        const cookie = req.cookies
-        if (!cookie.accessToken || !cookie.refreshToken) {
-            return res.status(401).json({ message: "Unauthorized" }) // unauthorized
-        }
+        
         const user = await User.findOne({ username: username });
         if (!user) 
-            return res.status(401).json({ message: "User not found" });
+            throw new Error("User not found")
+        const dbCategory = await categories.findOne({type: category});
+        if (!dbCategory) 
+            throw new Error("Category not found")
+        let auth;
         if (req.url.indexOf("/transactions/users/") >= 0) {//Admin
-            //TODO: check auth as admin
+            auth=verifyAuth(req, res, {authType:"Admin"});
         }
         else{ //Regular user
-            //TODO: check auth
-            if(user.refreshToken!==cookie.refreshToken)//user logged in is not the requested one
-            return res.status(401).json({ message: "Unauthorized" });
+            auth=verifyAuth(req, res, {authType:"User", username: username});
         }
-        const cat = await categories.findOne({type: category});
-        if (!cat) 
-            return res.status(401).json({ message: "Category not found" });
+        if(!auth.flag){
+            return res.status(401).json({error:"Unhautorized"});
+        }
         transactions.aggregate([
             {
                 $match: {
@@ -257,7 +251,7 @@ export const getTransactionsByUserByCategory = async (req, res) => {
                 { $unwind: "$categories_info" }
             ]).then((result) => {
                 let data = result.map(v => Object.assign({}, { _id: v._id, username: v.username, amount: v.amount, type: v.type, color: v.categories_info.color, date: v.date }))
-                res.json({data:data, message:res.locals.message});
+                res.json({data:data, refreshedTokenMessage: res.locals.refreshedTokenMessage});
             }).catch(error => { throw (error) })
     } catch (error) {
         res.status(400).json({ error: error.message })
@@ -276,20 +270,18 @@ export const getTransactionsByGroup = async (req, res) => {
     try {
         const group= await Group.findOne({name:req.params.name});
         if(!group){
-            res.status(401).json({error: "Group not found"})
+           throw new Error("Group not found")
         }
-        // Array with group members' usernames
-        const groupMembers=await findGroupUsernames(req.params.name);
-        //if Admin->OK; if Regular, member of group
+        let auth;
         if (req.url.indexOf("/transactions/groups/") >= 0) {//Admin
-            //TODO: check auth as admin
+            auth=verifyAuth(req, res, {authType:"Admin"})
         }
         else{ //Regular user
-            //TODO: check auth
-            const user=await User.findOne({refreshToken:req.cookie.refreshToken})
-            //check if the user authenticated belongs to the group
-            if(!user || !groupMembers.includes(user.username))
-                return req.status(401).json({ message: "Unauthorized" });
+            const emails=group.members.map((m)=>m.email);
+            auth=verifyAuth(req, res, {authType:"Group", emails:emails});
+        }
+        if(!auth.flag){
+            return res.status(401).json({error: "Unauthorized"});
         }
         transactions.aggregate([
             {
@@ -308,7 +300,7 @@ export const getTransactionsByGroup = async (req, res) => {
             { $unwind: "$categories_info" }
         ]).then((result) => {
             let data = result.map(v => Object.assign({}, { _id: v._id, username: v.username, amount: v.amount, type: v.type, color: v.categories_info.color, date: v.date }))
-            res.json({data:data, message:res.locals.message});
+            res.json({data:data, refreshedTokenMessage: res.locals.refreshedTokenMessage});
         }).catch(error => { throw (error) })
     } catch (error) {
         res.status(400).json({ error: error.message })
@@ -327,23 +319,22 @@ export const getTransactionsByGroupByCategory = async (req, res) => {
     try {
         const group= await Group.findOne({name:req.params.name});
         if(!group){
-            res.status(401).json({error: "Group not found"})
+            throw new Error("Group not found")
         }
-        const cat= await categories.findOne({type:req.params.category});
+        const dbCategory= await categories.findOne({type:req.params.category});
         if(!cat){
-            res.status(401).json({error: "Category not found"})
+            throw new Error("Category not found")
         }
-        // Array with group members' usernames
-        const groupMembers=await findGroupUsernames(req.params.name);
+        let auth;
         if (req.url.indexOf("/transactions/groups/") >= 0) {//Admin
-            //TODO: check auth as admin
+            auth=verifyAuth(req, res, {authType:"Admin"})
         }
         else{ //Regular user
-            //TODO: check auth
-            const user=await User.findOne({refreshToken:req.cookie.refreshToken})
-            //check if the user authenticated belongs to the group
-            if(!user || !groupMembers.includes(user.username))
-                return req.status(401).json({ message: "Unauthorized" });
+            const emails=group.members.map((m)=>m.email);
+            auth=verifyAuth(req, res, {authType:"Group", emails:emails});    
+        }
+        if(!auth.flag){
+            return res.status(401).json({error: "Unauthorized"});
         }
         transactions.aggregate([
             {
@@ -379,25 +370,28 @@ export const getTransactionsByGroupByCategory = async (req, res) => {
  */
 export const deleteTransaction = async (req, res) => { //only called by regular users
     try {
-        const cookie = req.cookies
-        if (!cookie.accessToken) {
-            //TODO: check auth
-            return res.status(401).json({ message: "Unauthorized" }) // unauthorized
+        const username=req.params.username;
+        const auth=verifyAuth(req, res, {authType:"User", username:username})
+        if(!auth.flag){
+            return res.status(401).json({error: "Unauthorized"})
         }
-        const loggedUser=await User.findOne({refreshToken:req.cookie.refreshToken})
-        if(!loggedUser){
-            res.status(401).json({message:"User not found"});
+        const user=await User.findOne({username:username})
+        if(!user){
+            throw new Error("User not found");
         }
-        const transactionToDelete=await transactions.findById(req.body._id);
+        const id=req.body._id;
+        if (!id)
+            throw new Error("Missing body attibutes")
+        const transactionToDelete=await transactions.findById(id);
         if(!transactionToDelete){
-            res.status(401).json({message:"Transaction not found"});
+            throw new Error("Transaction not found")
         }
-        if(transactionToDelete.username!==loggedUser.username){
-            res.status(401).json({message:"Unauthorized"});
+        if(transactionToDelete.username!==user.username){
+            res.status(401).json({error:"Unauthorized"});
         }
 
         let data = await transactions.deleteOne({ _id: req.body._id });
-        return res.json({data:"Transaction deleted"});
+        return res.json({data: {message: "Transaction deleted"}, refreshedTokenMessage: res.locals.refreshedTokenMessage});
     } catch (error) {
         res.status(400).json({ error: error.message })
     }
@@ -412,19 +406,25 @@ export const deleteTransaction = async (req, res) => { //only called by regular 
  */
 export const deleteTransactions = async (req, res) => {
     try {
-        const cookie = req.cookies
-        if (!cookie.accessToken) {//only ADMIN
-            return res.status(401).json({ message: "Unauthorized" }) // unauthorized
-        }
         const ids=req.body._ids;
-        let count= await transactions.countDocuments({_id: {$in: ids}});
-        transactions.id
-        if(count!==ids.length){
-            return res.status(401).json({error: "Not every ids could be found"});
+        if(!ids){
+            throw new Error("Missing body attributes")
         }
+        const auth=verifyAuth(req, res, {authType:"Admin"})
+        if(auth.flag){
+            return res.status(401).json({error:"Unauthorized"})
+        }
+        await ids.forEach(async (id) => {
+            if(id==="")
+                throw new Error("Invalid id")
+            const t=await transactions.findById(id);
+            if(!t)
+                throw new Error("Transaction not found");
+        } )
 
         await transactions.deleteMany({_id: {$in: ids}});
-        return res.json({data:"All transactiions deleted"});
+        return res.status(200).json({data: {message: "Transactions deleted"}, 
+                                    refreshedTokenMessage: res.locals.refreshedTokenMessage});
     } catch (error) {
         res.status(400).json({ error: error.message })
     }

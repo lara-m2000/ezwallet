@@ -10,22 +10,32 @@ import jwt from 'jsonwebtoken'
  */
 export const handleDateFilterParams = (req) => {
     const {date, from, upTo}=req.query;
+    const dateRegex=/\d{4}-\d{2}-\d{2}/;
     if(date && (from || upTo))
-        throw new Error("Cannot set a date filter with a from or upTo filter");
+        throw new Error("Cannot set a 'date' filter with a 'from' or 'upTo' filter");
     if(!(date||from||to))
         return;
     let matchObj={date:{}};
     const dayEnd="T23:59:59.999Z";
     if(date){
+        if(!dateRegex.test(date)){
+            throw new Error("Wrong date format")
+        }
         // selects transactions with this specific date
         matchObj.date={$gte: new Date(date), 
                         $lte: new Date(date+dayEnd)};
         return matchObj;
     }
     if(from){
+        if(!dateRegex.test(from)){
+            throw new Error("Wrong date format")
+        }
         matchObj.date.$gte=new Date(from);
     }
     if(upTo){
+        if(!dateRegex.test(upTo)){
+            throw new Error("Wrong date format")
+        }
         matchObj.date.$lte=new Date(upTo+dayEnd);
     }
     return matchObj;    
