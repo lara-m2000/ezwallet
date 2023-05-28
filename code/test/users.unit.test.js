@@ -28,8 +28,10 @@ jest.mock("../controllers/group.utils.js", () => {
     getUserFromToken: jest.fn(),
   };
 });
+jest.mock("../controllers/utils.js");
 
 import { getUserFromToken } from "../controllers/group.utils";
+import { verifyAdmin, verifyUserOrAdmin } from "../controllers/utils";
 
 /**
  * Defines code to be executed before each test case is launched
@@ -85,6 +87,16 @@ describe("Group", () => {
     };
   };
 
+  /**
+   *
+   * @param {string} name
+   * @returns
+   */
+  const userStub = (name) => ({
+    name: name,
+    email: `${name}@${name}.it`,
+  });
+
   // TODO: substitu aggregate calls with the ones in `group.utils.js`
 
   /**
@@ -123,9 +135,6 @@ describe("Group", () => {
           name: groupStub().name,
           memberEmails: groupStub().members.map((m) => m.email),
         },
-        cookies: {
-          refreshToken: "rToken",
-        },
       };
     };
 
@@ -135,12 +144,17 @@ describe("Group", () => {
       refreshToken: "rToken",
     });
 
+    const verifiedResult = () => ({
+      flag: true,
+      currUser: userStub("bre"),
+    });
+
     beforeEach(async () => {
       jest.resetAllMocks();
     });
 
     test("result status should be 200", async () => {
-      getUserFromToken.mockResolvedValue(userCallingStub());
+      verifyUserOrAdmin.mockResolvedValue(verifiedResult());
       GroupFindOne.mockResolvedValueOnce();
       UserAggregate.mockResolvedValueOnce(
         groupStub().members.map((m) => ({ email: m.email }))
@@ -166,7 +180,7 @@ describe("Group", () => {
     });
 
     test("result status should be 400 when group already exists", async () => {
-      getUserFromToken.mockResolvedValue(userCallingStub());
+      verifyUserOrAdmin.mockResolvedValue(verifiedResult());
       GroupFindOne.mockResolvedValue(groupStub());
       const res = mockRes();
       await createGroup(reqStub(), res);
@@ -177,7 +191,7 @@ describe("Group", () => {
     });
 
     test("result status should be 400 when all users don't exists", async () => {
-      getUserFromToken.mockResolvedValue(userCallingStub());
+      verifyUserOrAdmin.mockResolvedValue(verifiedResult());
       GroupFindOne.mockResolvedValue();
       UserAggregate.mockResolvedValue([]);
       GroupAggregate.mockResolvedValue([]);
@@ -193,7 +207,7 @@ describe("Group", () => {
     });
 
     test("result status should be 400 when all user belong to a group or don't exist", async () => {
-      getUserFromToken.mockResolvedValue(userCallingStub());
+      verifyUserOrAdmin.mockResolvedValue(verifiedResult());
       GroupFindOne.mockResolvedValue();
       UserAggregate.mockResolvedValueOnce([
         groupStub().members.map((u) => ({ email: u.email }))[0],
@@ -226,6 +240,8 @@ describe("Group", () => {
         return { email: m.email };
       });
       existingUsers.push({ email: userInGroup });
+
+      verifyUserOrAdmin.mockResolvedValue(verifiedResult());
       UserAggregate.mockResolvedValueOnce(existingUsers);
       GroupAggregate.mockResolvedValueOnce([{ _id: userInGroup }]);
       UserAggregate.mockResolvedValueOnce(groupStub().members);
@@ -249,11 +265,17 @@ describe("Group", () => {
   });
 
   describe("getGroups", () => {
+    const verifiedResult = () => ({
+      flag: true,
+      currUser: userStub("bre"),
+    });
+
     beforeEach(async () => {
       jest.clearAllMocks();
     });
 
     test("should return a list of all groups", async () => {
+      verifyAdmin.mockResolvedValue(verifiedResult());
       GroupFind.mockResolvedValue([groupStub()]);
 
       const res = mockRes();
@@ -268,6 +290,7 @@ describe("Group", () => {
     });
 
     test("should return an empty list", async () => {
+      verifyAdmin.mockResolvedValue(verifiedResult());
       GroupFind.mockResolvedValue([]);
 
       const res = mockRes();
@@ -283,15 +306,22 @@ describe("Group", () => {
   });
 
   describe("getGroup", () => {
-    const reqStub = () => ({
-      params: { name: groupStub().name },
-    });
-
     beforeEach(async () => {
       jest.clearAllMocks();
     });
 
+    const reqStub = () => ({
+      params: { name: groupStub().name },
+    });
+
+    const verifiedResult = () => ({
+      flag: true,
+      isAdmin: false,
+      currUser: userStub("bre"),
+    });
+
     test("should return a group", async () => {
+      verifyUserOrAdmin.mockResolvedValue(verifiedResult());
       GroupFindOne.mockResolvedValue(groupStub());
 
       const res = mockRes();
@@ -306,6 +336,7 @@ describe("Group", () => {
     });
 
     test("should return 400 when the group does not exist", async () => {
+      verifyUserOrAdmin.mockResolvedValue(verifiedResult());
       GroupFindOne.mockResolvedValue();
 
       const res = mockRes();
@@ -331,14 +362,31 @@ describe("Group", () => {
       return g;
     })();
 
-    const reqStub = () => ({
+    const reqStub = (admin = false) => ({
       body: { emails: emailsToAdd },
       params: { name: group.name },
+      path: admin ? "/insert" : "/add",
     });
+
+    const verifiedResult = () => ({
+      flag: true,
+      isAdmin: false,
+      currUser: userStub("bre"),
+    });
+
+    const verifiedResultAdmin = () => ({
+      flag: true,
+      isAdmin: true,
+      currUser: userStub("bre"),
+    });
+
+    /**********************************************/
 
     test("should return the updated group", async () => {
       const res = mockRes();
 
+      verifyUserOrAdmin.mockResolvedValue(verifiedResult());
+      verifyAdmin.mockResolvedValue(verifiedResultAdmin());
       GroupFindOne.mockResolvedValueOnce(groupStub());
       UserAggregate.mockResolvedValueOnce(
         emailsToAdd.map((e) => ({ email: e }))
@@ -361,6 +409,8 @@ describe("Group", () => {
     });
 
     test("sould return 400 if group does not exist", async () => {
+      verifyUserOrAdmin.mockResolvedValue(verifiedResult());
+      verifyAdmin.mockResolvedValue(verifiedResultAdmin());
       GroupFindOne.mockResolvedValue();
 
       const res = mockRes();
@@ -371,6 +421,8 @@ describe("Group", () => {
     });
 
     test("result status should be 400 when all users don't exists", async () => {
+      verifyUserOrAdmin.mockResolvedValue(verifiedResult());
+      verifyAdmin.mockResolvedValue(verifiedResultAdmin());
       GroupFindOne.mockResolvedValueOnce(groupStub());
       UserAggregate.mockResolvedValueOnce([]);
       GroupAggregate.mockResolvedValueOnce([]);
@@ -386,6 +438,8 @@ describe("Group", () => {
     });
 
     test("result status should be 400 when all user belong to a group or don't exist", async () => {
+      verifyUserOrAdmin.mockResolvedValue(verifiedResult());
+      verifyAdmin.mockResolvedValue(verifiedResultAdmin());
       GroupFindOne.mockResolvedValueOnce(groupStub());
       UserAggregate.mockResolvedValueOnce([{ email: emailsToAdd[0] }]);
       GroupAggregate.mockResolvedValue([{ _id: emailsToAdd[0] }]);
@@ -404,6 +458,8 @@ describe("Group", () => {
       let userNotExist = "lar@lar.it";
       let userInGroup = "mat@mat.it";
 
+      verifyUserOrAdmin.mockResolvedValue(verifiedResult());
+      verifyAdmin.mockResolvedValue(verifiedResultAdmin());
       GroupFindOne.mockResolvedValueOnce(groupStub());
       const existingUsers = (() => {
         const g = groupStub().members.map((m) => {
@@ -452,16 +508,31 @@ describe("Group", () => {
       return g;
     })();
 
-    const reqStub = () => ({
+    const reqStub = (admin = false) => ({
       body: {
         emails: emailsToRemove,
       },
       params: { name: group.name },
+      path: admin ? "/pull" : "/remove",
+    });
+
+    const verifiedResult = () => ({
+      flag: true,
+      isAdmin: false,
+      currUser: userStub("bre"),
+    });
+
+    const verifiedResultAdmin = () => ({
+      flag: true,
+      isAdmin: true,
+      currUser: userStub("bre"),
     });
 
     test("should return the updated group", async () => {
       const res = mockRes();
 
+      verifyUserOrAdmin.mockResolvedValue(verifiedResult());
+      verifyAdmin.mockResolvedValue(verifiedResultAdmin());
       GroupFindOne.mockResolvedValueOnce(groupStub());
       UserAggregate.mockResolvedValueOnce(
         emailsToRemove.map((e) => ({ email: e }))
@@ -486,6 +557,8 @@ describe("Group", () => {
     });
 
     test("sould return 400 if group does not exist", async () => {
+      verifyUserOrAdmin.mockResolvedValue(verifiedResult());
+      verifyAdmin.mockResolvedValue(verifiedResultAdmin());
       GroupFindOne.mockResolvedValue();
 
       const res = mockRes();
@@ -496,6 +569,8 @@ describe("Group", () => {
     });
 
     test("result status should be 400 when all users don't exists", async () => {
+      verifyUserOrAdmin.mockResolvedValue(verifiedResult());
+      verifyAdmin.mockResolvedValue(verifiedResultAdmin());
       GroupFindOne.mockResolvedValueOnce(groupStub());
       UserAggregate.mockResolvedValueOnce([]);
       GroupAggregate.mockResolvedValueOnce([]);
@@ -511,6 +586,8 @@ describe("Group", () => {
     });
 
     test("result status should be 400 when all users don't belong to a group or don't exist", async () => {
+      verifyUserOrAdmin.mockResolvedValue(verifiedResult());
+      verifyAdmin.mockResolvedValue(verifiedResultAdmin());
       GroupFindOne.mockResolvedValueOnce(groupStub());
       UserAggregate.mockResolvedValueOnce([{ email: emailsToRemove[0] }]);
       GroupAggregate.mockResolvedValue([{ _id: emailsToRemove[1] }]);
@@ -536,6 +613,8 @@ describe("Group", () => {
         return g;
       })();
 
+      verifyUserOrAdmin.mockResolvedValue(verifiedResult());
+      verifyAdmin.mockResolvedValue(verifiedResultAdmin());
       GroupFindOne.mockResolvedValueOnce(groupStub());
       UserAggregate.mockResolvedValueOnce(existingUsers);
       GroupAggregate.mockResolvedValueOnce(
@@ -571,7 +650,14 @@ describe("Group", () => {
       body: { name: groupToRemove },
     });
 
+    const verifiedResultAdmin = () => ({
+      flag: true,
+      isAdmin: true,
+      currUser: userStub("bre"),
+    });
+
     test("gruop should be removed", async () => {
+      verifyAdmin.mockResolvedValue(verifiedResultAdmin());
       GroupFindOneAndDelete.mockResolvedValueOnce(groupStub());
 
       const res = mockRes();
@@ -581,6 +667,7 @@ describe("Group", () => {
     });
 
     test("shold return error if group does not exist", async () => {
+      verifyAdmin.mockResolvedValue(verifiedResultAdmin());
       GroupFindOneAndDelete.mockResolvedValueOnce();
 
       const res = mockRes();
