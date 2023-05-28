@@ -12,7 +12,7 @@ export const createCategory = async (req, res) => {
     try {
         //Perform control on authentication
         const adminAuth = verifyAuth(req, res, { authType: "Admin" });
-        if (!adminAuth.authorized) {
+        if (!adminAuth.flag) {
             return res.status(401).json({ error: adminAuth.cause });
         }
 
@@ -49,7 +49,7 @@ export const updateCategory = async (req, res) => {
     try {
         //Perform control on authentication
         const adminAuth = verifyAuth(req, res, { authType: "Admin" });
-        if (!adminAuth.authorized) {
+        if (!adminAuth.flag) {
             return res.status(401).json({ error: adminAuth.cause });
         }
 
@@ -108,7 +108,7 @@ export const deleteCategory = async (req, res) => {
     try {
         //Perform control on authentication
         const adminAuth = verifyAuth(req, res, { authType: "Admin" });
-        if (!adminAuth.authorized) {
+        if (!adminAuth.flag) {
             return res.status(401).json({ error: adminAuth.cause });
         }
         //Retrieve array of types from request body
@@ -119,7 +119,7 @@ export const deleteCategory = async (req, res) => {
             return res.status(400).json({ error: 'Types must be a non-void array' });
         }
         for (const type of types) {
-            if (typeof type !== 'string' || !String.prototype.trim(type)) {
+            if (typeof type !== 'string' || !type.trim()) {
                 return res.status(400).json({ error: 'Types must be an array of non-void strings' });
             }
         }
@@ -130,36 +130,33 @@ export const deleteCategory = async (req, res) => {
             return res.status(400).json({error: 'Not enough categories to perform a deletion'});
 
         //Check for the existence of all categories, return categories sorted in ascending order of creationTime
-        const foundCategories = await categories.find({ type: { $in: types } }).sort({ createdAt: 1 });
-
+        const foundCategories = await categories.find({ type: { $in: types }}, {sort :{CreatedAt:1}});
+        
         //Return an error if at least one category does not exist
         if (foundCategories.length < types.length) {
             return res.status(400).json({ error: "All categories must exist" });
         }
 
+        let typesToDelete, oldestType;
         //Check if categories to be deleted cover all the categories in the DB
         if (foundCategories.length === nCategories) {
             //Retrieve all types to delete except for the first element (the first according to creationTime)
-            const typesToDelete = foundCategories.map(e => e.type).slice(1);
-            const oldestType = foundCategories[0].type;
+            typesToDelete = foundCategories.map(e => e.type).slice(1);
+            oldestType = foundCategories[0].type;
 
             //Delete all categories except the first one
             await categories.deleteMany({ type: { $in: typesToDelete } });
-
-            //Update all transactions involved with the type of the category with first creation time
-            const result = await transactions.updateMany({ type: { $in: typesToDelete } }, { $set: { type: oldestType } });
         } else {
             //Delete all categories present in req.body.types 
-            const typesToDelete = types;
+            typesToDelete = types;
             await categories.deleteMany({ type: { $in: typesToDelete } });
 
             //Retrieve the first created category among the remaining ones
-            const oldestCategory = await categories.findOne().sort({ createdAt: 1 });
-            const oldestType = oldestCategory.type;
-
-            //Update all transactions involved with the type of the category with first creation time
-            const result = await transactions.updateMany({ type: { $in: typesToDelete } }, { $set: { type: oldestType } })
+            const oldestCategory = await categories.findOne({}, {}, {sort :{ createdAt: 1 }});
+            oldestType = oldestCategory.type;
         }
+        //Update all transactions involved with the type of the category with first creation time
+        const result = await transactions.updateMany({ type: { $in: typesToDelete } }, { $set: { type: oldestType } });
         return res.status(200).json({data: {message: "Categories deleted", count: result.modifiedCount}, refreshedTokenMessage: res.locals.refreshedTokenMessage});
     } catch (error) {
         res.status(500).json({ error: error.message })
@@ -177,7 +174,7 @@ export const getCategories = async (req, res) => {
     try {
         //Perform control on authentication
         const simpleAuth = verifyAuth(req, res, { authType: "Simple" });
-        if (!simpleAuth.authorized) {
+        if (!simpleAuth.flag) {
             return res.status(401).json({ error: simpleAuth.cause });
         }
         
@@ -186,7 +183,7 @@ export const getCategories = async (req, res) => {
 
         return res.status(200).json({data: filter, refreshedTokenMessage: res.locals.refreshedTokenMessage});
     } catch (error) {
-        res.status(400).json({ error: error.message })
+        res.status(500).json({ error: error.message })
     }
 }
 

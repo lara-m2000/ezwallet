@@ -7,8 +7,6 @@ import { verifyAuth } from '../controllers/utils';
 jest.mock('../models/model');
 jest.mock('../controllers/utils.js');
 
-
-
 describe('createCategory', () => {
     let req;
     let res;
@@ -27,7 +25,7 @@ describe('createCategory', () => {
             json: jest.fn(),
             locals: {refreshedTokenMessage: "RefreshToken"},
         };
-        verifyAuth.mockReturnValue({ authorized: true, cause: "cause" });
+        verifyAuth.mockReturnValue({ flag: true, cause: "cause" });
     });
 
     test('should create a new category successfully', async () => {
@@ -50,7 +48,7 @@ describe('createCategory', () => {
 
     test('should return an error if user is not authorized', async () => {
         const unauthorizedError = 'Unauthorized Error';
-        verifyAuth.mockReturnValue({ authorized: false, cause: unauthorizedError });
+        verifyAuth.mockReturnValue({ flag: false, cause: unauthorizedError });
 
         await createCategory(req, res);
 
@@ -123,7 +121,7 @@ describe('updateCategory', () => {
             json: jest.fn(),
             locals: {refreshedTokenMessage: "RefreshToken"},
         };
-        verifyAuth.mockReturnValue({authorized: true, cause:"cause"});
+        verifyAuth.mockReturnValue({flag: true, cause:"cause"});
     });
 
     test('should update the category and related transactions successfully', async () => {
@@ -144,7 +142,7 @@ describe('updateCategory', () => {
 
     test('should return an error if user is not authorized', async () => {
         const unauthorizedError = 'Unauthorized Error';
-        verifyAuth.mockReturnValue({authorized: false, cause: unauthorizedError});
+        verifyAuth.mockReturnValue({flag: false, cause: unauthorizedError});
 
         await updateCategory(req, res);
 
@@ -212,130 +210,203 @@ describe('updateCategory', () => {
         expect(res.status).toHaveBeenCalledWith(500);
         expect(res.json).toHaveBeenCalledWith({ error: errorMessage });
     });
-})    
+});    
     //Missing controls on authentication (probably will have to mock the verifyAuth() func after inserting it)
     //NEED TO BE MODIFIED ACCORDING TO NEW REQUIREMENTS
-    describe.skip("deleteCategory", () => {
-        // Mock request and response objects
-        let req;
-        let res;
-
-        beforeEach(() => {
-            jest.clearAllMocks();
-            req = {
-                body: {
-                    types: ['category1', 'category2'],
-                },
-            };
-            res = {
-                status: jest.fn(() => res),
-                json: jest.fn(),
-                locals: {
-                    message: "test message"
-                }
-            };
-        })
-
-        test('should return error 401 if any category does not exist', async () => {
-            // Mock the categories.findOne function to return null for one category
-            categories.findOne = jest.fn().mockImplementation((query) => {
-                if (query.type === 'category1') return { type: 'category1' };
-                return null;
-            });
-
-            await deleteCategory(req, res);
-
-            // Verify the response
-            expect(res.status).toHaveBeenCalledWith(401);
-            expect(res.json).toHaveBeenCalledWith({
-                message: 'The following categories do not exist: category2',
-            });
-        });
-
-        test('should delete categories and update transactions', async () => {
-            // Mock the categories.findOne function to return the categories
-            categories.findOne.mockResolvedValueOnce({ type: 'category1' }).mockResolvedValueOnce({ type: 'category2' });
-
-            // Mock the categories.deleteOne and transactions.updateMany functions to return successful deletions/updates
-            categories.deleteOne.mockResolvedValue(undefined);
-            transactions.updateMany.mockResolvedValue({ modifiedCount: 5 });
-
-            await deleteCategory(req, res);
-
-            // Verify the response
-            expect(res.status).toHaveBeenCalledWith(200);
-            expect(res.json).toHaveBeenCalledWith({ data: { message: 'Successfully deleted', count: 10 }, message: "test message" });
-
-        });
-
-        test('should handle and return error 400', async () => {
-            // Mock the categories.findOne function to throw an error
-            categories.findOne.mockRejectedValue(new Error('Database error'));
-
-            await deleteCategory(req, res);
-
-            // Verify the response
-            expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ error: 'Database error' });
-        });
+describe("deleteCategory", () => {
+    // Mock request and response objects
+    let req;
+    let res;
+    beforeEach(() => {
+        jest.clearAllMocks();
+        req = {
+            body: {
+                types: ['category1','category2'],
+            },
+        };
+        res = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn(),
+            locals: {
+                refreshedTokenMessage: "RefreshToken"
+            }
+        };
+        verifyAuth.mockReturnValue({flag: true, cause:'cause'});
     })
+
+    test('Should return an error if user is not authorized', async () => {
+        const unauthorizedError = 'Unauthorized Error';
+        verifyAuth.mockReturnValueOnce({flag: false, cause: unauthorizedError});
+
+        await deleteCategory(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(401);
+        expect(res.json).toHaveBeenCalledWith({ error: unauthorizedError });
+    });
+
+    test('Should return an error if types is not an array', async () => {
+        req.body.types = 123;
+
+        await deleteCategory(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Types must be a non-void array' });
+    });
+
+    test('Should return an error if types is a void array', async () => {
+        req.body.types = [];
+
+        await deleteCategory(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Types must be a non-void array' });
+    });
+
+    test('Should return an error if types contains void strings', async () => {
+        req.body.types = ['category1','   '];
+
+        await deleteCategory(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Types must be an array of non-void strings' });
+    });
+
+    test('Should return an error if types contains non string elements', async () => {
+        req.body.types = ['category1',123];
+
+        await deleteCategory(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Types must be an array of non-void strings' });
+    });
+
+
+    test('Should return error 400 if the number of existing categories is <=1', async () => {
+        categories.countDocuments.mockResolvedValueOnce(1)
+        
+        await deleteCategory(req, res);
+        
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({
+            error: 'Not enough categories to perform a deletion',
+        });
+    });
+
+    test('Should return error 400 if one of the passed categories does not exist', async () => {
+        categories.countDocuments.mockResolvedValueOnce(() => 4)
+        categories.find.mockResolvedValueOnce(['category1'])
+        
+        
+        await deleteCategory(req, res);
+        
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({
+            error: 'All categories must exist',
+        });
+    });
+
+    test('Should delete categories and update transactions when #passed_categories=#db_categories', async () => {
+        // Returns number of documents in the db
+        categories.countDocuments.mockResolvedValueOnce(req.body.types.length)
+        // Returns categories in the db that match the passed ones
+        categories.find.mockResolvedValueOnce(req.body.types)
+        const deletedCategories = {modifiedCount: 1};
+        // Update the transactions type and return the number of modified transactions
+        transactions.updateMany.mockResolvedValueOnce(deletedCategories)
+
+        await deleteCategory(req, res);
+        
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({
+            data: {message: "Categories deleted", count: deletedCategories.modifiedCount}, 
+            refreshedTokenMessage: res.locals.refreshedTokenMessage});
+    });
+
+    test('Should delete categories and update transactions when #passed_categories<#db_categories', async () => {
+        categories.countDocuments.mockResolvedValueOnce(req.body.types.length+1)
+        categories.find.mockResolvedValueOnce(req.body.types)
+        // Oldest category not deleted has to be retrieved from the db
+        const oldestCategory = {type: 'category3'}
+        categories.findOne.mockResolvedValueOnce(oldestCategory)
+        const deletedCategories = {modifiedCount: 2};
+        transactions.updateMany.mockResolvedValueOnce(deletedCategories)
+
+        await deleteCategory(req, res);
+        
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({
+            data: {message: "Categories deleted", count: deletedCategories.modifiedCount}, 
+            refreshedTokenMessage: res.locals.refreshedTokenMessage});
+    });
+});
     //Missing controls on authentication (probably will have to mock the verifyAuth() func after inserting it)
     //NEED TO BE MODIFIED ACCORDING TO NEW REQUIREMENTS
-    describe.skip("getCategories", () => {
-        // Mock request and response objects
-        let req;
-        let res;
-        beforeEach(() => {
-            jest.clearAllMocks();
-            req = {};
-            res = {
-                json: jest.fn(),
-                status: jest.fn(() => res),
-                locals: {
-                    message: "test message"
-                }
-            };
-        });
+describe("getCategories", () => {
+    // Mock request and response objects
+    let req;
+    let res;
+    beforeEach(() => {
+        jest.clearAllMocks();
+        req = {};
+        res = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn(),
+            locals: {
+                refreshedTokenMessage: "RefreshToken"
+            }
+        };
+        verifyAuth.mockReturnValue({flag: true, cause:'cause'});
+    });
 
-        test('should return all categories', async () => {
-            // Mock the categories.find function to return some data
-            categories.find.mockResolvedValueOnce([
+
+    test('Should return an error if user is not authorized', async () => {
+        const unauthorizedError = 'Unauthorized Error';
+        verifyAuth.mockReturnValueOnce({flag: false, cause: unauthorizedError});
+
+        await deleteCategory(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(401);
+        expect(res.json).toHaveBeenCalledWith({ error: unauthorizedError });
+    });
+
+
+    test('should return all categories', async () => {
+        // Mock the categories.find function to return some data
+        categories.find.mockResolvedValueOnce([
+            { type: 'category1', color: 'red' },
+            { type: 'category2', color: 'blue' },
+        ]);
+
+        await getCategories(req, res);
+        // Verify the response
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({
+            data: [
                 { type: 'category1', color: 'red' },
                 { type: 'category2', color: 'blue' },
-            ]);
-
-            await getCategories(req, res);
-
-            // Verify the response
-            expect(res.json).toHaveBeenCalledWith({
-                data: [
-                    { type: 'category1', color: 'red' },
-                    { type: 'category2', color: 'blue' },
-                ], message: "test message"
-            });
+            ], 
+            refreshedTokenMessage: res.locals.refreshedTokenMessage
         });
+    });
 
-        test('should return an empty array if there are no categories', async () => {
-            // Mock the categories.find function to return an empty array
-            categories.find.mockResolvedValueOnce([]);
+    test('should return an empty array if there are no categories', async () => {
+        // Mock the categories.find function to return an empty array
+        categories.find.mockResolvedValueOnce([]);
+        await getCategories(req, res);
+        // Verify the response
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({ data: [], refreshedTokenMessage: res.locals.refreshedTokenMessage });
+    });
 
-            await getCategories(req, res);
-
-            // Verify the response
-            expect(res.json).toHaveBeenCalledWith({ data: [], message: res.locals.message });
-        });
-
-        test('should handle and return error 400', async () => {
-            // Mock the categories.find function to throw an error
-            categories.find.mockRejectedValueOnce(new Error('Database error'));
-
-            await getCategories(req, res);
-
-            // Verify the response
-            expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ error: 'Database error' });
-        });
-    })
+    test('should handle and return error 500', async () => {
+        // Mock the categories.find function to throw an error
+        categories.find.mockRejectedValueOnce(new Error('Database error'));
+        await getCategories(req, res);
+        // Verify the response
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Database error' });
+    });
+});
 
     describe("createTransaction", () => {
         test('Dummy test, change it', () => {
