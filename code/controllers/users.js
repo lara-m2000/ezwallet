@@ -28,7 +28,10 @@ import { validateRequest } from "./validate.js";
  */
 export const getUsers = async (req, res) => {
   try {
-    // TODO: auth
+    const { flag, cause } = await verifyAdmin(req, res);
+    if (!flag) {
+      return res.status(401).json({ error: cause });
+    }
 
     const users = await User.find();
 
@@ -51,7 +54,13 @@ export const getUsers = async (req, res) => {
  */
 export const getUser = async (req, res) => {
   try {
-    // TODO: auth
+    const { flag, cause, currUser, isAdmin } = await verifyUserOrAdmin(
+      req,
+      res
+    );
+    if (!flag) {
+      return res.status(401).json({ error: cause });
+    }
 
     const paramsSchema = yup.object({
       username: yup.string().required(),
@@ -72,6 +81,11 @@ export const getUser = async (req, res) => {
     // check if user exist
     if (!user) {
       return res.status(400).json({ error: "User doesn't exist" });
+    }
+
+    // User can only get himself
+    if (!isAdmin && currUser.username !== user.username) {
+      return res.status(401).json({ error: "Can't get another user" });
     }
 
     res.status(200).json({
@@ -507,7 +521,10 @@ export const removeFromGroup = async (req, res) => {
  */
 export const deleteUser = async (req, res) => {
   try {
-    // TODO: auth
+    const { flag, cause } = await verifyAdmin(req, res);
+    if (!flag) {
+      return res.status(401).json({ error: cause });
+    }
 
     const bodySchema = yup.object({
       email: yup.string().email().required(),
@@ -566,7 +583,7 @@ export const deleteUser = async (req, res) => {
         deletedTransactions: removedTransactions.deletedCount,
         deletedFromGroup: deletedFromGroup,
       },
-      message: res.locals.message,
+      refreshedTokenMessage: res.locals.refreshedTokenMessage,
     });
   } catch (err) {
     console.log(err);
