@@ -47,13 +47,24 @@ beforeEach(() => {
   //additional `mockClear()` must be placed here
 });
 
+/**
+ * 
+ * @param {"Regular"|"Admin"} role 
+ * @returns 
+ */
+const userStub = (role = "Regular") => ({
+  username: "bre",
+  email: "bre@bre.it",
+  role: "Regular",
+});
+
 describe("User", () => {
   const mockRes = () => ({
     status: jest.fn().mockReturnThis(),
     json: jest.fn(),
     locals: {
-      message: "",
-    },
+      refreshedTokenMessage: "token"
+    }
   });
 
   describe("getUsers", () => {
@@ -61,21 +72,13 @@ describe("User", () => {
       jest.clearAllMocks();
     });
 
-    test("should return empty list if there are no users", async () => {
-      //any time the `User.find()` method is called jest will replace its actual implementation with the one defined below
-      const mockReq = {};
-      jest.spyOn(User, "find").mockResolvedValue([]);
-
-      const res = mockRes();
-      await getUsers(mockReq, res);
-
-      expect(User.find).toHaveBeenCalled();
-      expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({
-        data: [],
-        message: "",
-      });
+    const verifiedResult = () => ({
+      flag: true,
+      isAdmin: true,
+      currUser: userStub("bre"),
     });
+
+    /*******************************************/
 
     test("should retrieve list of all users", async () => {
       const mockReq = {};
@@ -91,6 +94,8 @@ describe("User", () => {
           role: "Regular",
         },
       ];
+
+      verifyAdmin.mockResolvedValue(verifiedResult());
       jest.spyOn(User, "find").mockResolvedValue(retrievedUsers);
 
       const res = mockRes();
@@ -100,7 +105,7 @@ describe("User", () => {
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
         data: retrievedUsers,
-        message: "",
+        refreshedTokenMessage: res.locals.refreshedTokenMessage,
       });
     });
   });
@@ -114,13 +119,14 @@ describe("User", () => {
       params: { username: "bre" },
     });
 
-    const userStub = () => ({
-      username: "bre",
-      email: "bre@bre.it",
-      role: "Regular",
+    const verifiedResult = () => ({
+      flag: true,
+      isAdmin: true,
+      currUser: userStub("bre"),
     });
 
     test("should return a user", async () => {
+      verifyUserOrAdmin.mockResolvedValue(verifiedResult());
       jest.spyOn(User, "findOne").mockResolvedValue(userStub());
 
       const res = mockRes();
@@ -129,23 +135,30 @@ describe("User", () => {
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
         data: userStub(),
-        message: "",
+        refreshedTokenMessage: res.locals.refreshedTokenMessage,
       });
     });
 
-    test("should return error", async () => {
+    test("should return error if user doesn't exist", async () => {
+      verifyUserOrAdmin.mockResolvedValue(verifiedResult());
       jest.spyOn(User, "findOne").mockResolvedValue();
 
       const res = mockRes();
       await getUser(mockReq(), res);
 
-      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.status).toHaveBeenCalledWith(400);
     });
   });
 
   describe("deleteUser", () => {
     beforeEach(async () => {
       jest.clearAllMocks();
+    });
+
+    const verifiedResult = () => ({
+      flag: true,
+      isAdmin: true,
+      currUser: userStub("bre"),
     });
 
     const mockReq = () => ({
@@ -159,6 +172,7 @@ describe("User", () => {
     });
 
     test("should delete a user", async () => {
+      verifyAdmin.mockResolvedValue(verifiedResult());
       jest.spyOn(User, "findOneAndDelete").mockResolvedValue(userStub());
       jest.spyOn(User, "aggregate").mockResolvedValue([]);
       jest
@@ -174,7 +188,7 @@ describe("User", () => {
           deletedTransactions: 0,
           deletedFromGroup: false,
         },
-        message: "",
+        refreshedTokenMessage: res.locals.refreshedTokenMessage,
       });
     });
   });

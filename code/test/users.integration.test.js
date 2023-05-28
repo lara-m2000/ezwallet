@@ -6,6 +6,7 @@ import mongoose, { Model } from "mongoose";
 import dotenv from "dotenv";
 import { groupSchemaMapper } from "../controllers/group.utils";
 import jwt from "jsonwebtoken";
+import { userSchemaMapper } from "../controllers/users.utils";
 
 /**
  * Necessary setup in order to create a new database for testing purposes before starting the execution of test cases.
@@ -31,18 +32,35 @@ afterAll(async () => {
   await mongoose.connection.close();
 });
 
+const newUser = (user) => ({
+  username: user,
+  email: `${user}@${user}.it`,
+  id: user,
+  password: user,
+});
+
+/**
+ *
+ * @param {*} user
+ * @param {"Regular"|"Admin"} role
+ * @returns
+ */
+const newDbUser = (user, role = "Regular") => ({
+  ...newUser(user),
+  role: role,
+  refreshToken: jwt.sign(
+    { ...newUser(user), password: undefined, role: role },
+    process.env.ACCESS_KEY,
+    { expiresIn: "300d" }
+  ),
+  accessToken: jwt.sign(
+    { ...newUser(user), password: undefined, role: role },
+    process.env.ACCESS_KEY,
+    { expiresIn: "300d" }
+  ),
+});
+
 describe("Users", () => {
-  const newUser = (user) => ({
-    username: user,
-    email: `${user}@${user}.it`,
-    role: "Regular",
-  });
-
-  const dbUser = (user) => ({
-    ...newUser(user),
-    password: user,
-  });
-
   const userTransactions = (user) => [
     { username: user, type: "boh" },
     { username: user, type: "test" },
@@ -57,20 +75,39 @@ describe("Users", () => {
       await User.deleteMany({});
     });
 
-    test("should return empty list if there are no users", async () => {
-      const response = await request(app).get("/api/users");
+    const breAdmin = newDbUser("breAdmin", "Admin");
+    const bre = newDbUser("bre");
 
-      expect(response.status).toBe(200);
-      expect(response.body.data).toHaveLength(0);
-    });
+    const users = [breAdmin, bre];
+
+    const sendRequest = async (refreshToken = breAdmin.refreshToken) => {
+      return await request(app)
+        .get("/api/users")
+        .set("Content-Type", "application/json")
+        .set("Cookie", [
+          `refreshToken=${refreshToken}`,
+          `accessToken=${refreshToken}`,
+        ])
+        .send();
+    };
+
+    /***********************************************/
 
     test("should retrieve list of all users", async () => {
-      await User.create(dbUser("bre"));
+      await User.create(users);
 
-      const response = await request(app).get("/api/users");
+      const res = await sendRequest();
 
-      expect(response.status).toBe(200);
-      expect(response.body.data).toEqual([newUser("bre")]);
+      expect(res.status).toBe(200);
+      expect(res.body.data).toHaveLength(users.length);
+    });
+
+    test("should return error if user requesting is not Admin", async () => {
+      await User.create(users);
+
+      const res = await sendRequest(bre.refreshToken);
+
+      expect(res.status).toBe(401);
     });
   });
 
@@ -79,24 +116,59 @@ describe("Users", () => {
       await User.deleteMany({});
     });
 
-    const sendRequest = async (username) => {
+    const bre = newDbUser("bre");
+    const fra = newDbUser("fra");
+    const breAdmin = newDbUser("breAdmin", "Admin");
+
+    const users = [bre, fra, breAdmin];
+
+    const sendRequest = async (
+      username,
+      refreshToken = breAdmin.refreshToken
+    ) => {
       return await request(app)
         .get(`/api/users/${username}`)
         .set("Content-Type", "application/json")
+        .set("Cookie", [
+          `refreshToken=${refreshToken}`,
+          `accessToken=${refreshToken}`,
+        ])
         .send();
     };
 
-    test("should return a user", async () => {
-      await User.create(dbUser("bre"));
+    /****************************************/
 
-      const res = await sendRequest(newUser("bre").username);
+    test("should return my user", async () => {
+      await User.create(users);
+
+      const res = await sendRequest(bre.username, bre.refreshToken);
 
       expect(res.status).toBe(200);
-      expect(res.body.data).toEqual(newUser("bre"));
+      expect(res.body.data).toEqual(userSchemaMapper(bre));
+    });
+
+    test("should return another user when making Admin request", async () => {
+      await User.create(users);
+
+      const res = await sendRequest(bre.username);
+
+      expect(res.status).toBe(200);
+      expect(res.body.data).toEqual(userSchemaMapper(bre));
     });
 
     test("should return error if user does not exist", async () => {
-      const res = await sendRequest(newUser("bre").username);
+      const users = [breAdmin];
+      await User.create(users);
+
+      const res = await sendRequest(bre.username);
+
+      expect(res.status).toBe(400);
+    });
+
+    test("should return error if user tryies to get another user", async () => {
+      await User.create(users);
+
+      const res = await sendRequest(fra.username, bre.refreshToken);
 
       expect(res.status).toBe(401);
     });
@@ -108,34 +180,57 @@ describe("Users", () => {
       await transactions.deleteMany({});
     });
 
-    const sendRequest = async (email) => {
+    const bre = newDbUser("bre");
+    const fra = newDbUser("fra");
+    const breAdmin = newDbUser("breAdmin", "Admin");
+
+    const users = [bre, fra, breAdmin];
+
+    const sendRequest = async (email, refreshToken = breAdmin.refreshToken) => {
       return await request(app)
         .delete("/api/users")
         .set("Content-Type", "application/json")
+        .set("Cookie", [
+          `refreshToken=${refreshToken}`,
+          `accessToken=${refreshToken}`,
+        ])
         .send({ email: email });
     };
 
-    test("should return deleted user", async () => {
-      await User.create(dbUser("bre"));
+    /*************************************/
 
-      const res = await sendRequest(newUser("bre").email);
+    test("should return deleted user", async () => {
+      await User.create(users);
+
+      const res = await sendRequest(bre.email);
 
       expect(res.status).toBe(200);
       expect(res.body.data.deletedTransactions).toBe(0);
       expect(res.body.data.deletedFromGroup).toBe(false);
     });
 
-    test("should return error if user doesn't exist", async () => {
-      const res = await sendRequest(newUser("bre").email);
+    test("should return error if requesting user is not Admin", async () => {
+      await User.create(users);
+
+      const res = await sendRequest(fra.email, bre.refreshToken);
 
       expect(res.status).toBe(401);
     });
 
+    test("should return error if user doesn't exist", async () => {
+      const users = [fra, breAdmin];
+
+      await User.create(users);
+      const res = await sendRequest(bre.email);
+
+      expect(res.status).toBe(400);
+    });
+
     test("should return removed transactions", async () => {
-      await User.create(dbUser("bre"));
+      await User.create(users);
       await transactions.create(userTransactions("bre"));
 
-      const res = await sendRequest(newUser("bre").email);
+      const res = await sendRequest(bre.email);
 
       expect(res.status).toBe(200);
       expect(res.body.data.deletedTransactions).toBe(
@@ -145,17 +240,14 @@ describe("Users", () => {
     });
 
     test("should return removed transactions and removed group", async () => {
-      await User.create(dbUser("bre"));
+      await User.create(users);
       await transactions.create(userTransactions("bre"));
       await Group.create({
         name: "test",
-        members: [
-          { email: newUser("bre").email },
-          { email: newUser("test").email },
-        ],
+        members: [{ email: bre.email }, { email: fra.email }],
       });
 
-      const res = await sendRequest(newUser("bre").email);
+      const res = await sendRequest(bre.email);
 
       expect(res.status).toBe(200);
       expect(res.body.data.deletedTransactions).toBe(
@@ -167,33 +259,6 @@ describe("Users", () => {
 });
 
 describe("Groups", () => {
-  const newUser = (user) => ({
-    username: user,
-    email: `${user}@${user}.it`,
-    id: user,
-    password: user,
-  });
-
-  /**
-   *
-   * @param {*} user
-   * @param {"Regular"|"Admin"} role
-   * @returns
-   */
-  const newDbUser = (user, role = "Regular") => ({
-    ...newUser(user),
-    refreshToken: jwt.sign(
-      { ...newUser(user), password: undefined, role: role },
-      process.env.ACCESS_KEY,
-      { expiresIn: "300d" }
-    ),
-    accessToken: jwt.sign(
-      { ...newUser(user), password: undefined, role: role },
-      process.env.ACCESS_KEY,
-      { expiresIn: "300d" }
-    ),
-  });
-
   describe("createGroup", () => {
     const groupStub = () => ({
       name: "test",
