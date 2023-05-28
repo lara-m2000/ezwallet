@@ -5,6 +5,7 @@ import { transactions, categories } from "../models/model";
 import mongoose, { Model } from "mongoose";
 import dotenv from "dotenv";
 import { groupSchemaMapper } from "../controllers/group.utils";
+import jwt from "jsonwebtoken";
 
 /**
  * Necessary setup in order to create a new database for testing purposes before starting the execution of test cases.
@@ -77,8 +78,28 @@ describe("Groups", () => {
   const newUser = (user) => ({
     username: user,
     email: `${user}@${user}.it`,
+    id: user,
     password: user,
-    refreshToken: user,
+  });
+
+  /**
+   *
+   * @param {*} user
+   * @param {"Regular"|"Admin"} role
+   * @returns
+   */
+  const newDbUser = (user, role = "Regular") => ({
+    ...newUser(user),
+    refreshToken: jwt.sign(
+      { ...newUser(user), password: undefined, role: role },
+      process.env.ACCESS_KEY,
+      { expiresIn: "300d" }
+    ),
+    accessToken: jwt.sign(
+      { ...newUser(user), password: undefined, role: role },
+      process.env.ACCESS_KEY,
+      { expiresIn: "300d" }
+    ),
   });
 
   describe("createGroup", () => {
@@ -101,7 +122,8 @@ describe("Groups", () => {
         .post("/api/groups")
         .set("Content-Type", "application/json")
         .set("Cookie", [
-          `refreshToken=${refreshToken ?? "bre"}`
+          `refreshToken=${refreshToken}`,
+          `accessToken=${refreshToken}`,
         ])
         .send(body);
     };
@@ -111,9 +133,11 @@ describe("Groups", () => {
     });
 
     test("should create a new group", async () => {
-      await User.create([newUser("bre"), newUser("fra")]);
+      const bre = newDbUser("bre");
+      const fra = newDbUser("fra");
+      await User.create([bre, fra]);
 
-      const res = await sendRequest(bodyStub());
+      const res = await sendRequest(bodyStub(), bre.refreshToken);
 
       expect(res.status).toBe(200);
       expect(res.body.data.group).toEqual(groupStub());
@@ -122,35 +146,37 @@ describe("Groups", () => {
     });
 
     test("should return error if group already exists", async () => {
-      await User.create(newUser("bre"));
+      const bre = newDbUser("bre");
+
+      await User.create(bre);
       await Group.create({ name: groupStub().name });
 
-      const res = await sendRequest(bodyStub());
+      const res = await sendRequest(bodyStub(), bre.refreshToken);
 
       expect(res.status).toBe(400);
     });
 
     test("should return non exising users", async () => {
-      const fra = newUser("fra");
+      const fra = newDbUser("fra");
       await User.create(fra);
 
       const res = await sendRequest(bodyStub(), fra.refreshToken);
 
       expect(res.status).toBe(200);
-      expect(res.body.data.group.members).toEqual([
-        { email: newUser("fra").email },
-      ]);
+      expect(res.body.data.group.members).toEqual([{ email: fra.email }]);
       expect(res.body.data.membersNotFound).toEqual([newUser("bre").email]);
     });
 
     test("should return non exising users in a group", async () => {
-      await User.create([newUser("bre"), newUser("fra")]);
+      const bre = newDbUser("bre");
+      const fra = newDbUser("fra");
+      await User.create([bre, fra]);
       await Group.create({
         name: "pippo",
         members: [{ email: newUser("fra").email }],
       });
 
-      const res = await sendRequest(bodyStub());
+      const res = await sendRequest(bodyStub(), fra.refreshToken);
 
       expect(res.status).toBe(200);
       expect(res.body.data.alreadyInGroup).toEqual([newUser("fra").email]);
@@ -162,7 +188,7 @@ describe("Groups", () => {
     });
 
     test("should return error if users do not exist or belog to a group", async () => {
-      const fra = newUser("fra");
+      const fra = newDbUser("fra");
       await User.create(fra);
       await Group.create({
         name: "pippo",
@@ -176,12 +202,24 @@ describe("Groups", () => {
   });
 
   describe("getGroups", () => {
-    const sendRequest = async (body) => {
+    const sendRequest = async (body, refreshToken = breAdmin.refreshToken) => {
       return await request(app)
         .get("/api/groups")
         .set("Content-Type", "application/json")
+        .set("Cookie", [
+          `refreshToken=${refreshToken}`,
+          `accessToken=${refreshToken}`,
+        ])
         .send(body);
     };
+
+    const breAdmin = newDbUser("bre", "Admin");
+    const fra = newDbUser("fra");
+
+    beforeAll(async () => {
+      await User.deleteMany();
+      await User.create([breAdmin, fra]);
+    });
 
     beforeEach(async () => {
       await Group.deleteMany({});
@@ -209,15 +247,36 @@ describe("Groups", () => {
       expect(res.status).toBe(200);
       expect(res.body.data.groups).toEqual([]);
     });
+
+    test("should return error if user requesting is not Admin", async () => {
+      await Group.create(newGroup("test"));
+
+      const res = await sendRequest({}, fra.refreshToken);
+
+      expect(res.status).toBe(401);
+    });
   });
 
   describe("getGroup", () => {
-    const sendRequest = async (name, body) => {
+    const sendRequest = async (name, body, refreshToken = bre.refreshToken) => {
       return await request(app)
         .get(`/api/groups/${name}`)
         .set("Content-Type", "application/json")
+        .set("Cookie", [
+          `refreshToken=${refreshToken}`,
+          `accessToken=${refreshToken}`,
+        ])
         .send(body);
     };
+
+    const bre = newDbUser("bre");
+    const lar = newDbUser("lar");
+    const breAdmin = newDbUser("breAdmin", "Admin");
+
+    beforeAll(async () => {
+      await User.deleteMany();
+      await User.create([bre, lar, breAdmin]);
+    });
 
     beforeEach(async () => {
       await Group.deleteMany({});
@@ -242,24 +301,53 @@ describe("Groups", () => {
 
       expect(res.status).toBe(400);
     });
+
+    test("should return error if user requestin is not part of the group", async () => {
+      await Group.create(newGroup("test"));
+
+      const res = await sendRequest("test", {}, lar.refreshToken);
+
+      expect(res.status).toBe(401);
+    });
+
+    test("should return group if user if user is admin", async () => {
+      await Group.create(newGroup("test"));
+
+      const res = await sendRequest("test", {}, breAdmin.refreshToken);
+
+      expect(res.status).toBe(200);
+      expect(res.body.data).toEqual(groupSchemaMapper(newGroup("test")));
+    });
   });
 
   describe("addToGroup", () => {
-    const sendRequest = async (name, body) => {
+    const sendRequest = async (
+      name,
+      body,
+      refreshToken = bre.refreshToken,
+      admin = false
+    ) => {
       return await request(app)
-        .patch(`/api/groups/${name}/add`)
+        .patch(`/api/groups/${name}/${admin ? "insert" : "add"}`)
         .set("Content-Type", "application/json")
+        .set("Cookie", [
+          `refreshToken=${refreshToken}`,
+          `accessToken=${refreshToken}`,
+        ])
         .send(body);
     };
 
-    const usersToAdd = [newUser("lar").email, newUser("mat").email];
+    const bre = newDbUser("bre");
+    const fra = newDbUser("fra");
+    const lar = newDbUser("lar");
+    const mat = newDbUser("mat");
+    const breAdmin = newDbUser("breAdmin", "Admin");
+
+    const usersToAdd = [lar.email, mat.email];
 
     const groupStub = () => ({
       name: "test",
-      members: [
-        { email: newUser("bre").email },
-        { email: newUser("fra").email },
-      ],
+      members: [{ email: bre.email }, { email: fra.email }],
     });
 
     const bodyStub = () => ({
@@ -273,12 +361,7 @@ describe("Groups", () => {
     test("should add new users to a group", async () => {
       const updatedGroup = groupStub();
       updatedGroup.members.push(...usersToAdd.map((u) => ({ email: u })));
-      await User.create([
-        newUser("bre"),
-        newUser("fra"),
-        newUser("lar"),
-        newUser("mat"),
-      ]);
+      await User.create([bre, fra, lar, mat]);
       await Group.create(groupStub());
 
       const res = await sendRequest(groupStub().name, bodyStub());
@@ -289,10 +372,30 @@ describe("Groups", () => {
       expect(res.body.data.membersNotFound).toEqual([]);
     });
 
-    test("should return error if group doesn't exist", async () => {
+    test("should add new users to a group with Admin role", async () => {
+      const updatedGroup = groupStub();
+      updatedGroup.members.push(...usersToAdd.map((u) => ({ email: u })));
+      await User.create([bre, fra, lar, mat, breAdmin]);
       await Group.create(groupStub());
 
-      const res = await sendRequest(groupStub().name, bodyStub());
+      const res = await sendRequest(
+        groupStub().name,
+        bodyStub(),
+        breAdmin.refreshToken,
+        true
+      );
+
+      expect(res.status).toBe(200);
+      expect(res.body.data.group).toEqual(groupSchemaMapper(updatedGroup));
+      expect(res.body.data.alreadyInGroup).toEqual([]);
+      expect(res.body.data.membersNotFound).toEqual([]);
+    });
+
+    test("should return error if group doesn't exist", async () => {
+      await User.create(bre);
+      await Group.create(groupStub());
+
+      const res = await sendRequest("random", bodyStub());
 
       expect(res.status).toBe(400);
     });
@@ -300,69 +403,93 @@ describe("Groups", () => {
     test("should return non exising users", async () => {
       const addedUsers = (() => {
         const u = groupStub().members;
-        u.push(newUser("lar").email);
+        u.push(lar.email);
         return u;
       })();
 
       const updatedGroup = groupStub();
-      updatedGroup.members.push({ email: newUser("lar").email });
+      updatedGroup.members.push({ email: lar.email });
 
-      await User.create([newUser("bre"), newUser("fra"), newUser("lar")]);
+      await User.create([bre, fra, lar]);
       await Group.create(groupStub());
 
       const res = await sendRequest(groupStub().name, bodyStub());
 
       expect(res.status).toBe(200);
-      expect(res.body.data.membersNotFound).toEqual([newUser("mat").email]);
+      expect(res.body.data.membersNotFound).toEqual([mat.email]);
       expect(res.body.data.group).toEqual(groupSchemaMapper(updatedGroup));
     });
 
     test("should return users in a group", async () => {
-      await User.create([
-        newUser("bre"),
-        newUser("fra"),
-        newUser("lar"),
-        newUser("mat"),
-      ]);
+      await User.create([bre, fra, lar, mat]);
       await Group.create(groupStub());
       await Group.create({
         name: "pippo",
-        members: [{ email: newUser("mat").email }],
+        members: [{ email: mat.email }],
       });
 
       const updatedGroup = groupStub();
-      updatedGroup.members.push({ email: newUser("lar").email });
+      updatedGroup.members.push({ email: lar.email });
 
       const res = await sendRequest(groupStub().name, bodyStub());
 
       expect(res.status).toBe(200);
-      expect(res.body.data.alreadyInGroup).toEqual([newUser("mat").email]);
+      expect(res.body.data.alreadyInGroup).toEqual([mat.email]);
       expect(res.body.data.group).toEqual(groupSchemaMapper(updatedGroup));
     });
 
     test("should return error if users do not exist or belog to a group", async () => {
-      await User.create([newUser("bre"), newUser("fra"), newUser("mat")]);
+      await User.create([bre, fra, mat]);
       await Group.create(groupStub());
       await Group.create({
         name: "pippo",
-        members: [{ email: newUser("mat").email }],
+        members: [{ email: mat.email }],
       });
 
       const res = await sendRequest(groupStub().name, bodyStub());
 
       expect(res.status).toBe(400);
     });
+
+    test("return error if user requesting is not part of the group", async () => {
+      await User.create([bre, fra, lar, mat]);
+      await Group.create(groupStub());
+
+      const res = await sendRequest(
+        groupStub().name,
+        bodyStub(),
+        lar.refreshToken
+      );
+
+      expect(res.status).toBe(401);
+    });
   });
 
   describe("removeFromGroup", () => {
-    const sendRequest = async (name, body) => {
+    const sendRequest = async (
+      name,
+      body,
+      refreshToken = bre.refreshToken,
+      admin = false
+    ) => {
       return await request(app)
-        .patch(`/api/groups/${name}/remove`)
+        .patch(`/api/groups/${name}/${admin ? "pull" : "remove"}`)
         .set("Content-Type", "application/json")
+        .set("Cookie", [
+          `refreshToken=${refreshToken}`,
+          `accessToken=${refreshToken}`,
+        ])
         .send(body);
     };
 
-    const usersToRemove = [newUser("bre").email, newUser("fra").email];
+    const bre = newDbUser("bre");
+    const fra = newDbUser("fra");
+    const lar = newDbUser("lar");
+    const mat = newDbUser("mat");
+    const gia = newDbUser("gia");
+    const breAdmin = newDbUser("breAdmin", "Admin");
+
+    const usersToRemove = [bre.email, fra.email];
 
     const bodyStub = () => ({
       emails: usersToRemove,
@@ -370,7 +497,10 @@ describe("Groups", () => {
 
     const groupStub = () => ({
       name: "test",
-      members: usersToRemove.map((u) => ({ email: u })),
+      members: [
+        ...usersToRemove.map((u) => ({ email: u })),
+        { email: gia.email },
+      ],
     });
 
     beforeEach(async () => {
@@ -379,8 +509,8 @@ describe("Groups", () => {
 
     test("should remove users from a group", async () => {
       const updatedGroup = groupStub();
-      updatedGroup.members = [];
-      await User.create([newUser("bre"), newUser("fra")]);
+      updatedGroup.members = [{ email: gia.email }];
+      await User.create([bre, fra, gia]);
       await Group.create(groupStub());
 
       const res = await sendRequest(groupStub().name, bodyStub());
@@ -391,24 +521,46 @@ describe("Groups", () => {
       expect(res.body.data.membersNotFound).toEqual([]);
     });
 
-    test("should return error if group doesn't exist", async () => {
+    test("should remove users from a group with Admin role", async () => {
+      const updatedGroup = groupStub();
+      updatedGroup.members = [{ email: gia.email }];
+      await User.create([bre, fra, breAdmin]);
       await Group.create(groupStub());
 
-      const res = await sendRequest(groupStub().name, bodyStub());
+      const res = await sendRequest(
+        groupStub().name,
+        bodyStub(),
+        breAdmin.refreshToken,
+        true
+      );
+
+      expect(res.status).toBe(200);
+      expect(res.body.data.group).toEqual(groupSchemaMapper(updatedGroup));
+      expect(res.body.data.notInGroup).toEqual([]);
+      expect(res.body.data.membersNotFound).toEqual([]);
+    });
+
+    test("should return error if group doesn't exist", async () => {
+      await User.create(bre);
+      await Group.create(groupStub());
+
+      const res = await sendRequest("random", bodyStub());
 
       expect(res.status).toBe(400);
     });
 
     test("should return non existing users", async () => {
-      const userNotExist = "lar@lar.it";
+      const userNotExist = lar.email;
       const usersToRemove = [groupStub().members[0].email, userNotExist];
       const updatedGroup = groupStub();
       updatedGroup.members.splice(0, 1);
 
-      await User.create([newUser("bre"), newUser("fra")]);
+      await User.create([bre, fra]);
       await Group.create(groupStub());
 
-      const res = await sendRequest(groupStub().name, { emails: usersToRemove });
+      const res = await sendRequest(groupStub().name, {
+        emails: usersToRemove,
+      });
 
       expect(res.status).toBe(200);
       expect(res.body.data.membersNotFound).toEqual([userNotExist]);
@@ -416,15 +568,17 @@ describe("Groups", () => {
     });
 
     test("should return users not in a group", async () => {
-      const userNotInGroup = "lar@lar.it";
+      const userNotInGroup = lar.email;
       const usersToRemove = [groupStub().members[0].email, userNotInGroup];
       const updatedGroup = groupStub();
       updatedGroup.members.splice(0, 1);
 
-      await User.create([newUser("bre"), newUser("fra"), newUser("lar")]);
+      await User.create([bre, fra, lar]);
       await Group.create(groupStub());
 
-      const res = await sendRequest(groupStub().name, { emails: usersToRemove });
+      const res = await sendRequest(groupStub().name, {
+        emails: usersToRemove,
+      });
 
       expect(res.status).toBe(200);
       expect(res.body.data.notInGroup).toEqual([userNotInGroup]);
@@ -432,36 +586,53 @@ describe("Groups", () => {
     });
 
     test("should return error if users don't exist or don't belog to a group", async () => {
-      const userNotExist = "lar@lar.it";
-      const userNotInGroup = "mat@mat.it";
+      const userNotExist = lar.email;
+      const userNotInGroup = mat.email;
       const usersToRemove = [userNotExist, userNotInGroup];
 
-      await User.create(newUser("mat"));
+      await User.create([bre, fra, mat]);
       await Group.create(groupStub());
 
-      const res = await sendRequest(groupStub().name, { emails: usersToRemove });
+      const res = await sendRequest(groupStub().name, {
+        emails: usersToRemove,
+      });
 
       expect(res.status).toBe(400);
     });
+
+    test("should return error if user is not part of the group", async () => {});
   });
 
   describe("deleteGroup", () => {
-    const sendRequest = async (body) => {
+    const sendRequest = async (body, refreshToken = breAdmin.refreshToken) => {
       return await request(app)
         .delete("/api/groups/")
         .set("Content-Type", "application/json")
+        .set("Cookie", [
+          `refreshToken=${refreshToken}`,
+          `accessToken=${refreshToken}`,
+        ])
         .send(body);
     };
 
-    const usersToRemove = [newUser("bre").email, newUser("fra").email];
+    const bre = newDbUser("bre");
+    const fra = newDbUser("fra");
+    const breAdmin = newDbUser("breAdmin", "Admin");
+
+    const usersToRemove = [bre.email, fra.email];
 
     const groupStub = () => ({
       name: "test",
       members: usersToRemove.map((u) => ({ email: u })),
     });
 
+    beforeAll(async () => {
+      await User.deleteMany();
+      await User.create([bre, fra, breAdmin]);
+    });
+
     beforeEach(async () => {
-      await Promise.all([User.deleteMany({}), Group.deleteMany({})]);
+      await Group.deleteMany();
     });
 
     test("group should be removed", async () => {
@@ -476,6 +647,14 @@ describe("Groups", () => {
       const res = await sendRequest({ name: "test" });
 
       expect(res.status).toBe(400);
+    });
+
+    test("should return error if requesting user if not Admin", async () => {
+      await Group.create({ name: "test" });
+
+      const res = await sendRequest({ name: "test" }, bre.refreshToken);
+
+      expect(res.status).toBe(401);
     });
   });
 });

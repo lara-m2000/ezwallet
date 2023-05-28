@@ -156,7 +156,7 @@ export const getGroups = async (req, res) => {
     // Check if request user exist
     const { flag, cause } = await verifyAdmin(req, res);
     if (!flag) {
-      return res.staus(401).json({ error: cause });
+      return res.status(401).json({ error: cause });
     }
 
     const groups = await Group.find();
@@ -251,7 +251,7 @@ export const addToGroup = async (req, res) => {
     let isAdmin = false;
     // Can be called by user
     if (req.path.endsWith("/add")) {
-      const { flag, cause, currUser: user } = await verifyUser(req, res);
+      const { flag, cause, currUser: user } = await verifyUserOrAdmin(req, res);
       if (!flag) return res.status(401).json({ error: cause });
 
       currUser = user;
@@ -440,13 +440,19 @@ export const removeFromGroup = async (req, res) => {
 
     const updatedGroup = await Group.findOneAndUpdate(
       { name: name },
-      {
-        $pull: {
-          members: {
-            email: { $in: membersToRemove, $slice: leaveOneMember ? 1 : 0 },
+      leaveOneMember
+        ? {
+            $push: {
+              members: { $each: [], $slice: 1 },
+            },
+          }
+        : {
+            $pull: {
+              members: {
+                email: { $in: membersToRemove },
+              },
+            },
           },
-        },
-      },
       { new: true }
     );
 
@@ -489,7 +495,7 @@ export const deleteUser = async (req, res) => {
  */
 export const deleteGroup = async (req, res) => {
   try {
-    const { flag, cause } = await verifyUser(req, res);
+    const { flag, cause } = await verifyAdmin(req, res);
     if (!flag) {
       return res.status(401).json({ error: cause });
     }
