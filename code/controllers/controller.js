@@ -77,7 +77,9 @@ export const updateCategory = async (req, res) => {
 
         // Detect if the new type already exist
         const newExist = await categories.findOne({type : type});
-        if(newExist){
+        // If the type passed as parameter and the one passed in the body are equal
+        // we can update the color
+        if(newExist && type !== oldType){
             return res.status(400).json({error: 'Category type already exists'});
         }
 

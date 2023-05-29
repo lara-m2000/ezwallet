@@ -127,15 +127,34 @@ describe('updateCategory', () => {
     test('should update the category and related transactions successfully', async () => {
         const existingCategory = { type: 'OldCategoryType', color: 'OldCategoryColor' };
         categories.findOne = jest.fn().mockResolvedValueOnce(existingCategory);
+        categories.findOne = jest.fn().mockResolvedValueOnce(req.body);
         categories.updateOne = jest.fn().mockResolvedValueOnce({});
-        const modifiedCount = 5;
-        transactions.updateMany.mockResolvedValue({ modifiedCount });
+        const changes = {modifiedCount : 5};
+        transactions.updateMany.mockResolvedValue(changes);
 
         await updateCategory(req, res);
 
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({
-            data: { message: "Category edited successfully", count: modifiedCount },
+            data: { message: "Category edited successfully", count: changes.modifiedCount },
+            refreshedTokenMessage: "RefreshToken",
+        });
+    });
+
+    test('should update the category\'s color successfully', async () => {
+        const existingCategory = { type: 'OldCategoryType', color: 'OldCategoryColor' };
+        categories.findOne = jest.fn().mockResolvedValueOnce(existingCategory);
+        req.body = { type: 'OldCategoryType', color: 'NewCategoryColor' };
+        categories.findOne = jest.fn().mockResolvedValueOnce(existingCategory);
+        categories.updateOne = jest.fn().mockResolvedValueOnce({});
+        const changes = {modifiedCount : 0};
+        transactions.updateMany.mockResolvedValue(changes);
+
+        await updateCategory(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({
+            data: { message: "Category edited successfully", count: changes.modifiedCount },
             refreshedTokenMessage: "RefreshToken",
         });
     });
