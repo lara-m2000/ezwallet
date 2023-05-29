@@ -2,7 +2,7 @@ import request from 'supertest';
 import { app } from '../app';
 import { categories, transactions } from '../models/model';
 import { User } from "../models/User.js";
-import { createTransaction } from '../controllers/controller';
+import { createTransaction, getAllTransactions, getTransactionsByUser } from '../controllers/controller';
 import { verifyAuth } from '../controllers/utils';
 
 //jest.mock('../models/model');
@@ -118,14 +118,15 @@ describe("createTransaction", () => {
     test("Expect to return error when user not authenticated", async()=>{
         const req=mockReq();
         const res =mockRes();
+        const authMessage="failure cause"
 
-        verifyAuth.mockReturnValue({flag:false})
+        verifyAuth.mockReturnValue({flag:false, cause:authMessage})
 
         await createTransaction(req, res);
         expect(verifyAuth).toBeCalledWith(req,res,{authType:"User", username:req.body.username})
         expect(transactions.create).not.toHaveBeenCalled();
         expect(res.status).toHaveBeenCalledWith(401);
-        expect(res.json).toHaveBeenCalledWith({error:"Unauthorized"});
+        expect(res.json).toHaveBeenCalledWith({error:authMessage});
     })
     test("Expect error due to username mismatch", async ()=>{
         const req=mockReq();
@@ -194,21 +195,121 @@ describe("createTransaction", () => {
         expect(User.findOne).toHaveBeenCalledWith({username:req.body.username});
         expect(categories.findOne).toHaveBeenCalledWith({type:req.body.type});
         expect(transactions.create).rejects.toThrowError(errorMessage);
-        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.status).toHaveBeenCalledWith(500);
         expect(res.json).toHaveBeenCalledWith({error: errorMessage});
     })
 })
 
-describe("getAllTransactions", () => { 
-    test('Dummy test, change it', () => {
-        expect(true).toBe(true);
+describe("getAllTransactions", () => {
+    const mockRes =()=>({
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+        locals: {
+            refreshedTokenMessage: "RefreshToken",
+        },
+      });
+    
+    beforeEach(() => {
+        jest.resetAllMocks();
+        verifyAuth.mockReturnValue({flag: true});
     });
+
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+    test('Expect empty list if no transactions are present', async () => {
+        const req={};
+        const res=mockRes();
+        jest.spyOn(transactions, "aggregate").mockResolvedValue([]);
+        
+        await getAllTransactions(req, res)
+        
+        expect(verifyAuth).toHaveBeenCalledWith(req,res,{authType:"Admin"});
+        expect(transactions.aggregate).toHaveBeenCalled();
+        expect(res.json).toHaveBeenCalledWith({data:[], refreshedTokenMessage:res.locals.refreshedTokenMessage});
+    });
+    test('Expect list of transactions', async () => {
+        const req={};
+        const res=mockRes();
+        const listDbTransactions=[{_id: "000", username: "Mario", amount: 100, type: "food", date: "2023-05-19T00:00:00", categories_info:{color: "red"}},
+                        {_id:"aaa", username: "Luigi", amount: 20, type: "food", date: "2023-05-19T10:00:00", categories_info:{color: "red"}} ]
+        const resultList=[{_id:"000", username: "Mario", amount: 100, type: "food", date: "2023-05-19T00:00:00", color: "red"},
+                        {_id:"aaa", username: "Luigi", amount: 20, type: "food", date: "2023-05-19T10:00:00", color: "red"} ];
+        jest.spyOn(transactions, "aggregate").mockResolvedValue(listDbTransactions);
+        
+        await getAllTransactions(req, res)
+        
+        expect(verifyAuth).toHaveBeenCalledWith(req,res,{authType:"Admin"});
+        expect(transactions.aggregate).toHaveBeenCalled();
+        expect(res.json).toHaveBeenCalledWith({data:resultList, refreshedTokenMessage:res.locals.refreshedTokenMessage});
+    });
+    test('Expect to return error when user is not an admin', async()=>{
+        const req={};
+        const res=mockRes();
+        const authMessage="Not an admin"
+        verifyAuth.mockReturnValue({flag: false, cause:authMessage})
+        
+        await getAllTransactions(req,res);
+
+        expect(verifyAuth).toHaveBeenCalledWith(req,res,{authType:"Admin"});
+        expect(transactions.aggregate).not.toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(401)
+        expect(res.json).toHaveBeenCalledWith({error: authMessage});
+    });
+    //TODO: check
+    /*test("Expect to return a server error if an exception occurs", async()=>{
+        const req={};
+        const res=mockRes();
+        const errorMessage="Server error"
+        //problem here
+        jest.spyOn(transactions, "aggregate").mockRejectedValue(new Error(errorMessage));
+
+        await getAllTransactions();
+
+        expect(verifyAuth).toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.json).toHaveBeenCalledWith({error: errorMessage})
+    });*/
 })
 
-describe("getTransactionsByUser", () => { 
-    test('Dummy test, change it', () => {
-        expect(true).toBe(true);
+describe("getTransactionsByUser", () => {
+    const mockRes =()=>({
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+        locals: {
+            refreshedTokenMessage: "RefreshToken",
+        },
+      });
+    const mockReq =(isAdmin=true)=>({
+        params:{username: 'Mario'},
+        url:isAdmin?"/transactions/users/":"/users/"
     });
+    beforeEach(() => {
+        jest.resetAllMocks();
+        verifyAuth.mockReturnValue({flag: true});
+    });
+
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+    test('Expect list of transactions, made by Admin', async () => {
+        const req=mockReq(true);
+        const res=mockRes();
+        const listTransactions=[{_id:"000", username: "Mario", amount: 100, type: "food", date: "2023-05-19T00:00:00", categories_info:{color: "red"}},
+                     {_id:"111", username: "Mario", amount: 70, type: "health", date: "2023-05-19T10:00:00", categories_info:{color: "green"}}];
+        const resultList=[{_id:"000", username: "Mario", amount: 100, type: "food", date: "2023-05-19T00:00:00", color: "red"},
+                     {_id:"111", username: "Mario", amount: 70, type: "health", date: "2023-05-19T10:00:00", color: "green"}];
+        
+        jest.spyOn(User, "findOne").mockResolvedValue({username:"Mario"})
+        jest.spyOn(transactions, "aggregate").mockResolvedValue(listTransactions);
+        await getTransactionsByUser(req, res);
+        
+        expect(verifyAuth).toHaveBeenCalledWith(req, res, {authType:"Admin"});
+        expect(User.findOne).toHaveBeenCalled();
+        expect(transactions.aggregate).toHaveBeenCalled();
+        expect(res.json).toHaveBeenCalledWith({data:resultList, refreshedTokenMessage: res.locals.refreshedTokenMessage})
+    });
+    
 })
 
 describe("getTransactionsByUserByCategory", () => { 
