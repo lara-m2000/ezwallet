@@ -413,19 +413,25 @@ export const deleteTransactions = async (req, res) => {
             return res.status(400).json({ error: "Missing body attributes"});
         }
         const auth=verifyAuth(req, res, {authType:"Admin"})
-        if(auth.flag){
+        if(!auth.flag){
             return res.status(401).json({error:auth.cause})
         }
+        let correctIds=true;
         await ids.forEach(async (id) => {
             if(id===""){
-                return res.status(400).json({ error: "Invalid id"});
+                correctIds=false;
+                return;
             }
             const t=await transactions.findById(id);
             if(!t){
-                return res.status(400).json({ error: "Transaction not found"});
+                correctIds=false;
+                return;
             }
         } )
-
+        if(!correctIds){
+             return res.status(400).json({ error: "Invalid transaction id"});
+        }
+        
         await transactions.deleteMany({_id: {$in: ids}});
         return res.status(200).json({data: {message: "Transactions deleted"}, 
                                     refreshedTokenMessage: res.locals.refreshedTokenMessage});

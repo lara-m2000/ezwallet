@@ -2,7 +2,7 @@ import request from 'supertest';
 import { app } from '../app';
 import { categories, transactions } from '../models/model';
 import { User } from "../models/User.js";
-import { createTransaction, getAllTransactions, getTransactionsByUser } from '../controllers/controller';
+import { createTransaction, deleteTransactions, getAllTransactions, getTransactionsByUser } from '../controllers/controller';
 import { verifyAuth } from '../controllers/utils';
 
 //jest.mock('../models/model');
@@ -166,8 +166,7 @@ describe("createTransaction", () => {
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith({error:"Category not found"});
     });
-    // TODO: check
-    /*test("Expect error due to invalid 'amount' attribute",async()=>{
+    test("Expect error due to invalid 'amount' attribute",async()=>{
         const req=mockReq();
         const res =mockRes();
         req.body.amount='A100';
@@ -175,13 +174,13 @@ describe("createTransaction", () => {
         jest.spyOn(User, "findOne").mockResolvedValue({username:'testuser'});
         jest.spyOn(categories,"findOne").mockResolvedValue({type:'testcategory'});
 
-        expect(transactions.create).not.toHaveBeenCalled();
-        expect(Number(req.body.amount)).toBe(NaN);
+        await createTransaction(req, res);
 
+        expect(transactions.create).not.toHaveBeenCalled();
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith({error:"Invalid 'amount' value"});
     
-    })*/
+    })
 
     test("Expect to return a server error if an exception occurs", async () => {
         const req=mockReq();
@@ -337,7 +336,128 @@ describe("deleteTransaction", () => {
 })
 
 describe("deleteTransactions", () => { 
-    test('Dummy test, change it', () => {
-        expect(true).toBe(true);
+    const mockRes =()=>({
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+        locals: {
+            refreshedTokenMessage: "RefreshToken",
+        },
+      });
+    const mockReq =()=>({
+        body: {
+            _ids: [],
+        }
     });
+    beforeEach(() => {
+        jest.resetAllMocks();
+        verifyAuth.mockReturnValue({flag: true});
+    });
+
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
+    //derver error
+    test('Expected to sucessfully delete many transctions', async () => {
+        const req=mockReq();
+        const res=mockRes();
+        req.body._ids=["1", "2"];
+        //mock the existance of EVERY id
+        jest.spyOn(transactions, "findById").mockResolvedValue({});
+        jest.spyOn(transactions, "deleteMany").mockResolvedValue({});
+        
+        await deleteTransactions(req, res);
+        
+        expect(verifyAuth).toHaveBeenCalledWith(req, res, {authType:"Admin"});
+        expect(transactions.findById).toHaveBeenCalledTimes(req.body._ids.length);
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({data: {message: "Transactions deleted"}, 
+        refreshedTokenMessage: res.locals.refreshedTokenMessage});
+    });
+    test('Expected to be successful with empty array of _ids', async () => {
+        const req=mockReq();
+        const res=mockRes();
+        jest.spyOn(transactions, "deleteMany").mockResolvedValue({});
+        
+        await deleteTransactions(req, res);
+        
+        expect(verifyAuth).toHaveBeenCalledWith(req, res, {authType:"Admin"});
+        expect(transactions.findById).not.toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({data: {message: "Transactions deleted"}, 
+        refreshedTokenMessage: res.locals.refreshedTokenMessage});
+    });
+    test('Expected to return an error if missing body', async () => {
+        const req=mockReq();
+        const res=mockRes();
+        req.body={};
+        
+        await deleteTransactions(req, res);
+        
+        expect(verifyAuth).not.toHaveBeenCalled();
+        expect(transactions.deleteMany).not.toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({error: "Missing body attributes"});
+    });
+    test('Expected to return an error if user is not an Admin', async () => {
+        const req=mockReq();
+        const res=mockRes();
+        const authMessage="Not an admin"
+        verifyAuth.mockReturnValue({flag:false, cause:authMessage});
+        
+        await deleteTransactions(req, res);
+        
+        expect(verifyAuth).toHaveBeenCalledWith(req, res, {authType:"Admin"});
+        expect(transactions.deleteMany).not.toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(401);
+        expect(res.json).toHaveBeenCalledWith({error:authMessage});
+    });
+    test('Expected to return an error if an id is an empty string', async () => {
+        const req=mockReq();
+        const res=mockRes();
+        req.body._ids=["1", ""];
+        jest.spyOn(transactions, "findById").mockResolvedValue({});
+        jest.spyOn(transactions, "deleteMany").mockResolvedValue({});
+        
+        await deleteTransactions(req, res);
+        
+        expect(verifyAuth).toHaveBeenCalledWith(req, res, {authType:"Admin"});
+        expect(transactions.findById).toHaveBeenCalledTimes(1);
+        expect(transactions.deleteMany).not.toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "Invalid transaction id"});
+    });
+    test('Expected to return an error if an id is not in the db', async () => {
+        const req=mockReq();
+        const res=mockRes();
+        req.body._ids=["1", "2"];
+        // mock the existance of first transaction, not the second
+        jest.spyOn(transactions, "findById").mockResolvedValueOnce({});
+        jest.spyOn(transactions, "findById").mockResolvedValueOnce(null);
+        jest.spyOn(transactions, "deleteMany").mockResolvedValue({});
+        
+        await deleteTransactions(req, res);
+        
+        expect(verifyAuth).toHaveBeenCalledWith(req, res, {authType:"Admin"});
+        expect(transactions.findById).toHaveBeenCalledTimes(2);
+        expect(transactions.deleteMany).not.toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "Invalid transaction id"});
+    });
+    test("Expect to return a server error if an exception occurs", async()=>{
+        const req=mockReq();
+        const res=mockRes();
+        const errorMessage="Server error"
+        jest.spyOn(transactions, "findById").mockResolvedValue({});
+        jest.spyOn(transactions, "deleteMany").mockRejectedValue(new Error(errorMessage));
+        
+        await deleteTransactions(req, res);
+        
+        expect(verifyAuth).toHaveBeenCalledWith(req, res, {authType:"Admin"});
+        expect(transactions.findById).toHaveBeenCalledTimes(req.body._ids.length);
+        expect(transactions.deleteMany).rejects.toThrowError(errorMessage);
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.json).toHaveBeenCalledWith({ error: errorMessage});
+    
+    })
 })
