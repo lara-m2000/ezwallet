@@ -108,7 +108,7 @@ export const createTransaction = async (req, res) => {
         const checkedAmount=Number(amount);
         if(isNaN(checkedAmount))
             throw new Error("Invalid 'amount' value")
-        const savedTransaction= await transactions.create({username, checkedAmount, type});
+        const savedTransaction= await transactions.create({username, amount:checkedAmount, type});
         res.status(200).json({data: savedTransaction, refreshedTokenMessage: res.locals.refreshedTokenMessage})
     } catch (error) {
         res.status(400).json({ error: error.message })
