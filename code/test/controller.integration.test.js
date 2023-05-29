@@ -1,6 +1,8 @@
 import request from 'supertest';
 import { app } from '../app';
 import { categories, transactions } from '../models/model';
+import { createCategory, updateCategory, deleteCategory, getCategories } from '../controllers/controller';
+import { verifyAuth } from '../controllers/utils';
 import mongoose, { Model } from 'mongoose';
 import dotenv from 'dotenv';
 

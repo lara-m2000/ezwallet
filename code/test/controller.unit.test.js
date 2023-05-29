@@ -211,8 +211,7 @@ describe('updateCategory', () => {
         expect(res.json).toHaveBeenCalledWith({ error: errorMessage });
     });
 });    
-    //Missing controls on authentication (probably will have to mock the verifyAuth() func after inserting it)
-    //NEED TO BE MODIFIED ACCORDING TO NEW REQUIREMENTS
+    
 describe("deleteCategory", () => {
     // Mock request and response objects
     let req;
@@ -338,9 +337,18 @@ describe("deleteCategory", () => {
             data: {message: "Categories deleted", count: deletedCategories.modifiedCount}, 
             refreshedTokenMessage: res.locals.refreshedTokenMessage});
     });
+
+    test('should return a server error if an exception occurs', async () => {
+        const errorMessage = 'Internal Server Error';
+        categories.countDocuments.mockRejectedValueOnce(new Error(errorMessage));
+
+        await deleteCategory(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.json).toHaveBeenCalledWith({ error: errorMessage });
+    });
 });
-    //Missing controls on authentication (probably will have to mock the verifyAuth() func after inserting it)
-    //NEED TO BE MODIFIED ACCORDING TO NEW REQUIREMENTS
+    
 describe("getCategories", () => {
     // Mock request and response objects
     let req;
@@ -363,7 +371,7 @@ describe("getCategories", () => {
         const unauthorizedError = 'Unauthorized Error';
         verifyAuth.mockReturnValueOnce({flag: false, cause: unauthorizedError});
 
-        await deleteCategory(req, res);
+        await getCategories(req, res);
 
         expect(res.status).toHaveBeenCalledWith(401);
         expect(res.json).toHaveBeenCalledWith({ error: unauthorizedError });
