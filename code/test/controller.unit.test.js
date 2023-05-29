@@ -644,6 +644,7 @@ describe("getTransactionsByUser", () => {
 
         expect(res.status).toHaveBeenCalledWith(500);
     });
+    test.todo("should return filtered transactions if query params are provided");
 
 });
 
