@@ -6,7 +6,6 @@ import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/User';
 import { verifyAuth } from '../controllers/utils'; //TODO:delete
-jest.mock('../controllers/utils.js'); //TODO:delete
 
 dotenv.config();
 
@@ -66,8 +65,10 @@ describe("getTransactionsByUser", () => {
     const test_categories = [{ type: 'Food', color: 'red' }, { type: 'Transportation', color: 'blue' }, { type: 'Entertainment', color: 'green' }]
     const test_transactions = [
         { username: 'testUser1', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z' },
-        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-01-02T00:00:00.000Z' },
+        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-01-02T23:59:59.000Z' },
         { username: 'testUser1', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z' },
+        { username: 'testUser1', amount: 100, type: 'Food', date: '2021-05-01T00:00:00.000Z' },
+        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-05-02T00:00:00.000Z' },
         { username: 'testUser2', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z' },
         { username: 'testUser2', amount: 200, type: 'Transportation', date: '2021-01-02T00:00:00.000Z' },
         { username: 'testUser2', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z' },
@@ -78,18 +79,32 @@ describe("getTransactionsByUser", () => {
     ]
     const transactions_with_color = [
         { username: 'testUser1', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z', color: 'red' },
-        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-01-02T00:00:00.000Z', color: 'blue' },
+        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-01-02T23:59:59.000Z', color: 'blue' },
         { username: 'testUser1', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z', color: 'green' },
+        { username: 'testUser1', amount: 100, type: 'Food', date: '2021-05-01T00:00:00.000Z', color: 'red' },
+        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-05-02T00:00:00.000Z', color: 'blue' },
         { username: 'testUser2', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z', color: 'red' },
         { username: 'testUser2', amount: 200, type: 'Transportation', date: '2021-01-02T00:00:00.000Z', color: 'blue' },
         { username: 'testUser2', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z', color: 'green' },
     ]
-
-    beforeEach(async () => {
+    //Clean the database before all tests, and set up categories and users
+    beforeAll(async () => {
         await User.deleteMany({});
         await transactions.deleteMany({});
         await categories.deleteMany({});
+        await User.insertMany(test_users);
+        await categories.insertMany(test_categories);
     })
+    //Delete all transactions before each test
+    beforeEach(async () => {
+        await transactions.deleteMany({});
+    })
+    
+    afterAll(async () => {
+        await User.deleteMany({});
+        await transactions.deleteMany({});
+        await categories.deleteMany({});
+    });
 
     const generateToken = (payload, expirationTime = '1h') => {
         return jwt.sign(payload, 'EZWALLET', { expiresIn: expirationTime });
@@ -100,16 +115,110 @@ describe("getTransactionsByUser", () => {
         const accessToken = generateToken(test_users[0], '1h');
         const url = '/api/users/' + test_users[0].username + '/transactions';
         const test_result = transactions_with_color.filter(transaction => transaction.username === test_users[0].username);
-        verifyAuth.mockReturnValue({flag:true, cause:"cause"});
-        //Create users, transactions, categories
-        await User.insertMany(test_users);
+        //Create transactions
         await transactions.insertMany(test_transactions);
-        await categories.insertMany(test_categories);
 
         const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
 
         expect(response.status).toBe(200);
         expect(response.body.data).toEqual(test_result);
+    });
+    test('should return empty array if there are no user transactions', async () => {
+        const refreshToken = generateToken(test_users[0], '1h');
+        const accessToken = generateToken(test_users[0], '1h');
+        const url = '/api/users/' + test_users[0].username + '/transactions';
+        const test_result = [];
+
+        await transactions.insertMany(test_transactions.filter(transaction => transaction.username !== test_users[0].username));
+
+        const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+
+        expect(response.status).toBe(200);
+        expect(response.body.data).toEqual(test_result);
+    });
+
+    //Date filters
+    test('should return filtered user transactions based on query param "from"', async () => {
+        const refreshToken = generateToken(test_users[0], '1h');
+        const accessToken = generateToken(test_users[0], '1h');
+        const url = '/api/users/' + test_users[0].username + '/transactions?from=2021-01-01';
+        const result = transactions_with_color.filter(transaction => transaction.username === test_users[0].username && transaction.date >= '2021-01-01T00:00:00.000Z');
+        
+        await transactions.insertMany(test_transactions);
+
+        const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+
+        expect(response.status).toBe(200);
+        expect(response.body.data).toEqual(result);
+    });
+    test('should return filtered user transactions based on query param "upTo"', async () => {
+        const refreshToken = generateToken(test_users[0], '1h');
+        const accessToken = generateToken(test_users[0], '1h');
+        const url = '/api/users/' + test_users[0].username + '/transactions?upTo=2021-01-02';
+        const result = transactions_with_color.filter(transaction => transaction.username === test_users[0].username && transaction.date <= '2021-01-02T23:59:59.000Z');
+
+        await transactions.insertMany(test_transactions);
+
+        const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+
+        expect(response.status).toBe(200);
+        expect(response.body.data).toEqual(result);
+    });
+    test('should return filtered user transactions based on query param "from" and "upTo"', async () => {
+        const refreshToken = generateToken(test_users[0], '1h');
+        const accessToken = generateToken(test_users[0], '1h');
+        const url = '/api/users/' + test_users[0].username + '/transactions?from=2021-01-02&upTo=2021-05-01';
+        const result = transactions_with_color.filter(transaction => transaction.username === test_users[0].username && transaction.date >= '2021-01-02T00:00:00.000Z' && transaction.date <= '2021-05-01T23:59:59.000Z');
+
+        await transactions.insertMany(test_transactions);
+
+        const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+
+        expect(response.status).toBe(200);
+        expect(response.body.data).toEqual(result);
+    });
+    test('should return filtered user transactions based on query param "date"', async () => {
+        const refreshToken = generateToken(test_users[0], '1h');
+        const accessToken = generateToken(test_users[0], '1h');
+        const url = '/api/users/' + test_users[0].username + '/transactions?date=2022-01-03';
+        const result = transactions_with_color.filter(transaction => transaction.username === test_users[0].username && transaction.date === '2022-01-03T00:00:00.000Z');
+
+        await transactions.insertMany(test_transactions);
+
+        const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+
+        expect(response.status).toBe(200);
+        expect(response.body.data).toEqual(result);
+    });
+    test('should return an error if date and from are both provided', async () => {
+        const refreshToken = generateToken(test_users[0], '1h');
+        const accessToken = generateToken(test_users[0], '1h');
+        const url = '/api/users/' + test_users[0].username + '/transactions?date=2022-01-03&from=2021-01-01';
+
+        const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+
+        expect(response.status).toBe(500);
+        expect(response.body.error).toBe("Cannot set a 'date' filter with a 'from' or 'upTo' filter");
+    });
+    test('should return an error if date and upTo are both provided', async () => {
+        const refreshToken = generateToken(test_users[0], '1h');
+        const accessToken = generateToken(test_users[0], '1h');
+        const url = '/api/users/' + test_users[0].username + '/transactions?date=2022-01-03&upTo=2022-01-03';
+
+        const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+
+        expect(response.status).toBe(500);
+        expect(response.body.error).toBe("Cannot set a 'date' filter with a 'from' or 'upTo' filter");
+    });
+    test('should return an error if from is a non-valid date string', async () => {
+        const refreshToken = generateToken(test_users[0], '1h');
+        const accessToken = generateToken(test_users[0], '1h');
+        const url = '/api/users/' + test_users[0].username + '/transactions?from=2021-01-01dddddddd';
+
+        const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+
+        expect(response.status).toBe(500);
+        expect(response.body.error).toBe("Invalid date string");
     });
 })
 

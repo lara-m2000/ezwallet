@@ -9,36 +9,38 @@ import jwt from 'jsonwebtoken'
  * @throws an error if the query parameters include `date` together with at least one of `from` or `upTo`
  */
 export const handleDateFilterParams = (req) => {
-    const {date, from, upTo}=req.query;
-    const dateRegex=/\d{4}-\d{2}-\d{2}/;
-    if(date && (from || upTo))
+    const { date, from, upTo } = req.query;
+    const dateRegex = /\d{4}-\d{2}-\d{2}/;
+    if (date && (from || upTo))
         throw new Error("Cannot set a 'date' filter with a 'from' or 'upTo' filter");
-    if(!(date||from||upTo))
+    if (!(date || from || upTo))
         return;
-    let matchObj={date:{}};
-    const dayEnd="T23:59:59.999Z";
-    if(date){
-        if(!dateRegex.test(date)){
+    let matchObj = { date: {} };
+    const dayEnd = "T23:59:59.999Z";
+    if (date) {
+        if (!dateRegex.test(date)) {
             throw new Error("Wrong date format")
         }
         // selects transactions with this specific date
-        matchObj.date={$gte: new Date(date), 
-                        $lte: new Date(date+dayEnd)};
+        matchObj.date = {
+            $gte: new Date(date),
+            $lte: new Date(date + dayEnd)
+        };
         return matchObj;
     }
-    if(from){
-        if(!dateRegex.test(from)){
+    if (from) {
+        if (!dateRegex.test(from)) {
             throw new Error("Wrong date format")
         }
-        matchObj.date.$gte=new Date(from);
+        matchObj.date.$gte = new Date(from);
     }
-    if(upTo){
-        if(!dateRegex.test(upTo)){
+    if (upTo) {
+        if (!dateRegex.test(upTo)) {
             throw new Error("Wrong date format")
         }
-        matchObj.date.$lte=new Date(upTo+dayEnd);
+        matchObj.date.$lte = new Date(upTo + dayEnd);
     }
-    return matchObj;    
+    return matchObj;
 }
 
 /**
@@ -69,29 +71,63 @@ export const handleDateFilterParams = (req) => {
 export const verifyAuth = (req, res, info) => {
     const cookie = req.cookies
     if (!cookie.accessToken || !cookie.refreshToken) {
-        res.status(401).json({ message: "Unauthorized" });
-        return false;
+        return { flag: false, cause: "Unauthorized" };
     }
     try {
         const decodedAccessToken = jwt.verify(cookie.accessToken, process.env.ACCESS_KEY);
         const decodedRefreshToken = jwt.verify(cookie.refreshToken, process.env.ACCESS_KEY);
         if (!decodedAccessToken.username || !decodedAccessToken.email || !decodedAccessToken.role) {
-            res.status(401).json({ message: "Token is missing information" })
-            return false
+            return { flag: false, cause: "Token is missing information" };
         }
         if (!decodedRefreshToken.username || !decodedRefreshToken.email || !decodedRefreshToken.role) {
-            res.status(401).json({ message: "Token is missing information" })
-            return false
+            return { flag: false, cause: "Token is missing information" };
         }
         if (decodedAccessToken.username !== decodedRefreshToken.username || decodedAccessToken.email !== decodedRefreshToken.email || decodedAccessToken.role !== decodedRefreshToken.role) {
-            res.status(401).json({ message: "Mismatched users" });
-            return false;
+            return { flag: false, cause: "Mismatched users" };
         }
-        return true
+        if (info.authType === "Admin") {
+            if (decodedAccessToken.role !== "Admin" || decodedRefreshToken.role !== "Admin") {
+                return { flag: false, cause: "You need to be admin to perform this action" };
+            }
+        }
+        if (info.authType === "User") {
+            const username = info.username;
+            if (decodedAccessToken.username !== username || decodedRefreshToken.username !== username) {
+                return { flag: false, cause: "You cannot request info about another user" };
+            }
+        }
+        if (info.authType === "Group") {
+            const email = info.emails.find(e => e === decodedAccessToken.email) && info.emails.find(e => e === decodedRefreshToken.email);
+            if (!email) {
+                return { flag: false, cause: "You cannot request info about a group you don't belong to" };
+            }
+        }
+        return { flag: true, cause: "Authorized" };
     } catch (err) {
         if (err.name === "TokenExpiredError") {
             try {
-                const refreshToken = jwt.verify(cookie.refreshToken, process.env.ACCESS_KEY)
+                const refreshToken = jwt.verify(cookie.refreshToken, process.env.ACCESS_KEY);
+
+                if (!refreshToken.username || !refreshToken.email || !refreshToken.role) {
+                    return { flag: false, cause: "Token is missing information" };
+                }
+                if (info.authType === "Admin") {
+                    if (refreshToken.role !== "Admin") {
+                        return { flag: false, cause: "You need to be admin to perform this action" };
+                    }
+                }
+                if (info.authType === "User") {
+                    const username = info.username;
+                    if (refreshToken.username !== username) {
+                        return { flag: false, cause: "You cannot request info about another user" };
+                    }
+                }
+                if (info.authType === "Group") {
+                    const email = info.emails.find(e => e === refreshToken.email);
+                    if (!email) {
+                        return { flag: false, cause: "You cannot request info about a group you don't belong to" };
+                    }
+                }
                 const newAccessToken = jwt.sign({
                     username: refreshToken.username,
                     email: refreshToken.email,
@@ -100,20 +136,19 @@ export const verifyAuth = (req, res, info) => {
                 }, process.env.ACCESS_KEY, { expiresIn: '1h' })
                 res.cookie('accessToken', newAccessToken, { httpOnly: true, path: '/api', maxAge: 60 * 60 * 1000, sameSite: 'none', secure: true })
                 res.locals.message = 'Access token has been refreshed. Remember to copy the new one in the headers of subsequent calls'
-                return true
+                return { flag: true, cause: "Authorized" };
             } catch (err) {
                 if (err.name === "TokenExpiredError") {
-                    res.status(401).json({ message: "Perform login again" });
+                    return { flag: false, cause: "Perform login again" };
                 } else {
-                    res.status(401).json({ message: err.name });
+                    return { flag: false, cause: err.name };
                 }
-                return false;
             }
         } else {
-            res.status(401).json({ message: err.name });
-            return false;
+            return { flag: false, cause: err.name };
         }
     }
+
 }
 
 /**
@@ -124,20 +159,20 @@ export const verifyAuth = (req, res, info) => {
  *  Example: {amount: {$gte: 100}} returns all transactions whose `amount` parameter is greater or equal than 100
  */
 export const handleAmountFilterParams = (req) => {
-    const {max, min}=req.query;
-    if(!max && !min)
+    const { max, min } = req.query;
+    if (!max && !min)
         return;
-    if(isNaN(max)||isNaN(min))
+    if (isNaN(max) || isNaN(min))
         throw new Error("Query parameters badly formatted");
-    if((min&&max) && min>max){
+    if ((min && max) && min > max) {
         throw new Error("Min amount cannot be greater than max amount");
     }
-    let matchObj={amount:{}};
-    if(min){
-        matchObj.amount.$gte=Number(min);
+    let matchObj = { amount: {} };
+    if (min) {
+        matchObj.amount.$gte = Number(min);
     }
-    if(max){
-        matchObj.amount.$lte=Number(max);
+    if (max) {
+        matchObj.amount.$lte = Number(max);
     }
     return matchObj
 }
