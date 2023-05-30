@@ -219,6 +219,7 @@ export const getTransactionsByUserByCategory = async (req, res) => {
     try {
         const { username, category } = req.params;
 
+        let auth;
         if (req.url.indexOf("/transactions/users/") >= 0) {//Admin
             auth = verifyAuth(req, res, { authType: "Admin" });
         }
@@ -234,7 +235,6 @@ export const getTransactionsByUserByCategory = async (req, res) => {
         const dbCategory = await categories.findOne({ type: category });
         if (!dbCategory)
             return res.status(400).json({ error: "Category not found" });
-        let auth;
         transactions.aggregate([
             {
                 $match: {
@@ -252,7 +252,7 @@ export const getTransactionsByUserByCategory = async (req, res) => {
             },
             { $unwind: "$categories_info" }
         ]).then((result) => {
-            let data = result.map(v => Object.assign({}, { _id: v._id, username: v.username, amount: v.amount, type: v.type, color: v.categories_info.color, date: v.date }))
+            let data = result.map(v => Object.assign({}, {username: v.username, amount: v.amount, type: v.type, color: v.categories_info.color, date: v.date }))
             return res.json({ data: data, refreshedTokenMessage: res.locals.refreshedTokenMessage });
         }).catch(error => { throw (error) })
     } catch (error) {
