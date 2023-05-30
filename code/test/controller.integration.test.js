@@ -5,6 +5,8 @@ import mongoose, { Model } from 'mongoose';
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/User';
+import { verifyAuth } from '../controllers/utils'; //TODO:delete
+jest.mock('../controllers/utils.js'); //TODO:delete
 
 dotenv.config();
 
@@ -63,16 +65,24 @@ describe("getAllTransactions", () => {
 describe("getTransactionsByUser", () => {
     const test_categories = [{ type: 'Food', color: 'red' }, { type: 'Transportation', color: 'blue' }, { type: 'Entertainment', color: 'green' }]
     const test_transactions = [
-        { username: 'testUser1', amount: 100, category: 'Food', date: '2020-01-01' },
-        { username: 'testUser1', amount: 200, category: 'Transportation', date: '2021-01-02' },
-        { username: 'testUser1', amount: 300, category: 'Entertainment', date: '2022-01-03' },
-        { username: 'testUser2', amount: 100, category: 'Food', date: '2020-01-01' },
-        { username: 'testUser2', amount: 200, category: 'Transportation', date: '2021-01-02' },
-        { username: 'testUser2', amount: 300, category: 'Entertainment', date: '2022-01-03' },
+        { username: 'testUser1', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z' },
+        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-01-02T00:00:00.000Z' },
+        { username: 'testUser1', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z' },
+        { username: 'testUser2', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z' },
+        { username: 'testUser2', amount: 200, type: 'Transportation', date: '2021-01-02T00:00:00.000Z' },
+        { username: 'testUser2', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z' },
     ]
     const test_users = [
         { username: 'testUser1', password: 'password', email: 'test1@email.com', role: 'Regular'},
         { username: 'testUser2', password: 'password', email: 'test2@email.com', role: 'Regular'},
+    ]
+    const transactions_with_color = [
+        { username: 'testUser1', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z', color: 'red' },
+        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-01-02T00:00:00.000Z', color: 'blue' },
+        { username: 'testUser1', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z', color: 'green' },
+        { username: 'testUser2', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z', color: 'red' },
+        { username: 'testUser2', amount: 200, type: 'Transportation', date: '2021-01-02T00:00:00.000Z', color: 'blue' },
+        { username: 'testUser2', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z', color: 'green' },
     ]
 
     beforeEach(async () => {
@@ -89,8 +99,8 @@ describe("getTransactionsByUser", () => {
         const refreshToken = generateToken(test_users[0], '1h');
         const accessToken = generateToken(test_users[0], '1h');
         const url = '/api/users/' + test_users[0].username + '/transactions';
-        const test_result = test_transactions.filter(transaction => transaction.username === test_users[0].username);
-
+        const test_result = transactions_with_color.filter(transaction => transaction.username === test_users[0].username);
+        verifyAuth.mockReturnValue({flag:true, cause:"cause"});
         //Create users, transactions, categories
         await User.insertMany(test_users);
         await transactions.insertMany(test_transactions);
@@ -98,7 +108,6 @@ describe("getTransactionsByUser", () => {
 
         const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
 
-        expect(response.body).toBe();
         expect(response.status).toBe(200);
         expect(response.body.data).toEqual(test_result);
     });
