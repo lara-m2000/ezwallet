@@ -393,7 +393,7 @@ export const deleteTransaction = async (req, res) => { //only called by regular 
         }
 
         let data = await transactions.deleteOne({ _id: req.body._id });
-        return res.json({ data: { message: "Transaction deleted" }, refreshedTokenMessage: res.locals.refreshedTokenMessage });
+        return res.status(200).json({ data: { message: "Transaction deleted" }, refreshedTokenMessage: res.locals.refreshedTokenMessage });
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
