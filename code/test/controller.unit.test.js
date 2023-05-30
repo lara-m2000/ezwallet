@@ -976,20 +976,92 @@ describe("deleteTransaction", () => {
     });
     test('should return a 400 error if the request body is missing attributes', async () => {
         const mockUser = { username: 'Mario' };
-    
+
         // Mock User.findOne to return a user
         User.findOne = jest.fn().mockResolvedValue(mockUser);
-    
+
         req.body = {}; // Empty request body
-    
+
         await deleteTransaction(req, res);
-    
+
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith({ error: 'Missing body attributes' });
         expect(User.findOne).toHaveBeenCalledWith({ username: 'Mario' });
         expect(transactions.findById).not.toHaveBeenCalled();
         expect(transactions.deleteOne).not.toHaveBeenCalled();
+    });
+    test('should return a 400 error if the user is not found', async () => {
+        // Mock User.findOne to return null (user not found)
+        User.findOne = jest.fn().mockResolvedValue(null);
+
+        await deleteTransaction(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: 'User not found' });
+        expect(User.findOne).toHaveBeenCalledWith({ username: 'Mario' });
+        expect(transactions.findById).not.toHaveBeenCalled();
+        expect(transactions.deleteOne).not.toHaveBeenCalled();
+    });
+    test('should return a 400 error if the transaction is not found', async () => {
+        const mockUser = { username: 'Mario' };
+
+        // Mock User.findOne to return a user
+        User.findOne = jest.fn().mockResolvedValue(mockUser);
+
+        // Mock transactions.findById to return null (transaction not found)
+        transactions.findById = jest.fn().mockResolvedValue(null);
+
+        await deleteTransaction(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Transaction not found' });
+        expect(User.findOne).toHaveBeenCalledWith({ username: 'Mario' });
+        expect(transactions.findById).toHaveBeenCalledWith('6hjkohgfc8nvu786');
+        expect(transactions.deleteOne).not.toHaveBeenCalled();
+    });
+    test('should return a 401 error if the user is not authorized', async () => {
+        const mockUser = { username: 'Luigi' }; // Different username
+
+        // Mock User.findOne to return a different user
+        verifyAuth.mockReturnValue({ flag: false, cause: 'Unauthorized' });
+
+        await deleteTransaction(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(401);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Unauthorized' });
+    });
+    test('should return a 401 error if user asks to delete a transaction that is not theirs', async () => {
+        const mockUser = { username: 'Mario' };
+        const mockTransaction = { _id: '6hjkohgfc8nvu786', username: 'notMario' };
+
+        // Mock User.findOne to return a user
+        User.findOne.mockResolvedValue(mockUser);
+
+        // Mock transactions.findById to return a transaction
+        transactions.findById.mockResolvedValue(mockTransaction);
+
+        await deleteTransaction(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(401);
+        expect(res.json).toHaveBeenCalledWith({
+            error: 'Unauthorized',
+        });
+        expect(User.findOne).toHaveBeenCalledWith({ username: 'Mario' });
+        expect(transactions.findById).toHaveBeenCalledWith('6hjkohgfc8nvu786');
+    });
+    test('should return a 500 error if an error occurs', async () => {
+        // Mock User.findOne to throw an error
+        User.findOne = jest.fn().mockRejectedValue(new Error('Some error'));
+    
+        await deleteTransaction(req, res);
+    
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Some error' });
+        expect(User.findOne).toHaveBeenCalledWith({ username: 'Mario' });
+        expect(transactions.findById).not.toHaveBeenCalled();
+        expect(transactions.deleteOne).not.toHaveBeenCalled();
       });
+
 });
 
 describe("deleteTransactions", () => {
