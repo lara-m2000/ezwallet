@@ -235,7 +235,7 @@ export const getTransactionsByUserByCategory = async (req, res) => {
         const dbCategory = await categories.findOne({ type: category });
         if (!dbCategory)
             return res.status(400).json({ error: "Category not found" });
-        transactions.aggregate([
+        const result = await transactions.aggregate([
             {
                 $match: {
                     username: username,
@@ -251,10 +251,10 @@ export const getTransactionsByUserByCategory = async (req, res) => {
                 }
             },
             { $unwind: "$categories_info" }
-        ]).then((result) => {
-            let data = result.map(v => Object.assign({}, {username: v.username, amount: v.amount, type: v.type, color: v.categories_info.color, date: v.date }))
-            return res.status(200).json({ data: data, refreshedTokenMessage: res.locals.refreshedTokenMessage });
-        }).catch(error => { throw (error) })
+        ]);
+        let data = result.map(v => Object.assign({}, { username: v.username, amount: v.amount, type: v.type, color: v.categories_info.color, date: v.date }))
+        return res.status(200).json({ data: data, refreshedTokenMessage: res.locals.refreshedTokenMessage });
+
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
