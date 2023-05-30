@@ -10,7 +10,7 @@ import jwt from 'jsonwebtoken'
  */
 export const handleDateFilterParams = (req) => {
     const { date, from, upTo } = req.query;
-    const dateRegex = /\d{4}-\d{2}-\d{2}/;
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
     if (date && (from || upTo))
         throw new Error("Cannot set a 'date' filter with a 'from' or 'upTo' filter");
     if (!(date || from || upTo))
