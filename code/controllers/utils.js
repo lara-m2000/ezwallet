@@ -159,13 +159,12 @@ export const verifyAuth = (req, res, info) => {
  *  Example: {amount: {$gte: 100}} returns all transactions whose `amount` parameter is greater or equal than 100
  */
 export const handleAmountFilterParams = (req) => {
-    const max = parseFloat(req.query.max);
-    const min = parseFloat(req.query.min);
+    const { min, max } = req.query;
     if (!max && !min)
         return;
-    if ((max && isNaN(max)) || (min && isNaN(min)))
+    if ((max && isNaN(Number(max))) || (min && isNaN(Number(min))))
         throw new Error("Query parameters badly formatted");
-    if ((min && max) && min > max) {
+    if ((min && max) && Number(min) > Number(max)) {
         throw new Error("Min amount cannot be greater than max amount");
     }
     let matchObj = { amount: {} };

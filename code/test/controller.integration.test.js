@@ -69,6 +69,12 @@ describe("getTransactionsByUser", () => {
         { username: 'testUser1', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z' },
         { username: 'testUser1', amount: 100, type: 'Food', date: '2021-05-01T00:00:00.000Z' },
         { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-05-02T00:00:00.000Z' },
+        { username: 'testUser1', amount: 50, type: 'Food', date: '2021-05-03T00:00:00.000Z' },
+        { username: 'testUser1', amount: 77, type: 'Transportation', date: '2021-05-04T00:00:00.000Z'},
+        { username: 'testUser1', amount: 88, type: 'Entertainment', date: '2021-05-05T00:00:00.000Z'},
+        { username: 'testUser1', amount: 99, type: 'Food', date: '2021-05-06T00:00:00.000Z'},
+        { username: 'testUser1', amount: 400, type: 'Food', date: '2020-01-01T00:00:00.000Z'},
+        { username: 'testUser1', amount: 500, type: 'Transportation', date: '2021-01-02T23:59:59.000Z'},
         { username: 'testUser2', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z' },
         { username: 'testUser2', amount: 200, type: 'Transportation', date: '2021-01-02T00:00:00.000Z' },
         { username: 'testUser2', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z' },
@@ -76,6 +82,7 @@ describe("getTransactionsByUser", () => {
     const test_users = [
         { username: 'testUser1', password: 'password', email: 'test1@email.com', role: 'Regular' },
         { username: 'testUser2', password: 'password', email: 'test2@email.com', role: 'Regular' },
+        { username: 'testAdmin', password: 'password', email: 'admin@email', role: 'Admin' }
     ]
     const transactions_with_color = [
         { username: 'testUser1', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z', color: 'red' },
@@ -83,6 +90,12 @@ describe("getTransactionsByUser", () => {
         { username: 'testUser1', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z', color: 'green' },
         { username: 'testUser1', amount: 100, type: 'Food', date: '2021-05-01T00:00:00.000Z', color: 'red' },
         { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-05-02T00:00:00.000Z', color: 'blue' },
+        { username: 'testUser1', amount: 50, type: 'Food', date: '2021-05-03T00:00:00.000Z', color: 'red' },
+        { username: 'testUser1', amount: 77, type: 'Transportation', date: '2021-05-04T00:00:00.000Z', color: 'blue' },
+        { username: 'testUser1', amount: 88, type: 'Entertainment', date: '2021-05-05T00:00:00.000Z', color: 'green' },
+        { username: 'testUser1', amount: 99, type: 'Food', date: '2021-05-06T00:00:00.000Z', color: 'red' },
+        { username: 'testUser1', amount: 400, type: 'Food', date: '2020-01-01T00:00:00.000Z', color: 'red' },
+        { username: 'testUser1', amount: 500, type: 'Transportation', date: '2021-01-02T23:59:59.000Z', color: 'blue' },
         { username: 'testUser2', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z', color: 'red' },
         { username: 'testUser2', amount: 200, type: 'Transportation', date: '2021-01-02T00:00:00.000Z', color: 'blue' },
         { username: 'testUser2', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z', color: 'green' },
@@ -218,11 +231,11 @@ describe("getTransactionsByUser", () => {
         const url3 = '/api/users/' + test_users[0].username + '/transactions?from="20221 -01-01"';
         const urls = [url, url2, url3];
 
-        urls.forEach(async url => {
+        for (const url of urls) {
             const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
             expect(response.status).toBe(500);
             expect(response.body.error).toBe("Wrong date format");
-        });
+        }
 
     });
     test('should return an error if upTo is a non-valid date string', async () => {
@@ -233,11 +246,11 @@ describe("getTransactionsByUser", () => {
         const url3 = '/api/users/' + test_users[0].username + '/transactions?upTo="202 21-0 d1-01"';
         const urls = [url, url2, url3];
 
-        urls.forEach(async url => {
+        for (const url of urls){
             const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
             expect(response.status).toBe(500);
             expect(response.body.error).toBe("Wrong date format");
-        });
+        }
     });
     test('should return an error if date is a non-valid date string', async () => {
         const refreshToken = generateToken(test_users[0], '1h');
@@ -247,29 +260,173 @@ describe("getTransactionsByUser", () => {
         const url3 = '/api/users/' + test_users[0].username + '/transactions?date="2021-01-0d1 "';
         const urls = [url, url2, url3]
 
-        urls.forEach(async url => {
+        for (const url of urls){
             const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
             expect(response.status).toBe(500);
             expect(response.body.error).toBe("Wrong date format");
-        });
+        }
     });
     //Amount filters
     test('should return filtered user transactions based on query param "min"', async () => {
         const refreshToken = generateToken(test_users[0], '1h');
         const accessToken = generateToken(test_users[0], '1h');
         const baseUrl = '/api/users/' + test_users[0].username + '/transactions?min=';
-        const mins = [50];
+        const mins = [50, 100, 150, 200, 250, 300, 350, 400, 450, 500];
 
         await transactions.insertMany(test_transactions);
 
-        mins.forEach(async min => {
+        for (const min of mins){
             const response = await request(app).get(baseUrl + min).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
             const result = transactions_with_color.filter(transaction => transaction.amount >= min && transaction.username === test_users[0].username);
-            console.log(response);
+            
             expect(response.status).toBe(200);
             expect(response.body.data).toEqual(result);
-        });
+        }
     });
+    test('should return filtered user transactions based on query param "max"', async () => {
+        const refreshToken = generateToken(test_users[0], '1h');
+        const accessToken = generateToken(test_users[0], '1h');
+        const baseUrl = '/api/users/' + test_users[0].username + '/transactions?max=';
+        const maxs = [50, 100, 150, 200, 250, 300, 350, 400, 450, 500];
+
+        await transactions.insertMany(test_transactions);
+
+        for (const max of maxs){
+            const response = await request(app).get(baseUrl + max).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+            const result = transactions_with_color.filter(transaction => transaction.amount <= max && transaction.username === test_users[0].username);
+            
+            expect(response.status).toBe(200);
+            expect(response.body.data).toEqual(result);
+        }
+    });
+    test('should return filtered user transactions based on query params "min" and "max"', async () => {
+        const refreshToken = generateToken(test_users[0], '1h');
+        const accessToken = generateToken(test_users[0], '1h');
+        await transactions.insertMany(test_transactions);
+
+        const ranges = [[50, 100], [100, 150], [150, 200], [200, 250], [250, 300], [300, 350], [350, 400], [400, 450], [450, 500]];
+
+        for (const range of ranges){
+            const response = await request(app).get('/api/users/' + test_users[0].username + '/transactions?min=' + range[0] + '&max=' + range[1]).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+            const result = transactions_with_color.filter(transaction => transaction.amount >= range[0] && transaction.amount <= range[1] && transaction.username === test_users[0].username);
+            expect(response.status).toBe(200);
+            expect(response.body.data).toEqual(result);
+        }
+    });
+    test('should return an error if min is not a number', async () => {
+        const refreshToken = generateToken(test_users[0], '1h');
+        const accessToken = generateToken(test_users[0], '1h');
+        const invalidValues = ["a", "1a", "a", "d7.0a", "4add", "a4.0", "fourty"];
+
+        for (const value of invalidValues){
+            const response = await request(app).get('/api/users/' + test_users[0].username + '/transactions?min=' + value + '&max=1').set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+            expect(response.status).toBe(500);
+            expect(response.body.error).toBe("Query parameters badly formatted");
+        }
+    });
+    test('should return an error if max is not a number', async () => {
+        const refreshToken = generateToken(test_users[0], '1h');
+        const accessToken = generateToken(test_users[0], '1h');
+        const invalidValues = ["12 3", "1a", "167..0", "d7.0a", "4add", "a4.0", "fourty"];
+
+        for (const value of invalidValues){
+            const response = await request(app).get('/api/users/' + test_users[0].username + '/transactions?max=' + value+'&min=1').set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+            expect(response.status).toBe(500);
+            expect(response.body.error).toBe("Query parameters badly formatted");
+        }
+    });
+    test('should return an error if min is greater than max', async () => {
+        const refreshToken = generateToken(test_users[0], '1h');
+        const accessToken = generateToken(test_users[0], '1h');
+
+        const response = await request(app).get('/api/users/' + test_users[0].username + '/transactions?min=100&max=50').set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+        expect(response.status).toBe(500);
+        expect(response.body.error).toBe("Min amount cannot be greater than max amount");
+    });
+    //Mixed filters
+    test('should return filtered user transactions based on query params "min", "max", "from" and "upTo"', async () => {
+        const refreshToken = generateToken(test_users[0], '1h');
+        const accessToken = generateToken(test_users[0], '1h');
+
+        const filters = [{min:50, max:100, from:"2021-01-01", upTo:"2023-01-01"}, {min:100, max:150, from:"2020-01-01", upTo:"2022-01-01"}, {min:150, max:200, from:"2019-01-01", upTo:"2021-01-01"}, {min:200, max:250, from:"2018-01-01", upTo:"2020-01-01"}, {min:250, max:300, from:"2017-01-01", upTo:"2019-01-01"}, {min:300, max:350, from:"2016-01-01", upTo:"2018-01-01"}, {min:350, max:400, from:"2015-01-01", upTo:"2017-01-01"}, {min:400, max:450, from:"2014-01-01", upTo:"2016-01-01"}, {min:450, max:500, from:"2013-01-01", upTo:"2015-01-01"}];
+
+        await transactions.insertMany(test_transactions);
+
+        for (const filter of filters){
+            const response = await request(app).get('/api/users/' + test_users[0].username + '/transactions?min=' + filter.min + '&max=' + filter.max + '&from=' + filter.from + '&upTo=' + filter.upTo).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+            const result = transactions_with_color.filter(transaction => transaction.amount >= filter.min && transaction.amount <= filter.max && transaction.username === test_users[0].username && transaction.date >= filter.from && transaction.date <= filter.upTo);
+            expect(response.status).toBe(200);
+            expect(response.body.data).toEqual(result);
+        }
+        
+    });
+    //Authorizations
+    test('should return an error if the user is not the owner of the transactions', async () => {
+        const refreshToken = generateToken(test_users[1], '1h');
+        const accessToken = generateToken(test_users[1], '1h');
+
+        const response = await request(app).get('/api/users/' + test_users[0].username + '/transactions').set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+        expect(response.status).toBe(401);
+        expect(response.body.error).toBe("You cannot request info about another user");
+    });
+    test('should return an error if users is not logged in', async () => {
+        const response = await request(app).get('/api/users/' + test_users[0].username + '/transactions');
+        expect(response.status).toBe(401);
+        expect(response.body.error).toBe("Unauthorized");
+    });
+    //Route admin
+    test('should return all transactions of the requested user if the user is admin', async () => {
+        const refreshToken = generateToken(test_users[2], '1h');
+        const accessToken = generateToken(test_users[2], '1h');
+
+        await transactions.insertMany(test_transactions);
+
+        const response = await request(app).get('/api/transactions/users/' + test_users[0].username).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+        expect(response.status).toBe(200);
+        expect(response.body.data).toEqual(transactions_with_color.filter(transaction => transaction.username === test_users[0].username));
+    });
+    test('should return all transactions of the requested user if the user is admin even if query params are provided', async () => {
+        const refreshToken = generateToken(test_users[2], '1h');
+        const accessToken = generateToken(test_users[2], '1h');
+
+        await transactions.insertMany(test_transactions);
+
+        const response = await request(app).get('/api/transactions/users/' + test_users[0].username + '?min=50&max=100&from=2021-01-01&upTo=2023-01-01').set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+        expect(response.status).toBe(200);
+        expect(response.body.data).toEqual(transactions_with_color.filter(transaction => transaction.username === test_users[0].username));
+    });
+    test('should return empty array if there no transactions of the requested user and the user is admin', async () => {
+        const refreshToken = generateToken(test_users[2], '1h');
+        const accessToken = generateToken(test_users[2], '1h');
+
+        const response = await request(app).get('/api/transactions/users/' + test_users[0].username).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+        expect(response.status).toBe(200);
+        expect(response.body.data).toEqual([]);
+    });
+    //Authorizations
+    test('should return an error if the user is not admin', async () => {
+        const refreshToken = generateToken(test_users[0], '1h');
+        const accessToken = generateToken(test_users[0], '1h');
+
+        const response = await request(app).get('/api/transactions/users/' + test_users[0].username).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+        expect(response.status).toBe(401);
+        expect(response.body.error).toBe("You need to be admin to perform this action");
+    });
+    test('should return an error if the user does not exist and route is admin route', async () => {
+        const refreshToken = generateToken(test_users[2], '1h');
+        const accessToken = generateToken(test_users[2], '1h');
+
+        const response = await request(app).get('/api/transactions/users/nonExistentUsername').set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+        expect(response.status).toBe(400);
+        expect(response.body.error).toBe("User not found");
+    });
+    test('should return an error if users is not logged in', async () => {
+        const response = await request(app).get('/api/transactions/users/' + test_users[0].username);
+        expect(response.status).toBe(401);
+        expect(response.body.error).toBe("Unauthorized");
+    });
+    
+    
 })
 
 describe("getTransactionsByUserByCategory", () => {
