@@ -131,7 +131,7 @@ export const getAllTransactions = async (req, res) => {
         /**
          * MongoDB equivalent to the query "SELECT * FROM transactions, categories WHERE transactions.type = categories.type"
          */
-        transactions.aggregate([
+        const result=await transactions.aggregate([
             {
                 $lookup: {
                     from: "categories",
@@ -141,12 +141,10 @@ export const getAllTransactions = async (req, res) => {
                 }
             },
             { $unwind: "$categories_info" }
-        ]).then((result) => {
-            let data = result.map(v => Object.assign({}, { _id: v._id, username: v.username, amount: v.amount, type: v.type, color: v.categories_info.color, date: v.date }))
-            res.json({ data: data, refreshedTokenMessage: res.locals.refreshedTokenMessage });
-        }).catch(error => {
-            throw (error)
-        })
+        ]);
+        const data = result.map(v => Object.assign({}, { _id: v._id, username: v.username, amount: v.amount, type: v.type, color: v.categories_info.color, date: v.date }))
+        res.status(200).json({ data: data, refreshedTokenMessage: res.locals.refreshedTokenMessage });
+        
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
