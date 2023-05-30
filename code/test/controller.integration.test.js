@@ -4,6 +4,7 @@ import { categories, transactions } from '../models/model';
 import mongoose, { Model } from 'mongoose';
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
+import { User } from '../models/User';
 
 dotenv.config();
 
@@ -60,48 +61,46 @@ describe("getAllTransactions", () => {
 })
 
 describe("getTransactionsByUser", () => {
-    let req, res;
     const test_categories = [{ type: 'Food', color: 'red' }, { type: 'Transportation', color: 'blue' }, { type: 'Entertainment', color: 'green' }]
     const test_transactions = [
-        { username: 'user', amount: 100, category: 'Food', date: '2020-01-01' },
-        { username: 'user', amount: 200, category: 'Transportation', date: '2021-01-02' },
-        { username: 'user', amount: 300, category: 'Entertainment', date: '2022-01-03' }
+        { username: 'testUser1', amount: 100, category: 'Food', date: '2020-01-01' },
+        { username: 'testUser1', amount: 200, category: 'Transportation', date: '2021-01-02' },
+        { username: 'testUser1', amount: 300, category: 'Entertainment', date: '2022-01-03' },
+        { username: 'testUser2', amount: 100, category: 'Food', date: '2020-01-01' },
+        { username: 'testUser2', amount: 200, category: 'Transportation', date: '2021-01-02' },
+        { username: 'testUser2', amount: 300, category: 'Entertainment', date: '2022-01-03' },
     ]
-    const test_results = [
-        { username: 'user', amount: 100, category: 'Food', date: '2020-01-01', color: 'red' },
-        { username: 'user', amount: 200, category: 'Transportation', date: '2021-01-02', color: 'blue' },
-        { username: 'user', amount: 300, category: 'Entertainment', date: '2022-01-03', color: 'green' },
+    const test_users = [
+        { username: 'testUser1', password: 'password', email: 'test1@email.com', role: 'Regular'},
+        { username: 'testUser2', password: 'password', email: 'test2@email.com', role: 'Regular'},
     ]
 
-    beforeEach(() => {
-        req = {
-            cookies: {},
-            query: {},
-
-        };
-
-        res = {
-            cookies: {},
-            locals: {},
-        };
+    beforeEach(async () => {
+        await User.deleteMany({});
+        await transactions.deleteMany({});
+        await categories.deleteMany({});
     })
 
     const generateToken = (payload, expirationTime = '1h') => {
         return jwt.sign(payload, 'EZWALLET', { expiresIn: expirationTime });
     };
-    //Route User
+    //Route: User
     test('should return non-filtered user transactions', async () => {
-        req.cookies.refreshToken = generateToken({ username: 'user', email: 'test@email.com', password: 'password' });
-        req.cookies.accessToken = generateToken({ username: 'user', email: 'test@email.com', password: 'password' });
-        req.url = 'api/users/user/transactions';
-        req.query = {};
+        const refreshToken = generateToken(test_users[0], '1h');
+        const accessToken = generateToken(test_users[0], '1h');
+        const url = '/api/users/' + test_users[0].username + '/transactions';
+        const test_result = test_transactions.filter(transaction => transaction.username === test_users[0].username);
 
-        transactions.insertMany(test_transactions);
-        categories.insertMany(test_categories);
+        //Create users, transactions, categories
+        await User.insertMany(test_users);
+        await transactions.insertMany(test_transactions);
+        await categories.insertMany(test_categories);
 
-        const response = await request(app).get(req.url).set('Cookie', [`refreshToken=${req.cookies.refreshToken}`, `accessToken=${req.cookies.accessToken}`]);
+        const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+
+        expect(response.body).toBe();
         expect(response.status).toBe(200);
-        expect(response.body.data).toMatchObject(test_results);
+        expect(response.body.data).toEqual(test_result);
     });
 })
 
