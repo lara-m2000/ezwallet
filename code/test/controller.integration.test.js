@@ -213,12 +213,36 @@ describe("getTransactionsByUser", () => {
     test('should return an error if from is a non-valid date string', async () => {
         const refreshToken = generateToken(test_users[0], '1h');
         const accessToken = generateToken(test_users[0], '1h');
-        const url = '/api/users/' + test_users[0].username + '/transactions?from=2021-01-01dddddddd';
+        const url = '/api/users/' + test_users[0].username + '/transactions?from=dddddd2021-01-01dddddddd';
 
         const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
 
         expect(response.status).toBe(500);
-        expect(response.body.error).toBe("Invalid date string");
+        expect(response.body.error).toBe("Wrong date format");
+    });
+    test('should return an error if upTo is a non-valid date string', async () => {
+        const refreshToken = generateToken(test_users[0], '1h');
+        const accessToken = generateToken(test_users[0], '1h');
+        const url = '/api/users/' + test_users[0].username + '/transactions?upTo=" 2021-01-01"';
+
+        const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+
+        expect(response.status).toBe(500);
+        expect(response.body.error).toBe("Wrong date format");
+    });
+    test('should return an error if date is a non-valid date string', async () => {
+        const refreshToken = generateToken(test_users[0], '1h');
+        const accessToken = generateToken(test_users[0], '1h');
+        const url = '/api/users/' + test_users[0].username + '/transactions?date="20221-01-01"';
+        const url2 = '/api/users/' + test_users[0].username + '/transactions?date="2 0221-01-01"';
+        const url3 = '/api/users/' + test_users[0].username + '/transactions?date="2021-01-0d1 "';
+        const urls = [url, url2, url3]
+
+        urls.forEach(async url => {
+            const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+            expect(response.status).toBe(500);
+            expect(response.body.error).toBe("Wrong date format");
+        });
     });
 })
 
