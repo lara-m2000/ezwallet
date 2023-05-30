@@ -383,7 +383,7 @@ export const deleteTransaction = async (req, res) => { //only called by regular 
         }
         const id = req.body._id;
         if (!id)
-            return res.status(400).json({ error: "Missing body attibutes" });
+            return res.status(400).json({ error: "Missing body attributes" });
         const transactionToDelete = await transactions.findById(id);
         if (!transactionToDelete) {
             return res.status(400).json({ error: "Transaction not found" });
