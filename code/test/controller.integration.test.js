@@ -727,7 +727,7 @@ describe("deleteTransaction", () => {
             expect(await transactions.find({username: test_users[0].username})).toHaveLength(len);
             //Check that the response is correct
             expect(response.status).toBe(200);
-            expect(response.body).toEqual({data: { message: 'Transaction deleted' }});
+            expect(response.body.data).toEqual({ message: 'Transaction deleted' });
         }
 
     });
@@ -735,7 +735,7 @@ describe("deleteTransaction", () => {
     test('should return error 400 if _id in body is not defined', async () => {
         const refreshToken = generateToken(test_users[0]);
         const accessToken = generateToken(test_users[0]);
-        const non_valid_bodies = [{}, { _notId:'1'}, { _id: undefined}];
+        const non_valid_bodies = [{}, { _notId:'1'}, { _id: undefined}, { id:'233'}];
         
         for (const body of non_valid_bodies) {
             const response = await request(app).delete('/api/users/' + test_users[0].username + '/transactions/' )
@@ -748,7 +748,7 @@ describe("deleteTransaction", () => {
     test('should return error 400 if _id in body is an empty string', async () => {
         const refreshToken = generateToken(test_users[0]);
         const accessToken = generateToken(test_users[0]);
-        const non_valid_bodies = [{ _id: ''}, { _id: '   '}]//, { _id: '\n'}, { _id: '\t'}, { _id: '\r'}, { _id: '\r\n'}];
+        const non_valid_bodies = [{ _id: ''}, { _id: '   '}, { _id: '\n'}, { _id: '\t'}, { _id: '\r'}, { _id: '\r\n'}];
 
         for (const body of non_valid_bodies) {
             const response = await request(app).delete('/api/users/' + test_users[0].username + '/transactions/' )
@@ -773,6 +773,75 @@ describe("deleteTransaction", () => {
     }
     );
 
+    //Others
+    test('should return error 400 if username passed as params does not exist in the DB', async () => {
+        const refreshToken = generateToken({username: 'nonExistingUser', role: 'Regular', password: 'password', email: 'nonExisting@email.com' });
+        const accessToken = generateToken({username: 'nonExistingUser', role: 'Regular', password: 'password', email: 'nonExisting@email.com' });
+        
+        const response = await request(app).delete('/api/users/' + 'nonExistingUser' + '/transactions/' )
+        .set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`])
+        .send({_id: '1'});
+
+        expect(response.status).toBe(400);
+        expect(response.body.error).toEqual('User not found');
+        //Restore deleted user
+    });
+    test('should return error 400 if the _id (transaction) in the body does not exist in the DB', async () => {
+        const refreshToken = generateToken(test_users[0]);
+        const accessToken = generateToken(test_users[0]);
+
+        await transactions.insertMany(test_transactions);
+        const response = await request(app).delete('/api/users/' + test_users[0].username + '/transactions/' )
+        .set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`])
+        .send({_id: 'nonExistingId'});
+
+        expect(response.status).toBe(400);
+        expect(response.body.error).toEqual('Transaction not found');
+    }
+    );
+    test('should return error 400 if the _id (transaction) in the body does not belong to the user', async () => {
+        const refreshToken = generateToken(test_users[0]);
+        const accessToken = generateToken(test_users[0]);
+
+        const inserted_transactions = await transactions.insertMany(test_transactions);
+
+        for (const transaction of inserted_transactions.filter(transaction => transaction.username !== test_users[0].username)) {
+            const response = await request(app).delete('/api/users/' + test_users[0].username + '/transactions/' )
+            .set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`])
+            .send({_id: transaction._id});
+
+            expect(response.status).toBe(400);
+            expect(response.body.error).toEqual('Transaction not found');
+        }
+    });
+
+    //Authorization
+    test('should return error 401 if called by a non-authenticated user', async () => {
+        const response = await request(app).delete('/api/users/' + test_users[0].username + '/transactions/' ).send({_id: '1'});
+        expect(response.status).toBe(401);
+        expect(response.body.error).toEqual('Unauthorized');
+    }
+    );
+    test('should error 401 if called by an authenticated user who is not the same as the one in the route (authType=user)', async () => {
+        const refreshToken = generateToken(test_users[0]);
+        const accessToken = generateToken(test_users[0]);
+        const response = await request(app).delete('/api/users/' + test_users[1].username + '/transactions/' )
+        .set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`])
+        .send({_id: '1'});
+        expect(response.status).toBe(401);
+        expect(response.body.error).toEqual('You cannot request info about another user');
+    });
+    test('should check authentication before other types of errors', async () => {
+        const response = await request(app).delete('/api/users/' + test_users[0].username + '/transactions/' ).send({_id: 'nonValidId'});
+        expect(response.status).toBe(401);
+        expect(response.body.error).toEqual('Unauthorized');
+        const response2 = await request(app).delete('/api/users/' + test_users[0].username + '/transactions/' ).send({});
+        expect(response2.status).toBe(401);
+        expect(response2.body.error).toEqual('Unauthorized');
+        const response3 = await request(app).delete('/api/users/' + test_users[1].username + '/transactions/' ).send({_id: '  '});
+        expect(response3.status).toBe(401);
+        expect(response3.body.error).toEqual('Unauthorized');
+    });
 })
 
 describe("deleteTransactions", () => {
