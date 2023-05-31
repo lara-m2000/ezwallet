@@ -217,12 +217,6 @@ export const getTransactionsByUserByCategory = async (req, res) => {
     try {
         const { username, category } = req.params;
 
-        const user = await User.findOne({ username: username });
-        if (!user)
-            return res.status(400).json({ error: "User not found" });
-        const dbCategory = await categories.findOne({ type: category });
-        if (!dbCategory)
-            return res.status(400).json({ error: "Category not found" });
         let auth;
         if (req.url.indexOf("/transactions/users/") >= 0) {//Admin
             auth = verifyAuth(req, res, { authType: "Admin" });
@@ -233,7 +227,13 @@ export const getTransactionsByUserByCategory = async (req, res) => {
         if (!auth.flag) {
             return res.status(401).json({ error: auth.cause });
         }
-        transactions.aggregate([
+        const user = await User.findOne({ username: username });
+        if (!user)
+            return res.status(400).json({ error: "User not found" });
+        const dbCategory = await categories.findOne({ type: category });
+        if (!dbCategory)
+            return res.status(400).json({ error: "Category not found" });
+        const result = await transactions.aggregate([
             {
                 $match: {
                     username: username,
@@ -249,10 +249,10 @@ export const getTransactionsByUserByCategory = async (req, res) => {
                 }
             },
             { $unwind: "$categories_info" }
-        ]).then((result) => {
-            let data = result.map(v => Object.assign({}, { _id: v._id, username: v.username, amount: v.amount, type: v.type, color: v.categories_info.color, date: v.date }))
-            return res.json({ data: data, refreshedTokenMessage: res.locals.refreshedTokenMessage });
-        }).catch(error => { throw (error) })
+        ]);
+        let data = result.map(v => Object.assign({}, { username: v.username, amount: v.amount, type: v.type, color: v.categories_info.color, date: v.date }))
+        return res.status(200).json({ data: data, refreshedTokenMessage: res.locals.refreshedTokenMessage });
+
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
@@ -381,7 +381,7 @@ export const deleteTransaction = async (req, res) => { //only called by regular 
         }
         const id = req.body._id;
         if (!id)
-            return res.status(400).json({ error: "Missing body attibutes" });
+            return res.status(400).json({ error: "Missing body attributes" });
         const transactionToDelete = await transactions.findById(id);
         if (!transactionToDelete) {
             return res.status(400).json({ error: "Transaction not found" });
@@ -391,7 +391,7 @@ export const deleteTransaction = async (req, res) => { //only called by regular 
         }
 
         let data = await transactions.deleteOne({ _id: req.body._id });
-        return res.json({ data: { message: "Transaction deleted" }, refreshedTokenMessage: res.locals.refreshedTokenMessage });
+        return res.status(200).json({ data: { message: "Transaction deleted" }, refreshedTokenMessage: res.locals.refreshedTokenMessage });
     } catch (error) {
         res.status(500).json({ error: error.message })
     }

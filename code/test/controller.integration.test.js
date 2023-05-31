@@ -425,13 +425,233 @@ describe("getTransactionsByUser", () => {
         expect(response.status).toBe(401);
         expect(response.body.error).toBe("Unauthorized");
     });
+
+    //Other errors
+    test('should not let an admin through user route', async () => {
+        const refreshToken = generateToken(test_users[2], '1h');
+        const accessToken = generateToken(test_users[2], '1h');
+
+        const response = await request(app).get('/api/users/' + test_users[0].username+'/transactions').set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+        expect(response.status).toBe(401);
+        expect(response.body.error).toBe("You cannot request info about another user");
+    });
+    test('should not let a user through admin route', async () => {
+        const refreshToken = generateToken(test_users[0], '1h');
+        const accessToken = generateToken(test_users[0], '1h');
+
+        const response = await request(app).get('/api/transactions/users/' + test_users[0].username).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+        expect(response.status).toBe(401);
+        expect(response.body.error).toBe("You need to be admin to perform this action");
+    });
     
     
 })
 
 describe("getTransactionsByUserByCategory", () => {
-    test('Dummy test, change it', () => {
-        expect(true).toBe(true);
+    const test_categories = [{ type: 'Food', color: 'red' }, { type: 'Transportation', color: 'blue' }, { type: 'Entertainment', color: 'green' }]
+    const test_transactions = [
+        { username: 'testUser1', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z' },
+        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-01-02T23:59:59.000Z' },
+        { username: 'testUser1', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z' },
+        { username: 'testUser1', amount: 100, type: 'Food', date: '2021-05-01T00:00:00.000Z' },
+        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-05-02T00:00:00.000Z' },
+        { username: 'testUser1', amount: 50, type: 'Food', date: '2021-05-03T00:00:00.000Z' },
+        { username: 'testUser1', amount: 77, type: 'Transportation', date: '2021-05-04T00:00:00.000Z'},
+        { username: 'testUser1', amount: 88, type: 'Entertainment', date: '2021-05-05T00:00:00.000Z'},
+        { username: 'testUser1', amount: 99, type: 'Food', date: '2021-05-06T00:00:00.000Z'},
+        { username: 'testUser1', amount: 400, type: 'Food', date: '2020-01-01T00:00:00.000Z'},
+        { username: 'testUser1', amount: 500, type: 'Transportation', date: '2021-01-02T23:59:59.000Z'},
+        { username: 'testUser2', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z' },
+        { username: 'testUser2', amount: 200, type: 'Transportation', date: '2021-01-02T00:00:00.000Z' },
+        { username: 'testUser2', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z' },
+    ]
+    const test_users = [
+        { username: 'testUser1', password: 'password', email: 'test1@email.com', role: 'Regular' },
+        { username: 'testUser2', password: 'password', email: 'test2@email.com', role: 'Regular' },
+        { username: 'testAdmin', password: 'password', email: 'admin@email', role: 'Admin' }
+    ]
+    const transactions_with_color = [
+        { username: 'testUser1', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z', color: 'red' },
+        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-01-02T23:59:59.000Z', color: 'blue' },
+        { username: 'testUser1', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z', color: 'green' },
+        { username: 'testUser1', amount: 100, type: 'Food', date: '2021-05-01T00:00:00.000Z', color: 'red' },
+        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-05-02T00:00:00.000Z', color: 'blue' },
+        { username: 'testUser1', amount: 50, type: 'Food', date: '2021-05-03T00:00:00.000Z', color: 'red' },
+        { username: 'testUser1', amount: 77, type: 'Transportation', date: '2021-05-04T00:00:00.000Z', color: 'blue' },
+        { username: 'testUser1', amount: 88, type: 'Entertainment', date: '2021-05-05T00:00:00.000Z', color: 'green' },
+        { username: 'testUser1', amount: 99, type: 'Food', date: '2021-05-06T00:00:00.000Z', color: 'red' },
+        { username: 'testUser1', amount: 400, type: 'Food', date: '2020-01-01T00:00:00.000Z', color: 'red' },
+        { username: 'testUser1', amount: 500, type: 'Transportation', date: '2021-01-02T23:59:59.000Z', color: 'blue' },
+        { username: 'testUser2', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z', color: 'red' },
+        { username: 'testUser2', amount: 200, type: 'Transportation', date: '2021-01-02T00:00:00.000Z', color: 'blue' },
+        { username: 'testUser2', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z', color: 'green' },
+    ]
+     //Clean the database before all tests, and set up categories and users
+     beforeAll(async () => {
+        await User.deleteMany({});
+        await transactions.deleteMany({});
+        await categories.deleteMany({});
+        await User.insertMany(test_users);
+        await categories.insertMany(test_categories);
+    })
+    //Delete all transactions before each test
+    beforeEach(async () => {
+        await transactions.deleteMany({});
+    })
+
+    afterAll(async () => {
+        await User.deleteMany({});
+        await transactions.deleteMany({});
+        await categories.deleteMany({});
+    });
+
+    const generateToken = (payload, expirationTime = '1h') => {
+        return jwt.sign(payload, 'EZWALLET', { expiresIn: expirationTime });
+    };
+
+    test('should return all transactions of a user filtered by given category', async () => {
+        const refreshToken = generateToken(test_users[0], '1h');
+        const accessToken = generateToken(test_users[0], '1h');
+        
+        await transactions.insertMany(test_transactions);
+
+        for (const category of test_categories) {
+            let url = '/api/users/'+ test_users[0].username + '/transactions/category/' + category.type;
+            const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+            expect(response.status).toBe(200);
+            expect(response.body.data).toEqual(transactions_with_color.filter(transaction => transaction.type === category.type && transaction.username === test_users[0].username));
+        }
+    });
+    test('should return empty array if there are no transactions for the user in the given category', async () => {
+        const refreshToken = generateToken(test_users[0], '1h');
+        const accessToken = generateToken(test_users[0], '1h');
+        
+        await transactions.insertMany(test_transactions.filter(transaction => transaction.type !== 'Food'));
+
+        let url = '/api/users/'+ test_users[0].username + '/transactions/category/Food';
+        const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+        expect(response.status).toBe(200);
+        expect(response.body.data).toEqual([]);
+    });
+    test('should return error 400 if category does not exist', async () => {
+        const refreshToken = generateToken(test_users[0], '1h');
+        const accessToken = generateToken(test_users[0], '1h');
+        
+        await transactions.insertMany(test_transactions);
+
+        let url = '/api/users/'+ test_users[0].username + '/transactions/category/InvalidCategory';
+        const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+        expect(response.status).toBe(400);
+        expect(response.body.error).toEqual('Category not found');
+    });
+    test('should return error 401 if called by an authenticated user that is not the owner of the transactions', async () => {
+        const refreshToken = generateToken(test_users[0], '1h');
+        const accessToken = generateToken(test_users[0], '1h');
+        
+        await transactions.insertMany(test_transactions);
+
+        let url = '/api/users/'+ test_users[1].username + '/transactions/category/Food';
+        const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+        expect(response.status).toBe(401);
+        expect(response.body.error).toEqual('You cannot request info about another user');
+    });
+    test('should return error 401 if called by an unauthenticated user', async () => {
+        await transactions.insertMany(test_transactions);
+
+        let url = '/api/users/'+ test_users[0].username + '/transactions/category/Food';
+        const response = await request(app).get(url);
+        expect(response.status).toBe(401);
+        expect(response.body.error).toEqual('Unauthorized');
+    });
+    //Admin route
+    test('should return all transactions of the requested user with given category, asked by admin', async () => {
+        const refreshToken = generateToken(test_users[2], '1h');
+        const accessToken = generateToken(test_users[2], '1h');
+
+        await transactions.insertMany(test_transactions);
+
+        for (const category of test_categories) {
+            let url = '/api/transactions/users/'+ test_users[0].username + '/category/' + category.type;
+            const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+            expect(response.status).toBe(200);
+            expect(response.body.data).toEqual(transactions_with_color.filter(transaction => transaction.type === category.type && transaction.username === test_users[0].username));
+        }
+    });
+    test('should return empty array if there are no transactions for the requested user in the given category, asked by admin', async () => {
+        const refreshToken = generateToken(test_users[2], '1h');
+        const accessToken = generateToken(test_users[2], '1h');
+
+        await transactions.insertMany(test_transactions.filter(transaction => transaction.type !== 'Food'));
+
+        let url = '/api/transactions/users/'+ test_users[0].username + '/category/Food';
+        const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+        expect(response.status).toBe(200);
+        expect(response.body.data).toEqual([]);
+    });
+    test('should return error 400 if category does not exist, asked by admin', async () => {
+        const refreshToken = generateToken(test_users[2], '1h');
+        const accessToken = generateToken(test_users[2], '1h');
+
+        await transactions.insertMany(test_transactions);
+
+        let url = '/api/transactions/users/'+ test_users[0].username + '/category/InvalidCategory';
+        const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+        expect(response.status).toBe(400);
+        expect(response.body.error).toEqual('Category not found');
+    });
+    test('should return error 400 if user does not exist, asked by admin', async () => {
+        const refreshToken = generateToken(test_users[2], '1h');
+        const accessToken = generateToken(test_users[2], '1h');
+
+        await transactions.insertMany(test_transactions);
+
+        let url = '/api/transactions/users/InvalidUser/category/Food';
+        const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+        expect(response.status).toBe(400);
+        expect(response.body.error).toEqual('User not found');
+    });
+    test('should return error 401 if called by a non-admin user', async () => {
+        const refreshToken = generateToken(test_users[0], '1h');
+        const accessToken = generateToken(test_users[0], '1h');
+
+        await transactions.insertMany(test_transactions);
+
+        let url = '/api/transactions/users/'+ test_users[0].username + '/category/Food';
+        const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+        expect(response.status).toBe(401);
+        expect(response.body.error).toEqual('You need to be admin to perform this action');
+    });
+    test('should return error 401 if called by an unauthenticated user', async () => {
+        await transactions.insertMany(test_transactions);
+
+        let url = '/api/transactions/users/'+ test_users[0].username + '/category/Food';
+        const response = await request(app).get(url);
+        expect(response.status).toBe(401);
+        expect(response.body.error).toEqual('Unauthorized');
+    });
+    test('should not let an admin through user route', async () => {
+        const refreshToken = generateToken(test_users[2], '1h');
+        const accessToken = generateToken(test_users[2], '1h');
+
+        await transactions.insertMany(test_transactions);
+
+        let url = '/api/users/'+ test_users[0].username + '/transactions/category/Food';
+        const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+        expect(response.status).toBe(401);
+        expect(response.body.error).toEqual('You cannot request info about another user');
+    });
+    test('should not let a user through admin route', async () => {
+        const refreshToken = generateToken(test_users[0], '1h');
+        const accessToken = generateToken(test_users[0], '1h');
+
+        await transactions.insertMany(test_transactions);
+
+        for (const category of test_categories) {
+            let url = '/api/transactions/users/'+ test_users[0].username + '/category/' + category.type;
+            const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+            expect(response.status).toBe(401);
+            expect(response.body.error).toEqual('You need to be admin to perform this action');
+        }
     });
 })
 

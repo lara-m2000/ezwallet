@@ -7,6 +7,8 @@ import {
     deleteTransactions,
     getAllTransactions,
     getTransactionsByUser,
+    getTransactionsByUserByCategory,
+    deleteTransaction,
 } from "../controllers/controller";
 import { verifyAuth } from "../controllers/utils";
 
@@ -400,7 +402,6 @@ describe("getTransactionsByUser", () => {
         expect(res.json).toHaveBeenCalledWith({
             data: [
                 {
-                    _id: "transactionId1",
                     username: "Mario",
                     amount: 100,
                     type: "food",
@@ -408,7 +409,6 @@ describe("getTransactionsByUser", () => {
                     date: "2023-05-19T00:00:00",
                 },
                 {
-                    _id: "transactionId2",
                     username: "Mario",
                     amount: 70,
                     type: "health",
@@ -471,7 +471,6 @@ describe("getTransactionsByUser", () => {
         expect(res.json).toHaveBeenCalledWith({
             data: [
                 {
-                    _id: "transactionId1",
                     username: "Mario",
                     amount: 100,
                     type: "food",
@@ -479,7 +478,6 @@ describe("getTransactionsByUser", () => {
                     date: "2023-05-19T00:00:00",
                 },
                 {
-                    _id: "transactionId2",
                     username: "Mario",
                     amount: 70,
                     type: "health",
@@ -573,7 +571,7 @@ describe("getTransactionsByUser", () => {
             locals: { refreshedTokenMessage: "Token refreshed" },
         };
         User.findOne.mockResolvedValue({ username: "Mario" });
-        transactions.aggregate.mockResolvedValue({map: jest.fn().mockImplementation(() => {throw {error: "error"}})});
+        transactions.aggregate.mockResolvedValue({ map: jest.fn().mockImplementation(() => { throw { error: "error" } }) });
 
         await getTransactionsByUser(req, res);
 
@@ -584,9 +582,273 @@ describe("getTransactionsByUser", () => {
 });
 
 describe("getTransactionsByUserByCategory", () => {
-    test("Dummy test, change it", () => {
-        expect(true).toBe(true);
+    beforeEach(() => {
+        jest.resetAllMocks();
+        verifyAuth.mockReturnValue({ flag: true });
     });
+
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+    test('should return transactions for a user and category, asked by a user', async () => {
+        const req = {
+            params: {
+                username: 'Mario',
+                category: 'food',
+            },
+            url: '/api/users/Mario/transactions/category/food',
+        };
+        const res = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn(),
+            locals: {
+                refreshedTokenMessage: 'Token refreshed',
+            },
+        };
+
+        // Mock the verifyAuth function
+        verifyAuth.mockReturnValue({
+            flag: true,
+            cause: null,
+        });
+
+        // Mock the User.findOne and categories.findOne functions
+        User.findOne.mockResolvedValue({ username: 'Mario' });
+        categories.findOne.mockResolvedValue({ type: 'food', color: 'red' });
+
+        // Mock the transactions.aggregate function
+        transactions.aggregate.mockResolvedValue([
+            {
+                _id: 'transaction1',
+                username: 'Mario',
+                amount: 100,
+                type: 'food',
+                categories_info: { color: 'red' },
+                date: '2023-05-19T00:00:00',
+            },
+        ]);
+
+        // Call the function being tested
+        await getTransactionsByUserByCategory(req, res);
+
+        // Assertions
+        expect(verifyAuth).toHaveBeenCalledWith(req, res, { authType: 'User', username: 'Mario' });
+        expect(User.findOne).toHaveBeenCalledWith({ username: 'Mario' });
+        expect(categories.findOne).toHaveBeenCalledWith({ type: 'food' });
+        expect(transactions.aggregate).toHaveBeenCalledWith([
+            { $match: { username: 'Mario', type: 'food' } },
+            {
+                $lookup: {
+                    from: 'categories',
+                    localField: 'type',
+                    foreignField: 'type',
+                    as: 'categories_info',
+                },
+            },
+            { $unwind: '$categories_info' },
+        ]);
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({
+            data: [{
+                username: 'Mario',
+                amount: 100,
+                type: 'food',
+                color: 'red',
+                date: '2023-05-19T00:00:00',
+            }],
+            refreshedTokenMessage: 'Token refreshed',
+        });
+    });
+    test('should return transactions for a user and category, asked by a admin', async () => {
+        const req = {
+            params: {
+                username: 'Mario',
+                category: 'food',
+            },
+            url: '/api/transactions/users/Mario/category/food',
+        };
+        const res = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn(),
+            locals: {
+                refreshedTokenMessage: 'Token refreshed',
+            },
+        };
+
+        // Mock the verifyAuth function
+        verifyAuth.mockReturnValue({
+            flag: true,
+            cause: null,
+        });
+
+        // Mock the User.findOne and categories.findOne functions
+        User.findOne.mockResolvedValue({ username: 'Mario' });
+        categories.findOne.mockResolvedValue({ type: 'food', color: 'red' });
+
+        // Mock the transactions.aggregate function
+        transactions.aggregate.mockResolvedValue([
+            {
+                _id: 'transaction1',
+                username: 'Mario',
+                amount: 100,
+                type: 'food',
+                categories_info: { color: 'red' },
+                date: '2023-05-19T00:00:00',
+            },
+        ]);
+
+        // Call the function being tested
+        await getTransactionsByUserByCategory(req, res);
+
+        // Assertions
+        expect(verifyAuth).toHaveBeenCalledWith(req, res, { authType: 'Admin' });
+        expect(User.findOne).toHaveBeenCalledWith({ username: 'Mario' });
+        expect(categories.findOne).toHaveBeenCalledWith({ type: 'food' });
+        expect(transactions.aggregate).toHaveBeenCalledWith([
+            { $match: { username: 'Mario', type: 'food' } },
+            {
+                $lookup: {
+                    from: 'categories',
+                    localField: 'type',
+                    foreignField: 'type',
+                    as: 'categories_info',
+                },
+            },
+            { $unwind: '$categories_info' },
+        ]);
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({
+            data: [{
+                username: 'Mario',
+                amount: 100,
+                type: 'food',
+                color: 'red',
+                date: '2023-05-19T00:00:00',
+            }],
+            refreshedTokenMessage: 'Token refreshed',
+        });
+    });
+    test('should return 400 error if the user is not found', async () => {
+        const req = {
+            params: {
+                username: 'Mario',
+                category: 'food',
+            },
+            url: '/api/transactions/users/Mario/category/food',
+        };
+        const res = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn(),
+            locals: {
+                refreshedTokenMessage: 'Token refreshed',
+            },
+        };
+        // Mock the verifyAuth function
+        verifyAuth.mockReturnValue({
+            flag: true,
+            cause: null,
+        });
+
+        // Mock the User.findOne function to return null
+        User.findOne.mockResolvedValue(null);
+
+        // Call the function being tested
+        await getTransactionsByUserByCategory(req, res);
+
+        // Assertions
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: 'User not found' });
+    });
+    test('should return 400 error if the category is not found', async () => {
+        const req = {
+            params: {
+                username: 'Mario',
+                category: 'food',
+            },
+            url: '/api/transactions/users/Mario/category/food',
+        };
+        const res = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn(),
+            locals: {
+                refreshedTokenMessage: 'Token refreshed',
+            },
+        };
+        // Mock the verifyAuth function
+        verifyAuth.mockReturnValue({
+            flag: true,
+            cause: null,
+        });
+
+        // Mock the User.findOne and categories.findOne functions
+        User.findOne.mockResolvedValue({ username: 'Mario' });
+        categories.findOne.mockResolvedValue(null);
+
+        // Call the function being tested
+        await getTransactionsByUserByCategory(req, res);
+
+        // Assertions
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Category not found' });
+    });
+    test('should return 401 error for unauthorized access', async () => {
+        const req = {
+            params: {
+                username: 'Mario',
+                category: 'food',
+            },
+            url: '/api/transactions/users/Mario/category/food',
+        };
+        const res = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn(),
+            locals: {
+                refreshedTokenMessage: 'Token refreshed',
+            },
+        };
+        // Mock the verifyAuth function to return unauthorized access
+        verifyAuth.mockReturnValue({
+            flag: false,
+            cause: 'Unauthorized access',
+        });
+
+        // Call the function being tested
+        await getTransactionsByUserByCategory(req, res);
+
+        // Assertions
+        expect(res.status).toHaveBeenCalledWith(401);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Unauthorized access' });
+    });
+    test('should return 500 error if exception occurs', async () => {
+        const req = {
+            params: {
+                username: 'Mario',
+                category: 'food',
+            },
+            url: '/api/transactions/users/Mario/category/food',
+        };
+        const res = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn(),
+            locals: {
+                refreshedTokenMessage: 'Token refreshed',
+            },
+        };
+
+        verifyAuth.mockReturnValue({ flag: true, cause: null });
+        User.findOne.mockResolvedValue({ username: 'Mario' });
+        categories.findOne.mockResolvedValue({ type: 'food', color: 'red' });
+        transactions.aggregate.mockRejectedValue(Object.assign({}, { message: 'Exception' }));
+
+        // Call the function being tested
+        await getTransactionsByUserByCategory(req, res);
+
+        // Assertions
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Exception' });
+    });
+
+
 });
 
 describe("getTransactionsByGroup", () => {
@@ -602,9 +864,139 @@ describe("getTransactionsByGroupByCategory", () => {
 });
 
 describe("deleteTransaction", () => {
-    test("Dummy test, change it", () => {
-        expect(true).toBe(true);
+    let req, res;
+    beforeEach(() => {
+        jest.resetAllMocks();
+        verifyAuth.mockReturnValue({ flag: true });
+        req = {
+            params: { username: 'Mario' },
+            body: { _id: '6hjkohgfc8nvu786' },
+        };
+        res = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn(),
+            locals: {
+                refreshedTokenMessage: 'Token refreshed',
+            },
+        };
     });
+
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
+    test('should delete a transaction and return a success message', async () => {
+        const mockUser = { username: 'Mario' };
+        const mockTransaction = { _id: '6hjkohgfc8nvu786', username: 'Mario' };
+
+        // Mock User.findOne to return a user
+        User.findOne.mockResolvedValue(mockUser);
+
+        // Mock transactions.findById to return a transaction
+        transactions.findById.mockResolvedValue(mockTransaction);
+
+        // Mock transactions.deleteOne to return a deletion result
+        transactions.deleteOne.mockResolvedValue({});
+
+        await deleteTransaction(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({
+            data: { message: 'Transaction deleted' },
+            refreshedTokenMessage: "Token refreshed"
+        });
+        expect(User.findOne).toHaveBeenCalledWith({ username: 'Mario' });
+        expect(transactions.findById).toHaveBeenCalledWith('6hjkohgfc8nvu786');
+        expect(transactions.deleteOne).toHaveBeenCalledWith({ _id: '6hjkohgfc8nvu786' });
+    });
+    test('should return a 400 error if the request body is missing attributes', async () => {
+        const mockUser = { username: 'Mario' };
+
+        // Mock User.findOne to return a user
+        User.findOne = jest.fn().mockResolvedValue(mockUser);
+
+        req.body = {}; // Empty request body
+
+        await deleteTransaction(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Missing body attributes' });
+        expect(User.findOne).toHaveBeenCalledWith({ username: 'Mario' });
+        expect(transactions.findById).not.toHaveBeenCalled();
+        expect(transactions.deleteOne).not.toHaveBeenCalled();
+    });
+    test('should return a 400 error if the user is not found', async () => {
+        // Mock User.findOne to return null (user not found)
+        User.findOne = jest.fn().mockResolvedValue(null);
+
+        await deleteTransaction(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: 'User not found' });
+        expect(User.findOne).toHaveBeenCalledWith({ username: 'Mario' });
+        expect(transactions.findById).not.toHaveBeenCalled();
+        expect(transactions.deleteOne).not.toHaveBeenCalled();
+    });
+    test('should return a 400 error if the transaction is not found', async () => {
+        const mockUser = { username: 'Mario' };
+
+        // Mock User.findOne to return a user
+        User.findOne = jest.fn().mockResolvedValue(mockUser);
+
+        // Mock transactions.findById to return null (transaction not found)
+        transactions.findById = jest.fn().mockResolvedValue(null);
+
+        await deleteTransaction(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Transaction not found' });
+        expect(User.findOne).toHaveBeenCalledWith({ username: 'Mario' });
+        expect(transactions.findById).toHaveBeenCalledWith('6hjkohgfc8nvu786');
+        expect(transactions.deleteOne).not.toHaveBeenCalled();
+    });
+    test('should return a 401 error if the user is not authorized', async () => {
+        const mockUser = { username: 'Luigi' }; // Different username
+
+        // Mock User.findOne to return a different user
+        verifyAuth.mockReturnValue({ flag: false, cause: 'Unauthorized' });
+
+        await deleteTransaction(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(401);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Unauthorized' });
+    });
+    test('should return a 401 error if user asks to delete a transaction that is not theirs', async () => {
+        const mockUser = { username: 'Mario' };
+        const mockTransaction = { _id: '6hjkohgfc8nvu786', username: 'notMario' };
+
+        // Mock User.findOne to return a user
+        User.findOne.mockResolvedValue(mockUser);
+
+        // Mock transactions.findById to return a transaction
+        transactions.findById.mockResolvedValue(mockTransaction);
+
+        await deleteTransaction(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(401);
+        expect(res.json).toHaveBeenCalledWith({
+            error: 'Unauthorized',
+        });
+        expect(User.findOne).toHaveBeenCalledWith({ username: 'Mario' });
+        expect(transactions.findById).toHaveBeenCalledWith('6hjkohgfc8nvu786');
+    });
+    test('should return a 500 error if an error occurs', async () => {
+        // Mock User.findOne to throw an error
+        User.findOne = jest.fn().mockRejectedValue(new Error('Some error'));
+    
+        await deleteTransaction(req, res);
+    
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Some error' });
+        expect(User.findOne).toHaveBeenCalledWith({ username: 'Mario' });
+        expect(transactions.findById).not.toHaveBeenCalled();
+        expect(transactions.deleteOne).not.toHaveBeenCalled();
+      });
+
 });
 
 describe("deleteTransactions", () => {
