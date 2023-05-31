@@ -70,11 +70,11 @@ describe("getTransactionsByUser", () => {
         { username: 'testUser1', amount: 100, type: 'Food', date: '2021-05-01T00:00:00.000Z' },
         { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-05-02T00:00:00.000Z' },
         { username: 'testUser1', amount: 50, type: 'Food', date: '2021-05-03T00:00:00.000Z' },
-        { username: 'testUser1', amount: 77, type: 'Transportation', date: '2021-05-04T00:00:00.000Z'},
-        { username: 'testUser1', amount: 88, type: 'Entertainment', date: '2021-05-05T00:00:00.000Z'},
-        { username: 'testUser1', amount: 99, type: 'Food', date: '2021-05-06T00:00:00.000Z'},
-        { username: 'testUser1', amount: 400, type: 'Food', date: '2020-01-01T00:00:00.000Z'},
-        { username: 'testUser1', amount: 500, type: 'Transportation', date: '2021-01-02T23:59:59.000Z'},
+        { username: 'testUser1', amount: 77, type: 'Transportation', date: '2021-05-04T00:00:00.000Z' },
+        { username: 'testUser1', amount: 88, type: 'Entertainment', date: '2021-05-05T00:00:00.000Z' },
+        { username: 'testUser1', amount: 99, type: 'Food', date: '2021-05-06T00:00:00.000Z' },
+        { username: 'testUser1', amount: 400, type: 'Food', date: '2020-01-01T00:00:00.000Z' },
+        { username: 'testUser1', amount: 500, type: 'Transportation', date: '2021-01-02T23:59:59.000Z' },
         { username: 'testUser2', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z' },
         { username: 'testUser2', amount: 200, type: 'Transportation', date: '2021-01-02T00:00:00.000Z' },
         { username: 'testUser2', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z' },
@@ -246,7 +246,7 @@ describe("getTransactionsByUser", () => {
         const url3 = '/api/users/' + test_users[0].username + '/transactions?upTo="202 21-0 d1-01"';
         const urls = [url, url2, url3];
 
-        for (const url of urls){
+        for (const url of urls) {
             const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
             expect(response.status).toBe(500);
             expect(response.body.error).toBe("Wrong date format");
@@ -260,7 +260,7 @@ describe("getTransactionsByUser", () => {
         const url3 = '/api/users/' + test_users[0].username + '/transactions?date="2021-01-0d1 "';
         const urls = [url, url2, url3]
 
-        for (const url of urls){
+        for (const url of urls) {
             const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
             expect(response.status).toBe(500);
             expect(response.body.error).toBe("Wrong date format");
@@ -275,10 +275,10 @@ describe("getTransactionsByUser", () => {
 
         await transactions.insertMany(test_transactions);
 
-        for (const min of mins){
+        for (const min of mins) {
             const response = await request(app).get(baseUrl + min).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
             const result = transactions_with_color.filter(transaction => transaction.amount >= min && transaction.username === test_users[0].username);
-            
+
             expect(response.status).toBe(200);
             expect(response.body.data).toEqual(result);
         }
@@ -291,10 +291,10 @@ describe("getTransactionsByUser", () => {
 
         await transactions.insertMany(test_transactions);
 
-        for (const max of maxs){
+        for (const max of maxs) {
             const response = await request(app).get(baseUrl + max).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
             const result = transactions_with_color.filter(transaction => transaction.amount <= max && transaction.username === test_users[0].username);
-            
+
             expect(response.status).toBe(200);
             expect(response.body.data).toEqual(result);
         }
@@ -306,7 +306,7 @@ describe("getTransactionsByUser", () => {
 
         const ranges = [[50, 100], [100, 150], [150, 200], [200, 250], [250, 300], [300, 350], [350, 400], [400, 450], [450, 500]];
 
-        for (const range of ranges){
+        for (const range of ranges) {
             const response = await request(app).get('/api/users/' + test_users[0].username + '/transactions?min=' + range[0] + '&max=' + range[1]).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
             const result = transactions_with_color.filter(transaction => transaction.amount >= range[0] && transaction.amount <= range[1] && transaction.username === test_users[0].username);
             expect(response.status).toBe(200);
@@ -318,7 +318,7 @@ describe("getTransactionsByUser", () => {
         const accessToken = generateToken(test_users[0], '1h');
         const invalidValues = ["a", "1a", "a", "d7.0a", "4add", "a4.0", "fourty"];
 
-        for (const value of invalidValues){
+        for (const value of invalidValues) {
             const response = await request(app).get('/api/users/' + test_users[0].username + '/transactions?min=' + value + '&max=1').set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
             expect(response.status).toBe(500);
             expect(response.body.error).toBe("Query parameters badly formatted");
@@ -329,8 +329,8 @@ describe("getTransactionsByUser", () => {
         const accessToken = generateToken(test_users[0], '1h');
         const invalidValues = ["12 3", "1a", "167..0", "d7.0a", "4add", "a4.0", "fourty"];
 
-        for (const value of invalidValues){
-            const response = await request(app).get('/api/users/' + test_users[0].username + '/transactions?max=' + value+'&min=1').set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+        for (const value of invalidValues) {
+            const response = await request(app).get('/api/users/' + test_users[0].username + '/transactions?max=' + value + '&min=1').set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
             expect(response.status).toBe(500);
             expect(response.body.error).toBe("Query parameters badly formatted");
         }
@@ -348,17 +348,17 @@ describe("getTransactionsByUser", () => {
         const refreshToken = generateToken(test_users[0], '1h');
         const accessToken = generateToken(test_users[0], '1h');
 
-        const filters = [{min:50, max:100, from:"2021-01-01", upTo:"2023-01-01"}, {min:100, max:150, from:"2020-01-01", upTo:"2022-01-01"}, {min:150, max:200, from:"2019-01-01", upTo:"2021-01-01"}, {min:200, max:250, from:"2018-01-01", upTo:"2020-01-01"}, {min:250, max:300, from:"2017-01-01", upTo:"2019-01-01"}, {min:300, max:350, from:"2016-01-01", upTo:"2018-01-01"}, {min:350, max:400, from:"2015-01-01", upTo:"2017-01-01"}, {min:400, max:450, from:"2014-01-01", upTo:"2016-01-01"}, {min:450, max:500, from:"2013-01-01", upTo:"2015-01-01"}];
+        const filters = [{ min: 50, max: 100, from: "2021-01-01", upTo: "2023-01-01" }, { min: 100, max: 150, from: "2020-01-01", upTo: "2022-01-01" }, { min: 150, max: 200, from: "2019-01-01", upTo: "2021-01-01" }, { min: 200, max: 250, from: "2018-01-01", upTo: "2020-01-01" }, { min: 250, max: 300, from: "2017-01-01", upTo: "2019-01-01" }, { min: 300, max: 350, from: "2016-01-01", upTo: "2018-01-01" }, { min: 350, max: 400, from: "2015-01-01", upTo: "2017-01-01" }, { min: 400, max: 450, from: "2014-01-01", upTo: "2016-01-01" }, { min: 450, max: 500, from: "2013-01-01", upTo: "2015-01-01" }];
 
         await transactions.insertMany(test_transactions);
 
-        for (const filter of filters){
+        for (const filter of filters) {
             const response = await request(app).get('/api/users/' + test_users[0].username + '/transactions?min=' + filter.min + '&max=' + filter.max + '&from=' + filter.from + '&upTo=' + filter.upTo).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
             const result = transactions_with_color.filter(transaction => transaction.amount >= filter.min && transaction.amount <= filter.max && transaction.username === test_users[0].username && transaction.date >= filter.from && transaction.date <= filter.upTo);
             expect(response.status).toBe(200);
             expect(response.body.data).toEqual(result);
         }
-        
+
     });
     //Authorizations
     test('should return an error if the user is not the owner of the transactions', async () => {
@@ -431,7 +431,7 @@ describe("getTransactionsByUser", () => {
         const refreshToken = generateToken(test_users[2], '1h');
         const accessToken = generateToken(test_users[2], '1h');
 
-        const response = await request(app).get('/api/users/' + test_users[0].username+'/transactions').set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+        const response = await request(app).get('/api/users/' + test_users[0].username + '/transactions').set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
         expect(response.status).toBe(401);
         expect(response.body.error).toBe("You cannot request info about another user");
     });
@@ -443,8 +443,8 @@ describe("getTransactionsByUser", () => {
         expect(response.status).toBe(401);
         expect(response.body.error).toBe("You need to be admin to perform this action");
     });
-    
-    
+
+
 })
 
 describe("getTransactionsByUserByCategory", () => {
@@ -456,11 +456,11 @@ describe("getTransactionsByUserByCategory", () => {
         { username: 'testUser1', amount: 100, type: 'Food', date: '2021-05-01T00:00:00.000Z' },
         { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-05-02T00:00:00.000Z' },
         { username: 'testUser1', amount: 50, type: 'Food', date: '2021-05-03T00:00:00.000Z' },
-        { username: 'testUser1', amount: 77, type: 'Transportation', date: '2021-05-04T00:00:00.000Z'},
-        { username: 'testUser1', amount: 88, type: 'Entertainment', date: '2021-05-05T00:00:00.000Z'},
-        { username: 'testUser1', amount: 99, type: 'Food', date: '2021-05-06T00:00:00.000Z'},
-        { username: 'testUser1', amount: 400, type: 'Food', date: '2020-01-01T00:00:00.000Z'},
-        { username: 'testUser1', amount: 500, type: 'Transportation', date: '2021-01-02T23:59:59.000Z'},
+        { username: 'testUser1', amount: 77, type: 'Transportation', date: '2021-05-04T00:00:00.000Z' },
+        { username: 'testUser1', amount: 88, type: 'Entertainment', date: '2021-05-05T00:00:00.000Z' },
+        { username: 'testUser1', amount: 99, type: 'Food', date: '2021-05-06T00:00:00.000Z' },
+        { username: 'testUser1', amount: 400, type: 'Food', date: '2020-01-01T00:00:00.000Z' },
+        { username: 'testUser1', amount: 500, type: 'Transportation', date: '2021-01-02T23:59:59.000Z' },
         { username: 'testUser2', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z' },
         { username: 'testUser2', amount: 200, type: 'Transportation', date: '2021-01-02T00:00:00.000Z' },
         { username: 'testUser2', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z' },
@@ -486,8 +486,8 @@ describe("getTransactionsByUserByCategory", () => {
         { username: 'testUser2', amount: 200, type: 'Transportation', date: '2021-01-02T00:00:00.000Z', color: 'blue' },
         { username: 'testUser2', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z', color: 'green' },
     ]
-     //Clean the database before all tests, and set up categories and users
-     beforeAll(async () => {
+    //Clean the database before all tests, and set up categories and users
+    beforeAll(async () => {
         await User.deleteMany({});
         await transactions.deleteMany({});
         await categories.deleteMany({});
@@ -512,11 +512,11 @@ describe("getTransactionsByUserByCategory", () => {
     test('should return all transactions of a user filtered by given category', async () => {
         const refreshToken = generateToken(test_users[0], '1h');
         const accessToken = generateToken(test_users[0], '1h');
-        
+
         await transactions.insertMany(test_transactions);
 
         for (const category of test_categories) {
-            let url = '/api/users/'+ test_users[0].username + '/transactions/category/' + category.type;
+            let url = '/api/users/' + test_users[0].username + '/transactions/category/' + category.type;
             const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
             expect(response.status).toBe(200);
             expect(response.body.data).toEqual(transactions_with_color.filter(transaction => transaction.type === category.type && transaction.username === test_users[0].username));
@@ -525,10 +525,10 @@ describe("getTransactionsByUserByCategory", () => {
     test('should return empty array if there are no transactions for the user in the given category', async () => {
         const refreshToken = generateToken(test_users[0], '1h');
         const accessToken = generateToken(test_users[0], '1h');
-        
+
         await transactions.insertMany(test_transactions.filter(transaction => transaction.type !== 'Food'));
 
-        let url = '/api/users/'+ test_users[0].username + '/transactions/category/Food';
+        let url = '/api/users/' + test_users[0].username + '/transactions/category/Food';
         const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
         expect(response.status).toBe(200);
         expect(response.body.data).toEqual([]);
@@ -536,10 +536,10 @@ describe("getTransactionsByUserByCategory", () => {
     test('should return error 400 if category does not exist', async () => {
         const refreshToken = generateToken(test_users[0], '1h');
         const accessToken = generateToken(test_users[0], '1h');
-        
+
         await transactions.insertMany(test_transactions);
 
-        let url = '/api/users/'+ test_users[0].username + '/transactions/category/InvalidCategory';
+        let url = '/api/users/' + test_users[0].username + '/transactions/category/InvalidCategory';
         const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
         expect(response.status).toBe(400);
         expect(response.body.error).toEqual('Category not found');
@@ -547,10 +547,10 @@ describe("getTransactionsByUserByCategory", () => {
     test('should return error 401 if called by an authenticated user that is not the owner of the transactions', async () => {
         const refreshToken = generateToken(test_users[0], '1h');
         const accessToken = generateToken(test_users[0], '1h');
-        
+
         await transactions.insertMany(test_transactions);
 
-        let url = '/api/users/'+ test_users[1].username + '/transactions/category/Food';
+        let url = '/api/users/' + test_users[1].username + '/transactions/category/Food';
         const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
         expect(response.status).toBe(401);
         expect(response.body.error).toEqual('You cannot request info about another user');
@@ -558,7 +558,7 @@ describe("getTransactionsByUserByCategory", () => {
     test('should return error 401 if called by an unauthenticated user', async () => {
         await transactions.insertMany(test_transactions);
 
-        let url = '/api/users/'+ test_users[0].username + '/transactions/category/Food';
+        let url = '/api/users/' + test_users[0].username + '/transactions/category/Food';
         const response = await request(app).get(url);
         expect(response.status).toBe(401);
         expect(response.body.error).toEqual('Unauthorized');
@@ -571,7 +571,7 @@ describe("getTransactionsByUserByCategory", () => {
         await transactions.insertMany(test_transactions);
 
         for (const category of test_categories) {
-            let url = '/api/transactions/users/'+ test_users[0].username + '/category/' + category.type;
+            let url = '/api/transactions/users/' + test_users[0].username + '/category/' + category.type;
             const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
             expect(response.status).toBe(200);
             expect(response.body.data).toEqual(transactions_with_color.filter(transaction => transaction.type === category.type && transaction.username === test_users[0].username));
@@ -583,7 +583,7 @@ describe("getTransactionsByUserByCategory", () => {
 
         await transactions.insertMany(test_transactions.filter(transaction => transaction.type !== 'Food'));
 
-        let url = '/api/transactions/users/'+ test_users[0].username + '/category/Food';
+        let url = '/api/transactions/users/' + test_users[0].username + '/category/Food';
         const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
         expect(response.status).toBe(200);
         expect(response.body.data).toEqual([]);
@@ -594,7 +594,7 @@ describe("getTransactionsByUserByCategory", () => {
 
         await transactions.insertMany(test_transactions);
 
-        let url = '/api/transactions/users/'+ test_users[0].username + '/category/InvalidCategory';
+        let url = '/api/transactions/users/' + test_users[0].username + '/category/InvalidCategory';
         const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
         expect(response.status).toBe(400);
         expect(response.body.error).toEqual('Category not found');
@@ -616,7 +616,7 @@ describe("getTransactionsByUserByCategory", () => {
 
         await transactions.insertMany(test_transactions);
 
-        let url = '/api/transactions/users/'+ test_users[0].username + '/category/Food';
+        let url = '/api/transactions/users/' + test_users[0].username + '/category/Food';
         const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
         expect(response.status).toBe(401);
         expect(response.body.error).toEqual('You need to be admin to perform this action');
@@ -624,7 +624,7 @@ describe("getTransactionsByUserByCategory", () => {
     test('should return error 401 if called by an unauthenticated user', async () => {
         await transactions.insertMany(test_transactions);
 
-        let url = '/api/transactions/users/'+ test_users[0].username + '/category/Food';
+        let url = '/api/transactions/users/' + test_users[0].username + '/category/Food';
         const response = await request(app).get(url);
         expect(response.status).toBe(401);
         expect(response.body.error).toEqual('Unauthorized');
@@ -635,7 +635,7 @@ describe("getTransactionsByUserByCategory", () => {
 
         await transactions.insertMany(test_transactions);
 
-        let url = '/api/users/'+ test_users[0].username + '/transactions/category/Food';
+        let url = '/api/users/' + test_users[0].username + '/transactions/category/Food';
         const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
         expect(response.status).toBe(401);
         expect(response.body.error).toEqual('You cannot request info about another user');
@@ -647,7 +647,7 @@ describe("getTransactionsByUserByCategory", () => {
         await transactions.insertMany(test_transactions);
 
         for (const category of test_categories) {
-            let url = '/api/transactions/users/'+ test_users[0].username + '/category/' + category.type;
+            let url = '/api/transactions/users/' + test_users[0].username + '/category/' + category.type;
             const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
             expect(response.status).toBe(401);
             expect(response.body.error).toEqual('You need to be admin to perform this action');
@@ -668,8 +668,78 @@ describe("getTransactionsByGroupByCategory", () => {
 })
 
 describe("deleteTransaction", () => {
-    test('Dummy test, change it', () => {
-        expect(true).toBe(true);
+    const test_categories = [{ type: 'Food', color: 'red' }, { type: 'Transportation', color: 'blue' }, { type: 'Entertainment', color: 'green' }]
+    const test_transactions = [
+        { username: 'testUser1', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z' },
+        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-01-02T23:59:59.000Z' },
+        { username: 'testUser1', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z' },
+        { username: 'testUser1', amount: 100, type: 'Food', date: '2021-05-01T00:00:00.000Z' },
+        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-05-02T00:00:00.000Z' },
+        { username: 'testUser1', amount: 50, type: 'Food', date: '2021-05-03T00:00:00.000Z' },
+        { username: 'testUser1', amount: 77, type: 'Transportation', date: '2021-05-04T00:00:00.000Z' },
+        { username: 'testUser1', amount: 88, type: 'Entertainment', date: '2021-05-05T00:00:00.000Z' },
+        { username: 'testUser1', amount: 99, type: 'Food', date: '2021-05-06T00:00:00.000Z' },
+        { username: 'testUser1', amount: 400, type: 'Food', date: '2020-01-01T00:00:00.000Z' },
+        { username: 'testUser1', amount: 500, type: 'Transportation', date: '2021-01-02T23:59:59.000Z' },
+        { username: 'testUser2', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z' },
+        { username: 'testUser2', amount: 200, type: 'Transportation', date: '2021-01-02T00:00:00.000Z' },
+        { username: 'testUser2', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z' },
+    ]
+    const test_users = [
+        { username: 'testUser1', password: 'password', email: 'test1@email.com', role: 'Regular' },
+        { username: 'testUser2', password: 'password', email: 'test2@email.com', role: 'Regular' },
+        { username: 'testAdmin', password: 'password', email: 'admin@email', role: 'Admin' }
+    ]
+    const transactions_with_color = [
+        { username: 'testUser1', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z', color: 'red' },
+        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-01-02T23:59:59.000Z', color: 'blue' },
+        { username: 'testUser1', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z', color: 'green' },
+        { username: 'testUser1', amount: 100, type: 'Food', date: '2021-05-01T00:00:00.000Z', color: 'red' },
+        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-05-02T00:00:00.000Z', color: 'blue' },
+        { username: 'testUser1', amount: 50, type: 'Food', date: '2021-05-03T00:00:00.000Z', color: 'red' },
+        { username: 'testUser1', amount: 77, type: 'Transportation', date: '2021-05-04T00:00:00.000Z', color: 'blue' },
+        { username: 'testUser1', amount: 88, type: 'Entertainment', date: '2021-05-05T00:00:00.000Z', color: 'green' },
+        { username: 'testUser1', amount: 99, type: 'Food', date: '2021-05-06T00:00:00.000Z', color: 'red' },
+        { username: 'testUser1', amount: 400, type: 'Food', date: '2020-01-01T00:00:00.000Z', color: 'red' },
+        { username: 'testUser1', amount: 500, type: 'Transportation', date: '2021-01-02T23:59:59.000Z', color: 'blue' },
+        { username: 'testUser2', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z', color: 'red' },
+        { username: 'testUser2', amount: 200, type: 'Transportation', date: '2021-01-02T00:00:00.000Z', color: 'blue' },
+        { username: 'testUser2', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z', color: 'green' },
+    ]
+    //Clean the database before all tests, and set up categories and users
+    beforeAll(async () => {
+        await User.deleteMany({});
+        await transactions.deleteMany({});
+        await categories.deleteMany({});
+        await User.insertMany(test_users);
+        await categories.insertMany(test_categories);
+    })
+    //Delete all transactions before each test
+    beforeEach(async () => {
+        await transactions.deleteMany({});
+    })
+
+    afterAll(async () => {
+        await User.deleteMany({});
+        await transactions.deleteMany({});
+        await categories.deleteMany({});
+    });
+
+    const generateToken = (payload, expirationTime = '1h') => {
+        return jwt.sign(payload, 'EZWALLET', { expiresIn: expirationTime });
+    };
+    test('Should successfully delete a transaction', async () => {
+        const refreshToken = generateToken(test_users[0]);
+        const accessToken = generateToken(test_users[0]); 
+        const transaction = await transactions.insertMany(test_transactions);
+
+        const response = await request(app)
+        .set('Cookie', [`accessToken=${accessToken}`, `refreshToken=${refreshToken}`])
+        .delete(`users/${test_users[0]}transactions/`).send({ _id: transaction[0]._id });
+
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual({ message: 'Transaction deleted' });
+
     });
 })
 
