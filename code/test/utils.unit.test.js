@@ -56,8 +56,18 @@ describe("handleDateFilterParams", () => {
         
         expect(()=>handleDateFilterParams(req)).toThrowError();
     });
-    test("Expect to throw an error if wrong date format",()=>{
+    test("Expect to throw an error if 'date' in wrong format",()=>{
         const req={query:{date: "AA2023-05-10"}};
+        
+        expect(()=>handleDateFilterParams(req)).toThrowError();
+    });
+    test("Expect to throw an error if 'from' in wrong format",()=>{
+        const req={query:{from: "22023-05-10"}};
+        
+        expect(()=>handleDateFilterParams(req)).toThrowError();
+    });
+    test("Expect to throw an error if 'upTo' in wrong format",()=>{
+        const req={query:{upTo: "10-05-2023"}};
         
         expect(()=>handleDateFilterParams(req)).toThrowError();
     });

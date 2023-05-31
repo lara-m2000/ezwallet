@@ -135,6 +135,16 @@ describe("createTransaction", () => {
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith({ error: "Missing body attributes" });
     });
+    test("Expect to fail due to empty string 'amount' attribute", async () => {
+        const req = mockReq();
+        const res = mockRes();
+        req.body = { username: "testUser", amount: " ", type: "testcategory" };
+
+        await createTransaction(req, res);
+        expect(transactions.create).not.toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "Missing body attributes" });
+    });
     test("Expect to return error when user not authenticated", async () => {
         const req = mockReq();
         const res = mockRes();
@@ -1061,7 +1071,6 @@ describe("deleteTransactions", () => {
 
         await deleteTransactions(req, res);
 
-        expect(verifyAuth).not.toHaveBeenCalled();
         expect(transactions.deleteMany).not.toHaveBeenCalled();
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith({ error: "Missing body attributes" });

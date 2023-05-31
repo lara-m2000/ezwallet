@@ -1242,6 +1242,17 @@ describe("deleteTransactions", () => {
         expect(response.status).toBe(401);
         expect(response.body.error).toBeDefined();
     });
+    test("Expected to return an error if missing '_ids' attribute", async() => {
+        const refreshToken = generateToken(test_users[1], '1h');
+        const accessToken = generateToken(test_users[1], '1h');
+        
+        const response = await request(app).delete(url)
+            .set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`])
+            .send({});
+        
+        expect(response.status).toBe(400);
+        expect(response.body.error).toEqual("Missing body attributes");
+    });
     test('Expected to return an error in an _id is an empty string', async() => {
         const refreshToken = generateToken(test_users[1], '1h');
         const accessToken = generateToken(test_users[1], '1h');
