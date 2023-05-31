@@ -50,9 +50,176 @@ describe("getCategories", () => {
 })
 
 describe("createTransaction", () => {
-    test('Dummy test, change it', () => {
-        expect(true).toBe(true);
+    const test_categories = [{ type: 'Food', color: 'red' }, { type: 'Transportation', color: 'blue' }, { type: 'Entertainment', color: 'green' }]
+    //let new_transaction = { username: 'testUser1', amount: 100, type: 'Food' }
+    const test_users = [
+        { username: 'testUser1', password: 'password', email: 'test1@email.com', role: 'Regular' },
+        { username: 'testUser2', password: 'password', email: 'test2@email.com', role: 'Regular' },
+        { username: 'testAdmin', password: 'password', email: 'admin@email', role: 'Admin' }
+    ]
+    
+    beforeAll(async () => {
+        await User.deleteMany({});
+        await transactions.deleteMany({});
+        await categories.deleteMany({});
+        await User.insertMany(test_users);
+        await categories.insertMany(test_categories);
+    })
+    //Delete all transactions before each test
+    beforeEach(async () => {
+        await transactions.deleteMany({});
+    })
+
+    afterAll(async () => {
+        await User.deleteMany({});
+        await transactions.deleteMany({});
+        await categories.deleteMany({});
     });
+
+    const generateToken = (payload, expirationTime = '1h') => {
+        return jwt.sign(payload, 'EZWALLET', { expiresIn: expirationTime });
+    };
+
+    test("Expect to sucessfully create a new transaction", async()=>{
+        const refreshToken = generateToken(test_users[0], '1h');
+        const accessToken = generateToken(test_users[0], '1h');
+        const new_transaction = { username: 'testUser1', amount: 100, type: 'Food' }
+    
+        const url = `/api/users/${test_users[0].username}/transactions`;
+        const response = await request(app)
+                .post(url)
+                .set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`])
+                .send(new_transaction);
+        expect(response.status).toBe(200);
+        expect(response.body.data.username).toEqual(new_transaction.username);
+        expect(response.body.data.amount).toEqual(new_transaction.amount);
+        expect(response.body.data.type).toEqual(new_transaction.type);
+    })
+    describe("Body attributes errors", ()=>{
+        const errorMessage="Missing body attributes";
+
+        test("Expect to return an error if 'username' is not given", async()=>{
+            const refreshToken = generateToken(test_users[0], '1h');
+            const accessToken = generateToken(test_users[0], '1h');
+            const new_transaction = { amount: 100, type: 'Food' };
+            const url = `/api/users/${test_users[0].username}/transactions`;
+            const response = await request(app)
+                .post(url)
+                .set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`])
+                .send(new_transaction);
+        
+            expect(response.status).toBe(400);
+            expect(response.body.error).toEqual(errorMessage);
+        })
+        test("Expect to return an error if 'username' is empty", async()=>{
+            const refreshToken = generateToken(test_users[0], '1h');
+            const accessToken = generateToken(test_users[0], '1h');
+            const new_transaction = { username: ' ', amount: 100, type: 'Food' };
+            const url = `/api/users/${test_users[0].username}/transactions`;
+            const response = await request(app)
+                .post(url)
+                .set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`])
+                .send(new_transaction);
+            expect(response.status).toBe(400);
+            expect(response.body.error).toEqual(errorMessage);
+        })
+        test("Expect to return an error if 'amount' is empty", async()=>{
+            const refreshToken = generateToken(test_users[0], '1h');
+            const accessToken = generateToken(test_users[0], '1h');
+            const new_transaction = { username: 'testUser1', amount: " ", type: 'Food' };
+            const url = `/api/users/${test_users[0].username}/transactions`;
+            const response = await request(app)
+                .post(url)
+                .set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`])
+                .send(new_transaction);
+            expect(response.status).toBe(400);
+            expect(response.body.error).toEqual(errorMessage);
+        })
+        test("Expect to return an error if 'amount' is not a number", async()=>{
+            const refreshToken = generateToken(test_users[0], '1h');
+            const accessToken = generateToken(test_users[0], '1h');
+            const amounts=["A100", "100A", "100 A", "AAA"];
+            const url = `/api/users/${test_users[0].username}/transactions`;
+            for(const amount of amounts){
+                const new_transaction = { username: test_users[0].username, amount, type: 'Food' }
+                const response = await request(app)
+                .post(url)
+                .set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`])
+                .send(new_transaction);
+            expect(response.status).toBe(400);
+            expect(response.body.error).toEqual("Invalid 'amount' value");
+            }
+            
+        })
+    })
+    describe("Authorization errors", ()=>{
+        test("Expect to ruturn an error if not logged in", async()=>{
+            const new_transaction = { username: 'testUser1', amount: 100, type: 'Food' }
+        
+            const url = `/api/users/${test_users[0].username}/transactions`;
+            const response = await request(app)
+                    .post(url)
+                    .send(new_transaction);
+            expect(response.status).toBe(401);
+            expect(response.body.error).toBeDefined();
+        })
+        test("Expected to return an error if logged in, but not as the user in the body", async()=>{
+            const refreshToken = generateToken(test_users[0], '1h');
+            const accessToken = generateToken(test_users[0], '1h');
+            const new_transaction = { username: test_users[1].username, amount: 100, type: 'Food' }
+        
+            const url = `/api/users/${test_users[0].username}/transactions`;
+            const response = await request(app)
+                    .post(url)
+                    .set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`])
+                    .send(new_transaction);
+            expect(response.status).toBe(401);
+            expect(response.body.error).toBeDefined();
+        })
+        test("Expected to return an error if logged in, but not as the user in the path", async()=>{
+            const refreshToken = generateToken(test_users[0], '1h');
+            const accessToken = generateToken(test_users[0], '1h');
+            const new_transaction = { username: test_users[0].username, amount: 100, type: 'Food' }
+        
+            const url = `/api/users/${test_users[1].username}/transactions`;
+            const response = await request(app)
+                    .post(url)
+                    .set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`])
+                    .send(new_transaction);
+            expect(response.status).toBe(400);
+            expect(response.body.error).toEqual("Username mismatch");
+        })
+    })
+    test("Expected to return an error if the user is not found in the database", async()=>{
+        // need to pass valid tokens
+        const fake_user={ username: 'fake', password: 'password', email: 'fake@email.com', role: 'Regular' };
+        const refreshToken = generateToken(fake_user, '1h');
+        const accessToken = generateToken(fake_user, '1h');
+        const new_transaction = { username: 'fake', amount: 100, type: 'Food' }
+    
+        const url = `/api/users/${fake_user.username}/transactions`;
+        const response = await request(app)
+                .post(url)
+                .set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`])
+                .send(new_transaction);
+        expect(response.status).toBe(400);
+        expect(response.body.error).toEqual("User not found");
+    
+    })
+    test("Expected to return an error if the category is not found", async()=>{
+        const refreshToken = generateToken(test_users[0], '1h');
+        const accessToken = generateToken(test_users[0], '1h');
+        const new_transaction = { username: test_users[0].username, amount: 100, type: 'Wrong category' }
+    
+        const url = `/api/users/${test_users[0].username}/transactions`;
+        const response = await request(app)
+                .post(url)
+                .set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`])
+                .send(new_transaction);
+        expect(response.status).toBe(400);
+        expect(response.body.error).toEqual("Category not found");
+    
+    })
 })
 
 describe("getAllTransactions", () => {
@@ -147,8 +314,8 @@ describe("getAllTransactions", () => {
 
         const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
 
-        expect(response.status).toBe(200);
-        expect(response.body.data).toEqual(transactions_with_color);
+        expect(response.status).toBe(401);
+        expect(response.body).toHaveProperty("error")
     
     });
 })
