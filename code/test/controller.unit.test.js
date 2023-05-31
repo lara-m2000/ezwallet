@@ -324,15 +324,14 @@ describe("getAllTransactions", () => {
         expect(transactions.aggregate).not.toHaveBeenCalled();
         expect(res.status).toHaveBeenCalledWith(401);
         expect(res.json).toHaveBeenCalledWith({ error: authMessage });
-    });
-    //TODO: check
+    })
     test("Expect to return a server error if an exception occurs", async()=>{
             const req={};
             const res=mockRes();
             const errorMessage="Server error"
             jest.spyOn(transactions, "aggregate").mockRejectedValue(new Error(errorMessage));
     
-            await getAllTransactions();
+            await getAllTransactions(req, res);
     
             expect(verifyAuth).toHaveBeenCalled();
             expect(res.status).toHaveBeenCalledWith(500);

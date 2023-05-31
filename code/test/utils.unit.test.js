@@ -8,18 +8,13 @@ describe("handleDateFilterParams", () => {
     afterEach(() => {
         jest.clearAllMocks();
     });
-    // only from
-    // only upTo
-    // from and upto
-    // date
-    // date w/ one
-    //invalid date
+
     test("Expect to return an empty object without query params", () => {
         const req={query:{}};
         const result=handleDateFilterParams(req);
         expect(result).toEqual({});
     });
-    test("Expect to return an object with 'upTo' query",()=>{
+    test("Expect to return an object with 'from' query",()=>{
         const req={query:{from: "2023-04-30"}};
 
         const result=handleDateFilterParams(req);
@@ -75,7 +70,32 @@ describe("verifyAuth", () => {
 })
 
 describe("handleAmountFilterParams", () => { 
-    test('Dummy test, change it', () => {
-        expect(true).toBe(true);
+    test('Expect empty object if no query params', () => {
+        const req={query:{}};
+
+        const result=handleAmountFilterParams(req);
+        
+        expect(result).toEqual({});
     });
+    test("Expect to return an object with 'min' query", ()=>{
+        const req={query:{min:"10"}};
+        const result=handleAmountFilterParams(req);
+        expect(result.amount.$gte).toEqual(10)
+    })
+    test("Expect to return an object with 'max' query", ()=>{
+        const req={query:{max:"50"}};
+        const result=handleAmountFilterParams(req);
+        expect(result.amount.$lte).toEqual(50)
+    })
+    test("Expect to return an object with 'min' and 'max' query", ()=>{
+        const req={query:{min:"10", max:"50"}};
+        const result=handleAmountFilterParams(req);
+        expect(result.amount.$gte).toEqual(10);
+        expect(result.amount.$lte).toEqual(50);
+    })
+    test("Expect to throw an error if wrong amount format",()=>{
+        const req={query:{min:"A10"}};
+
+        expect(()=>handleAmountFilterParams(req)).toThrowError();
+    })
 })

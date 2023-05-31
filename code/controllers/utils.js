@@ -164,9 +164,9 @@ export const handleAmountFilterParams = (req) => {
         return {};
     if ((max && isNaN(Number(max))) || (min && isNaN(Number(min))))
         throw new Error("Query parameters badly formatted");
-    if ((min && max) && Number(min) > Number(max)) {
+    /*if ((min && max) && Number(min) > Number(max)) {
         throw new Error("Min amount cannot be greater than max amount");
-    }
+    }*/
     let matchObj = { amount: {} };
     if (min) {
         matchObj.amount.$gte = Number(min);
