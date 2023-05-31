@@ -162,12 +162,12 @@ describe("createTransaction", () => {
             expect(response.status).toBe(401);
             expect(response.body.error).toBeDefined();
         })
-        test("Expected to return an error if logged in, but not as the user in the body", async()=>{
+        test("Expected to return an error if logged in, but not as the user in the path", async()=>{
             const refreshToken = generateToken(test_users[0], '1h');
             const accessToken = generateToken(test_users[0], '1h');
-            const new_transaction = { username: test_users[1].username, amount: 100, type: 'Food' }
+            const new_transaction = { username: test_users[0].username, amount: 100, type: 'Food' }
         
-            const url = `/api/users/${test_users[0].username}/transactions`;
+            const url = `/api/users/${test_users[1].username}/transactions`;
             const response = await request(app)
                     .post(url)
                     .set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`])
@@ -175,12 +175,12 @@ describe("createTransaction", () => {
             expect(response.status).toBe(401);
             expect(response.body.error).toBeDefined();
         })
-        test("Expected to return an error if logged in, but not as the user in the path", async()=>{
+        test("Expected to return an error if username mismatch between path and body", async()=>{
             const refreshToken = generateToken(test_users[0], '1h');
             const accessToken = generateToken(test_users[0], '1h');
-            const new_transaction = { username: test_users[0].username, amount: 100, type: 'Food' }
+            const new_transaction = { username: test_users[1].username, amount: 100, type: 'Food' }
         
-            const url = `/api/users/${test_users[1].username}/transactions`;
+            const url = `/api/users/${test_users[0].username}/transactions`;
             const response = await request(app)
                     .post(url)
                     .set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`])
@@ -218,6 +218,22 @@ describe("createTransaction", () => {
         expect(response.status).toBe(400);
         expect(response.body.error).toEqual("Category not found");
     
+    })
+    test("Should check authentication before other types of errors", async()=>{
+        //missing attribute, empty attribute, no category, no user, mismatch
+        const new_transactions=[
+            { username: 'testUser1', type: 'Food' },
+            { username: 'testUser1', amount: 100, type: ' ' },
+            { username: 'testUser1', amount: 100, type: 'Wrong type' },
+            { username: 'wrongUser', amount: 100, type: 'Food' }
+        ]
+        const url = `/api/users/testUser1/transactions`;
+        for(const new_transaction of new_transactions){
+            const response = await request(app)
+                    .post(url)
+                    .send(new_transaction);
+            expect(response.status).toBe(401);
+        }
     })
 })
 
@@ -1130,7 +1146,6 @@ describe("deleteTransaction", () => {
 })
 
 describe("deleteTransactions", () => {
-    const test_categories = [{ type: 'Food', color: 'red' }, { type: 'Transportation', color: 'blue' }, { type: 'Entertainment', color: 'green' }]
     const test_transactions = [
         { username: 'testUser1', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z' },
         { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-01-02T23:59:59.000Z' },
@@ -1149,7 +1164,6 @@ describe("deleteTransactions", () => {
     ]
     const test_users = [
         { username: 'testUser1', password: 'password', email: 'test1@email.com', role: 'Regular' },
-        //{ username: 'testUser2', password: 'password', email: 'test2@email.com', role: 'Regular' },
         { username: 'testAdmin', password: 'password', email: 'admin@email', role: 'Admin' }
     ]
     const url = '/api/transactions';
@@ -1157,12 +1171,9 @@ describe("deleteTransactions", () => {
     beforeAll(async () => {
         await User.deleteMany({});
         await transactions.deleteMany({});
-        await categories.deleteMany({});
         await User.insertMany(test_users);
-        await categories.insertMany(test_categories);
         
     })
-    //Delete all transactions before each test
     beforeEach(async () => {
         await transactions.deleteMany({});
         const tr=await transactions.insertMany(test_transactions);
@@ -1172,14 +1183,12 @@ describe("deleteTransactions", () => {
     afterAll(async () => {
         await User.deleteMany({});
         await transactions.deleteMany({});
-        await categories.deleteMany({});
     });
 
     const generateToken = (payload, expirationTime = '1h') => {
         return jwt.sign(payload, 'EZWALLET', { expiresIn: expirationTime });
     };
 
-// empy array, 1 element, some elements, all the elements
     test('Expected to delete some transactions', async() => {
         const refreshToken = generateToken(test_users[1], '1h');
         const accessToken = generateToken(test_users[1], '1h');
@@ -1249,7 +1258,7 @@ describe("deleteTransactions", () => {
         const stillExisting=await transactions.find({_id:{$in: _ids}}).countDocuments();
         expect(stillExisting).toBeGreaterThan(0);
     });
-    test('Expected to return an error in an _id is an invalid string', async() => {
+    test('Expected to return an error if an _id is an invalid string', async() => {
         const refreshToken = generateToken(test_users[1], '1h');
         const accessToken = generateToken(test_users[1], '1h');
         const _ids=current_ids.slice(0,1);
@@ -1265,7 +1274,7 @@ describe("deleteTransactions", () => {
         const stillExisting=await transactions.find({_id:{$in: _ids}}).countDocuments();
         expect(stillExisting).toBeGreaterThan(0);
     });
-    test('Expected to return an error in a transaction is not found', async() => {
+    test('Expected to return an error if a transaction is not found', async() => {
         const refreshToken = generateToken(test_users[1], '1h');
         const accessToken = generateToken(test_users[1], '1h');
         // to make sure the second _id is valid but not in the db
@@ -1284,4 +1293,19 @@ describe("deleteTransactions", () => {
         const stillExisting=await transactions.find({_id:{$in: still_present}}).countDocuments();
         expect(stillExisting).toBeGreaterThan(0);
     });
+    test("Should check authentication before other types of errors", async()=>{
+        //missing attribute, empty attribute, no category, no user, mismatch
+        const bodies=[
+            { },
+            { _ids: ['invalidId']},
+            { _ids: [' ']},
+        ]
+        const url = `/api/users/testUser1/transactions`;
+        for(const body of bodies){
+            const response = await request(app)
+                    .post(url)
+                    .send(body);
+            expect(response.status).toBe(401);
+        }
+    })
 })

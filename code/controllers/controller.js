@@ -86,16 +86,16 @@ export const getCategories = async (req, res) => {
  */
 export const createTransaction = async (req, res) => {
     try {
+        const auth = verifyAuth(req, res, { authType: "User", username: req.params.username });
+        if (!auth.flag) {
+            return res.status(401).json({ error: auth.cause })
+        }
         const { username, amount, type } = req.body;
         if (!username || !amount || !type || username.trim() === "" || type.trim() === "") {
             return res.status(400).json({ error: "Missing body attributes" });
         }
         if((typeof amount==="string") && amount.trim() === "" ){
             return res.status(400).json({ error: "Missing body attributes" });
-        }
-        const auth = verifyAuth(req, res, { authType: "User", username: username });
-        if (!auth.flag) {
-            return res.status(401).json({ error: auth.cause })
         }
         if (username !== req.params.username) {
             return res.status(400).json({ error: "Username mismatch" });
@@ -411,12 +411,12 @@ export const deleteTransaction = async (req, res) => { //only called by regular 
 export const deleteTransactions = async (req, res) => {
     try {
         const ids = req.body._ids;
-        if (!ids) {
-            return res.status(400).json({ error: "Missing body attributes" });
-        }
         const auth = verifyAuth(req, res, { authType: "Admin" })
         if (!auth.flag) {
             return res.status(401).json({ error: auth.cause })
+        }
+        if (!ids) {
+            return res.status(400).json({ error: "Missing body attributes" });
         }
         for (const id of ids){
             if(typeof id !== "string" || !id.trim())
