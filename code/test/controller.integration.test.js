@@ -427,14 +427,13 @@ describe("getTransactionsByUser", () => {
             expect(response.body.error).toBe("Query parameters badly formatted");
         }
     });
-    //should not return an error but an empty transactions array
-    test.skip('should return an error if min is greater than max', async () => {
+    test('should return an empty transactions array if min is greater than max', async () => {
         const refreshToken = generateToken(test_users[0], '1h');
         const accessToken = generateToken(test_users[0], '1h');
 
         const response = await request(app).get('/api/users/' + test_users[0].username + '/transactions?min=100&max=50').set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
-        expect(response.status).toBe(500);
-        expect(response.body.error).toBe("Min amount cannot be greater than max amount");
+        expect(response.status).toBe(200);
+        expect(response.body.data).toEqual([]);
     });
     //Mixed filters
     test('should return filtered user transactions based on query params "min", "max", "from" and "upTo"', async () => {
