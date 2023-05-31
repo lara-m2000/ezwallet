@@ -690,22 +690,6 @@ describe("deleteTransaction", () => {
         { username: 'testUser2', password: 'password', email: 'test2@email.com', role: 'Regular' },
         { username: 'testAdmin', password: 'password', email: 'admin@email', role: 'Admin' }
     ]
-    const transactions_with_color = [
-        { username: 'testUser1', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z', color: 'red' },
-        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-01-02T23:59:59.000Z', color: 'blue' },
-        { username: 'testUser1', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z', color: 'green' },
-        { username: 'testUser1', amount: 100, type: 'Food', date: '2021-05-01T00:00:00.000Z', color: 'red' },
-        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-05-02T00:00:00.000Z', color: 'blue' },
-        { username: 'testUser1', amount: 50, type: 'Food', date: '2021-05-03T00:00:00.000Z', color: 'red' },
-        { username: 'testUser1', amount: 77, type: 'Transportation', date: '2021-05-04T00:00:00.000Z', color: 'blue' },
-        { username: 'testUser1', amount: 88, type: 'Entertainment', date: '2021-05-05T00:00:00.000Z', color: 'green' },
-        { username: 'testUser1', amount: 99, type: 'Food', date: '2021-05-06T00:00:00.000Z', color: 'red' },
-        { username: 'testUser1', amount: 400, type: 'Food', date: '2020-01-01T00:00:00.000Z', color: 'red' },
-        { username: 'testUser1', amount: 500, type: 'Transportation', date: '2021-01-02T23:59:59.000Z', color: 'blue' },
-        { username: 'testUser2', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z', color: 'red' },
-        { username: 'testUser2', amount: 200, type: 'Transportation', date: '2021-01-02T00:00:00.000Z', color: 'blue' },
-        { username: 'testUser2', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z', color: 'green' },
-    ]
     //Clean the database before all tests, and set up categories and users
     beforeAll(async () => {
         await User.deleteMany({});
@@ -731,16 +715,64 @@ describe("deleteTransaction", () => {
     test('Should successfully delete a transaction', async () => {
         const refreshToken = generateToken(test_users[0]);
         const accessToken = generateToken(test_users[0]); 
-        const transaction = await transactions.insertMany(test_transactions);
-
-        const response = await request(app)
-        .set('Cookie', [`accessToken=${accessToken}`, `refreshToken=${refreshToken}`])
-        .delete(`users/${test_users[0]}transactions/`).send({ _id: transaction[0]._id });
-
-        expect(response.status).toBe(200);
-        expect(response.body).toEqual({ message: 'Transaction deleted' });
+        const inserted_transactions = await transactions.insertMany(test_transactions);
+        let len = inserted_transactions.filter(transaction => transaction.username === test_users[0].username).length;
+        for (const transaction of inserted_transactions.filter(transaction => transaction.username === test_users[0].username)) {
+            const response = await request(app).delete('/api/users/' + test_users[0].username + '/transactions/' ).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]).send({_id: transaction._id});
+            const deleted_transaction = await transactions.findOne({_id: transaction._id});
+            //Check that the transaction was deleted
+            expect(deleted_transaction).toBeNull();
+            len = len - 1;
+            //Check that the other transactions were not deleted
+            expect(await transactions.find({username: test_users[0].username})).toHaveLength(len);
+            //Check that the response is correct
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual({data: { message: 'Transaction deleted' }});
+        }
 
     });
+    //Non valid-body
+    test('should return error 400 if _id in body is not defined', async () => {
+        const refreshToken = generateToken(test_users[0]);
+        const accessToken = generateToken(test_users[0]);
+        const non_valid_bodies = [{}, { _notId:'1'}, { _id: undefined}];
+        
+        for (const body of non_valid_bodies) {
+            const response = await request(app).delete('/api/users/' + test_users[0].username + '/transactions/' )
+            .set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`])
+            .send(body);
+            expect(response.status).toBe(400);
+            expect(response.body.error).toEqual('Missing body attributes');
+        }
+    });
+    test('should return error 400 if _id in body is an empty string', async () => {
+        const refreshToken = generateToken(test_users[0]);
+        const accessToken = generateToken(test_users[0]);
+        const non_valid_bodies = [{ _id: ''}, { _id: '   '}]//, { _id: '\n'}, { _id: '\t'}, { _id: '\r'}, { _id: '\r\n'}];
+
+        for (const body of non_valid_bodies) {
+            const response = await request(app).delete('/api/users/' + test_users[0].username + '/transactions/' )
+            .set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`])
+            .send(body);
+            expect(response.status).toBe(400);
+            expect(response.body.error).toEqual('Missing body attributes');
+        }
+    });
+    test('should return error 400 if _id in body is not a string', async () => {
+        const refreshToken = generateToken(test_users[0]);
+        const accessToken = generateToken(test_users[0]);
+        const non_valid_bodies = [{ _id: 1}, { _id: 1.1}, { _id: true}, { _id: false}, { _id: null}, { _id: undefined}, { _id: []}, { _id: {}}];
+
+        for (const body of non_valid_bodies) {
+            const response = await request(app).delete('/api/users/' + test_users[0].username + '/transactions/' )
+            .set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`])
+            .send(body);
+            expect(response.status).toBe(400);
+            expect(response.body.error).toEqual('Missing body attributes');
+        }
+    }
+    );
+
 })
 
 describe("deleteTransactions", () => {
