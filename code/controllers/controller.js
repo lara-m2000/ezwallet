@@ -113,8 +113,12 @@ export const deleteCategory = async (req, res) => {
         if (!adminAuth.flag) {
             return res.status(401).json({ error: adminAuth.cause });
         }
-        //Retrieve array of types from request body
-        const { types } = req.body
+        //Retrieve array of types from request body and eliminate the duplicate values
+        const typesArr = req.body.types;
+        let types = [];
+        for(let i=0;i<typesArr.length;i++)
+            if(types.indexOf(typesArr[i])===-1)
+                types.push(typesArr[i]);
 
         //Check validity of req.body
         if (!Array.isArray(types) || types.length === 0) {
