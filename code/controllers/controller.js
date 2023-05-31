@@ -384,14 +384,14 @@ export const deleteTransaction = async (req, res) => { //only called by regular 
             return res.status(400).json({ error: "User not found" });
         }
         const id = req.body._id;
-        if (!id)
+        if (!id || typeof id !== "string" || !id.trim())
             return res.status(400).json({ error: "Missing body attributes" });
-        const transactionToDelete = await transactions.findById(id);
+        const transactionToDelete = await transactions.findOne({ _id: id });
         if (!transactionToDelete) {
             return res.status(400).json({ error: "Transaction not found" });
         }
         if (transactionToDelete.username !== user.username) {
-            res.status(401).json({ error: "Unauthorized" });
+            return res.status(400).json({ error: "You can't delete a transaction of another user" });
         }
 
         let data = await transactions.deleteOne({ _id: req.body._id });

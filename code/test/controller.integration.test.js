@@ -594,14 +594,13 @@ describe("getTransactionsByUser", () => {
             expect(response.body.error).toBe("Query parameters badly formatted");
         }
     });
-    //should not return an error but an empty transactions array
-    test.skip('should return an error if min is greater than max', async () => {
+    test('should return an empty transactions array if min is greater than max', async () => {
         const refreshToken = generateToken(test_users[0], '1h');
         const accessToken = generateToken(test_users[0], '1h');
 
         const response = await request(app).get('/api/users/' + test_users[0].username + '/transactions?min=100&max=50').set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
-        expect(response.status).toBe(500);
-        expect(response.body.error).toBe("Min amount cannot be greater than max amount");
+        expect(response.status).toBe(200);
+        expect(response.body.data).toEqual([]);
     });
     //Mixed filters
     test('should return filtered user transactions based on query params "min", "max", "from" and "upTo"', async () => {
@@ -950,22 +949,6 @@ describe("deleteTransaction", () => {
         { username: 'testUser2', password: 'password', email: 'test2@email.com', role: 'Regular' },
         { username: 'testAdmin', password: 'password', email: 'admin@email', role: 'Admin' }
     ]
-    const transactions_with_color = [
-        { username: 'testUser1', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z', color: 'red' },
-        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-01-02T23:59:59.000Z', color: 'blue' },
-        { username: 'testUser1', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z', color: 'green' },
-        { username: 'testUser1', amount: 100, type: 'Food', date: '2021-05-01T00:00:00.000Z', color: 'red' },
-        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-05-02T00:00:00.000Z', color: 'blue' },
-        { username: 'testUser1', amount: 50, type: 'Food', date: '2021-05-03T00:00:00.000Z', color: 'red' },
-        { username: 'testUser1', amount: 77, type: 'Transportation', date: '2021-05-04T00:00:00.000Z', color: 'blue' },
-        { username: 'testUser1', amount: 88, type: 'Entertainment', date: '2021-05-05T00:00:00.000Z', color: 'green' },
-        { username: 'testUser1', amount: 99, type: 'Food', date: '2021-05-06T00:00:00.000Z', color: 'red' },
-        { username: 'testUser1', amount: 400, type: 'Food', date: '2020-01-01T00:00:00.000Z', color: 'red' },
-        { username: 'testUser1', amount: 500, type: 'Transportation', date: '2021-01-02T23:59:59.000Z', color: 'blue' },
-        { username: 'testUser2', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z', color: 'red' },
-        { username: 'testUser2', amount: 200, type: 'Transportation', date: '2021-01-02T00:00:00.000Z', color: 'blue' },
-        { username: 'testUser2', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z', color: 'green' },
-    ]
     //Clean the database before all tests, and set up categories and users
     beforeAll(async () => {
         await User.deleteMany({});
@@ -991,15 +974,147 @@ describe("deleteTransaction", () => {
     test('Should successfully delete a transaction', async () => {
         const refreshToken = generateToken(test_users[0]);
         const accessToken = generateToken(test_users[0]); 
-        const transaction = await transactions.insertMany(test_transactions);
+        const inserted_transactions = await transactions.insertMany(test_transactions);
+        let len = inserted_transactions.filter(transaction => transaction.username === test_users[0].username).length;
+        for (const transaction of inserted_transactions.filter(transaction => transaction.username === test_users[0].username)) {
+            const response = await request(app).delete('/api/users/' + test_users[0].username + '/transactions/' ).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]).send({_id: transaction._id});
+            const deleted_transaction = await transactions.findOne({_id: transaction._id});
+            //Check that the transaction was deleted
+            expect(deleted_transaction).toBeNull();
+            len = len - 1;
+            //Check that the other transactions were not deleted
+            expect(await transactions.find({username: test_users[0].username})).toHaveLength(len);
+            //Check that the response is correct
+            expect(response.status).toBe(200);
+            expect(response.body.data).toEqual({ message: 'Transaction deleted' });
+        }
 
-        const response = await request(app)
-        .set('Cookie', [`accessToken=${accessToken}`, `refreshToken=${refreshToken}`])
-        .delete(`users/${test_users[0]}transactions/`).send({ _id: transaction[0]._id });
+    });
+    //Non valid-body
+    test('should return error 400 if _id in body is not defined', async () => {
+        const refreshToken = generateToken(test_users[0]);
+        const accessToken = generateToken(test_users[0]);
+        const non_valid_bodies = [{}, { _notId:'1'}, { _id: undefined}, { id:'233'}];
+        
+        for (const body of non_valid_bodies) {
+            const response = await request(app).delete('/api/users/' + test_users[0].username + '/transactions/' )
+            .set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`])
+            .send(body);
+            expect(response.status).toBe(400);
+            expect(response.body.error).toEqual('Missing body attributes');
+        }
+    });
+    test('should return error 400 if _id in body is an empty string', async () => {
+        const refreshToken = generateToken(test_users[0]);
+        const accessToken = generateToken(test_users[0]);
+        const non_valid_bodies = [{ _id: ''}, { _id: '   '}, { _id: '\n'}, { _id: '\t'}, { _id: '\r'}, { _id: '\r\n'}];
 
-        expect(response.status).toBe(200);
-        expect(response.body).toEqual({ message: 'Transaction deleted' });
+        for (const body of non_valid_bodies) {
+            const response = await request(app).delete('/api/users/' + test_users[0].username + '/transactions/' )
+            .set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`])
+            .send(body);
+            expect(response.status).toBe(400);
+            expect(response.body.error).toEqual('Missing body attributes');
+        }
+    });
+    test('should return error 400 if _id in body is not a string', async () => {
+        const refreshToken = generateToken(test_users[0]);
+        const accessToken = generateToken(test_users[0]);
+        const non_valid_bodies = [{ _id: 1}, { _id: 1.1}, { _id: true}, { _id: false}, { _id: null}, { _id: undefined}, { _id: []}, { _id: {}}];
 
+        for (const body of non_valid_bodies) {
+            const response = await request(app).delete('/api/users/' + test_users[0].username + '/transactions/' )
+            .set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`])
+            .send(body);
+            expect(response.status).toBe(400);
+            expect(response.body.error).toEqual('Missing body attributes');
+        }
+    }
+    );
+    test('should return error 400 if _id in body is not a valid ObjectId', async () => {
+        const refreshToken = generateToken(test_users[0]);
+        const accessToken = generateToken(test_users[0]);
+        const non_valid_bodies = [{ _id: '1'}, { _id: '1.1'}, { _id: 'true'}, { _id: 'false'}, { _id: 'null'}, { _id: 'undefined'}, { _id: '[]'}, { _id: '{}'}, { _id: '1234567890123456789012345'}];
+
+        for (const body of non_valid_bodies) {
+            const response = await request(app).delete('/api/users/' + test_users[0].username + '/transactions/' )
+            .set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`])
+            .send(body);
+            expect(response.body.error).toEqual('Missing body attributes');
+            expect(response.status).toBe(400);
+        }
+    }
+    );
+
+    //Others
+    test('should return error 400 if username passed as params does not exist in the DB', async () => {
+        const refreshToken = generateToken({username: 'nonExistingUser', role: 'Regular', password: 'password', email: 'nonExisting@email.com' });
+        const accessToken = generateToken({username: 'nonExistingUser', role: 'Regular', password: 'password', email: 'nonExisting@email.com' });
+        
+        const response = await request(app).delete('/api/users/' + 'nonExistingUser' + '/transactions/' )
+        .set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`])
+        .send({_id: '1'});
+
+        expect(response.status).toBe(400);
+        expect(response.body.error).toEqual('User not found');
+        //Restore deleted user
+    });
+    test('should return error 400 if the _id (transaction) in the body does not exist in the DB', async () => {
+        const refreshToken = generateToken(test_users[0]);
+        const accessToken = generateToken(test_users[0]);
+
+        const inserted_transactions = await transactions.insertMany(test_transactions);
+        await transactions.deleteMany({_id: inserted_transactions[0]._id});
+        const response = await request(app).delete('/api/users/' + test_users[0].username + '/transactions/' )
+        .set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`])
+        .send({_id: inserted_transactions[0]._id});
+
+        expect(response.status).toBe(400);
+        expect(response.body.error).toEqual('Transaction not found');
+    }
+    );
+    test('should return error 400 if the _id (transaction) in the body does not belong to the user', async () => {
+        const refreshToken = generateToken(test_users[0]);
+        const accessToken = generateToken(test_users[0]);
+
+        const inserted_transactions = await transactions.insertMany(test_transactions);
+
+        for (const transaction of inserted_transactions.filter(transaction => transaction.username !== test_users[0].username)) {
+            const response = await request(app).delete('/api/users/' + test_users[0].username + '/transactions/' )
+            .set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`])
+            .send({_id: transaction._id});
+
+            expect(response.status).toBe(400);
+            expect(response.body.error).toEqual("You can't delete a transaction of another user");
+        }
+    });
+
+    //Authorization
+    test('should return error 401 if called by a non-authenticated user', async () => {
+        const response = await request(app).delete('/api/users/' + test_users[0].username + '/transactions/' ).send({_id: '1'});
+        expect(response.status).toBe(401);
+        expect(response.body.error).toEqual('Unauthorized');
+    }
+    );
+    test('should error 401 if called by an authenticated user who is not the same as the one in the route (authType=user)', async () => {
+        const refreshToken = generateToken(test_users[0]);
+        const accessToken = generateToken(test_users[0]);
+        const response = await request(app).delete('/api/users/' + test_users[1].username + '/transactions/' )
+        .set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`])
+        .send({_id: '1'});
+        expect(response.status).toBe(401);
+        expect(response.body.error).toEqual('You cannot request info about another user');
+    });
+    test('should check authentication before other types of errors', async () => {
+        const response = await request(app).delete('/api/users/' + test_users[0].username + '/transactions/' ).send({_id: 'nonValidId'});
+        expect(response.status).toBe(401);
+        expect(response.body.error).toEqual('Unauthorized');
+        const response2 = await request(app).delete('/api/users/' + test_users[0].username + '/transactions/' ).send({});
+        expect(response2.status).toBe(401);
+        expect(response2.body.error).toEqual('Unauthorized');
+        const response3 = await request(app).delete('/api/users/' + test_users[1].username + '/transactions/' ).send({_id: '  '});
+        expect(response3.status).toBe(401);
+        expect(response3.body.error).toEqual('Unauthorized');
     });
 })
 
