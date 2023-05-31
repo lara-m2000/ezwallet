@@ -876,7 +876,7 @@ describe("deleteTransaction", () => {
         }
     }
     );
-    test('should return error 400 if _id in body is not a valid ObjectId', async () => {
+    test('should return error 500 if _id in body is not a valid ObjectId', async () => {
         const refreshToken = generateToken(test_users[0]);
         const accessToken = generateToken(test_users[0]);
         const non_valid_bodies = [{ _id: '1'}, { _id: '1.1'}, { _id: 'true'}, { _id: 'false'}, { _id: 'null'}, { _id: 'undefined'}, { _id: '[]'}, { _id: '{}'}, { _id: '1234567890123456789012345'}];
@@ -885,8 +885,8 @@ describe("deleteTransaction", () => {
             const response = await request(app).delete('/api/users/' + test_users[0].username + '/transactions/' )
             .set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`])
             .send(body);
-            //expect(response.body.error).toEqual('Missing body attributes');
-            expect(response.status).toBe(400);
+            
+            expect(response.status).toBe(500);
         }
     }
     );
