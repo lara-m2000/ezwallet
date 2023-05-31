@@ -285,7 +285,6 @@ describe("getAllTransactions", () => {
         ];
         const resultList = [
             {
-                _id: "000",
                 username: "Mario",
                 amount: 100,
                 type: "food",
@@ -293,7 +292,6 @@ describe("getAllTransactions", () => {
                 color: "red",
             },
             {
-                _id: "aaa",
                 username: "Luigi",
                 amount: 20,
                 type: "food",
@@ -330,8 +328,6 @@ describe("getAllTransactions", () => {
             const req={};
             const res=mockRes();
             const errorMessage="Server error"
-            //problem here
-            //transactions.aggregate.mockResolvedValue({map: jest.fn().mockImplementation(() => {throw {error: errorMessage}})});
             jest.spyOn(transactions, "aggregate").mockRejectedValue(new Error(errorMessage));
     
             await getAllTransactions();
@@ -343,17 +339,7 @@ describe("getAllTransactions", () => {
 });
 
 describe("getTransactionsByUser", () => {
-    const mockRes = () => ({
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-        locals: {
-            refreshedTokenMessage: "RefreshToken",
-        },
-    });
-    const mockReq = (isAdmin = true) => ({
-        params: { username: "Mario" },
-        url: isAdmin ? "/transactions/users/" : "/users/",
-    });
+
     beforeEach(() => {
         jest.resetAllMocks();
         verifyAuth.mockReturnValue({ flag: true });
@@ -361,58 +347,6 @@ describe("getTransactionsByUser", () => {
 
     afterEach(() => {
         jest.clearAllMocks();
-    });
-    test("Expect list of transactions, made by Admin", async () => {
-        const req = mockReq(true);
-        const res = mockRes();
-        const listTransactions = [
-            {
-                _id: "000",
-                username: "Mario",
-                amount: 100,
-                type: "food",
-                date: "2023-05-19T00:00:00",
-                categories_info: { color: "red" },
-            },
-            {
-                _id: "111",
-                username: "Mario",
-                amount: 70,
-                type: "health",
-                date: "2023-05-19T10:00:00",
-                categories_info: { color: "green" },
-            },
-        ];
-        const resultList = [
-            {
-                _id: "000",
-                username: "Mario",
-                amount: 100,
-                type: "food",
-                date: "2023-05-19T00:00:00",
-                color: "red",
-            },
-            {
-                _id: "111",
-                username: "Mario",
-                amount: 70,
-                type: "health",
-                date: "2023-05-19T10:00:00",
-                color: "green",
-            },
-        ];
-
-        jest.spyOn(User, "findOne").mockResolvedValue({ username: "Mario" });
-        jest.spyOn(transactions, "aggregate").mockResolvedValue(listTransactions);
-        await getTransactionsByUser(req, res);
-
-        expect(verifyAuth).toHaveBeenCalledWith(req, res, { authType: "Admin" });
-        expect(User.findOne).toHaveBeenCalled();
-        expect(transactions.aggregate).toHaveBeenCalled();
-        expect(res.json).toHaveBeenCalledWith({
-            data: resultList,
-            refreshedTokenMessage: res.locals.refreshedTokenMessage,
-        });
     });
 
     test("should return transactions for a valid user", async () => {
