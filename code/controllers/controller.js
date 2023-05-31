@@ -87,7 +87,10 @@ export const getCategories = async (req, res) => {
 export const createTransaction = async (req, res) => {
     try {
         const { username, amount, type } = req.body;
-        if (!username || !amount || !type || username === "" || amount === "" || type === "") {
+        if (!username || !amount || !type || username.trim() === "" || type.trim() === "") {
+            return res.status(400).json({ error: "Missing body attributes" });
+        }
+        if((typeof amount==="string") && amount.trim() === "" ){
             return res.status(400).json({ error: "Missing body attributes" });
         }
         const auth = verifyAuth(req, res, { authType: "User", username: username });
@@ -109,7 +112,8 @@ export const createTransaction = async (req, res) => {
         if (isNaN(checkedAmount))
             return res.status(400).json({ error: "Invalid 'amount' value" });
         const savedTransaction = await transactions.create({ username, amount: checkedAmount, type });
-        res.status(200).json({ data: savedTransaction, refreshedTokenMessage: res.locals.refreshedTokenMessage })
+        const data={username: savedTransaction.username, amount: savedTransaction.amount, type: savedTransaction.type, date:savedTransaction.date}
+        res.status(200).json({ data: data, refreshedTokenMessage: res.locals.refreshedTokenMessage })
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
