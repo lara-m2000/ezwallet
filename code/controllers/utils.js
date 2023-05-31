@@ -14,9 +14,9 @@ export const handleDateFilterParams = (req) => {
     if (date && (from || upTo))
         throw new Error("Cannot set a 'date' filter with a 'from' or 'upTo' filter");
     if (!(date || from || upTo))
-        return;
+        return {};
     let matchObj = { date: {} };
-    const dayEnd = "T23:59:59.999Z";
+    const dayEnd = "T23:59:59.000Z";
     if (date) {
         if (!dateRegex.test(date)) {
             throw new Error("Wrong date format")
@@ -161,7 +161,7 @@ export const verifyAuth = (req, res, info) => {
 export const handleAmountFilterParams = (req) => {
     const { min, max } = req.query;
     if (!max && !min)
-        return;
+        return {};
     if ((max && isNaN(Number(max))) || (min && isNaN(Number(min))))
         throw new Error("Query parameters badly formatted");
     if ((min && max) && Number(min) > Number(max)) {
