@@ -57,7 +57,7 @@ export const updateCategory = async (req, res) => {
         const oldType = req.params.type;
 
         //Check the validity of req.params.type
-        if (!oldType) {
+        if (!oldType.trim() || typeof oldType !== 'string') {
             return res.status(400).json({ error: "Invalid parameter in request" });
         }
 
@@ -86,8 +86,11 @@ export const updateCategory = async (req, res) => {
         //Update the target category
         await categories.updateOne({ type: oldType }, { $set: { type: type, color: color } });  // Update the category
 
-        //Update all the related transactions and retrieve the number of changed transactions
-        const changes = await transactions.updateMany({ type: oldType }, { $set: { type: type } });
+        let changes = {modifiedCount : 0};
+        if(type === oldType){// No need to update the transactions if the type is the same
+            //Update all the related transactions and retrieve the number of changed transactions
+            changes = await transactions.updateMany({ type: oldType }, { $set: { type: type } });
+        }
 
         return res.status(200).json({data: {message: "Category edited successfully", count: changes.modifiedCount}, refreshedTokenMessage: res.locals.refreshedTokenMessage});
     } catch (error) {
