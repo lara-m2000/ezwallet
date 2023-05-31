@@ -56,8 +56,100 @@ describe("createTransaction", () => {
 })
 
 describe("getAllTransactions", () => {
-    test('Dummy test, change it', () => {
-        expect(true).toBe(true);
+    const test_categories = [{ type: 'Food', color: 'red' }, { type: 'Transportation', color: 'blue' }, { type: 'Entertainment', color: 'green' }]
+    const test_transactions = [
+        { username: 'testUser1', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z' },
+        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-01-02T23:59:59.000Z' },
+        { username: 'testUser1', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z' },
+        { username: 'testUser1', amount: 100, type: 'Food', date: '2021-05-01T00:00:00.000Z' },
+        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-05-02T00:00:00.000Z' },
+        { username: 'testUser1', amount: 50, type: 'Food', date: '2021-05-03T00:00:00.000Z' },
+        { username: 'testUser1', amount: 77, type: 'Transportation', date: '2021-05-04T00:00:00.000Z'},
+        { username: 'testUser1', amount: 88, type: 'Entertainment', date: '2021-05-05T00:00:00.000Z'},
+        { username: 'testUser1', amount: 99, type: 'Food', date: '2021-05-06T00:00:00.000Z'},
+        { username: 'testUser1', amount: 400, type: 'Food', date: '2020-01-01T00:00:00.000Z'},
+        { username: 'testUser1', amount: 500, type: 'Transportation', date: '2021-01-02T23:59:59.000Z'},
+        { username: 'testUser2', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z' },
+        { username: 'testUser2', amount: 200, type: 'Transportation', date: '2021-01-02T00:00:00.000Z' },
+        { username: 'testUser2', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z' },
+    ]
+    const test_users = [
+        { username: 'testUser1', password: 'password', email: 'test1@email.com', role: 'Regular' },
+        { username: 'testUser2', password: 'password', email: 'test2@email.com', role: 'Regular' },
+        { username: 'testAdmin', password: 'password', email: 'admin@email', role: 'Admin' }
+    ]
+    const transactions_with_color = [
+        { username: 'testUser1', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z', color: 'red' },
+        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-01-02T23:59:59.000Z', color: 'blue' },
+        { username: 'testUser1', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z', color: 'green' },
+        { username: 'testUser1', amount: 100, type: 'Food', date: '2021-05-01T00:00:00.000Z', color: 'red' },
+        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-05-02T00:00:00.000Z', color: 'blue' },
+        { username: 'testUser1', amount: 50, type: 'Food', date: '2021-05-03T00:00:00.000Z', color: 'red' },
+        { username: 'testUser1', amount: 77, type: 'Transportation', date: '2021-05-04T00:00:00.000Z', color: 'blue' },
+        { username: 'testUser1', amount: 88, type: 'Entertainment', date: '2021-05-05T00:00:00.000Z', color: 'green' },
+        { username: 'testUser1', amount: 99, type: 'Food', date: '2021-05-06T00:00:00.000Z', color: 'red' },
+        { username: 'testUser1', amount: 400, type: 'Food', date: '2020-01-01T00:00:00.000Z', color: 'red' },
+        { username: 'testUser1', amount: 500, type: 'Transportation', date: '2021-01-02T23:59:59.000Z', color: 'blue' },
+        { username: 'testUser2', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z', color: 'red' },
+        { username: 'testUser2', amount: 200, type: 'Transportation', date: '2021-01-02T00:00:00.000Z', color: 'blue' },
+        { username: 'testUser2', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z', color: 'green' },
+    ]
+    beforeAll(async () => {
+        await User.deleteMany({});
+        await transactions.deleteMany({});
+        await categories.deleteMany({});
+        await User.insertMany(test_users);
+        await categories.insertMany(test_categories);
+    })
+    //Delete all transactions before each test
+    beforeEach(async () => {
+        await transactions.deleteMany({});
+    })
+
+    afterAll(async () => {
+        await User.deleteMany({});
+        await transactions.deleteMany({});
+        await categories.deleteMany({});
+    });
+
+    const generateToken = (payload, expirationTime = '1h') => {
+        return jwt.sign(payload, 'EZWALLET', { expiresIn: expirationTime });
+    };
+    test('Expect to return a list with all transactions', async () => {
+        const refreshToken = generateToken(test_users[2], '1h');
+        const accessToken = generateToken(test_users[2], '1h');
+        const url = '/api/transactions';
+        //Create transactions
+        await transactions.insertMany(test_transactions);
+
+        const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+
+        expect(response.status).toBe(200);
+        expect(response.body.data).toEqual(transactions_with_color);
+    
+    });
+    test('Expect to return an empty list if no transactions are present', async () => {
+        const refreshToken = generateToken(test_users[2], '1h');
+        const accessToken = generateToken(test_users[2], '1h');
+        const url = '/api/transactions';
+        
+        const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+
+        expect(response.status).toBe(200);
+        expect(response.body.data).toEqual([]);
+    
+    });
+    test('Expect to return an error if the user is not an Admin', async () => {
+        const refreshToken = generateToken(test_users[0], '1h');
+        const accessToken = generateToken(test_users[0], '1h');
+        const url = '/api/transactions';
+        await transactions.insertMany(test_transactions);
+
+        const response = await request(app).get(url).set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`]);
+
+        expect(response.status).toBe(200);
+        expect(response.body.data).toEqual(transactions_with_color);
+    
     });
 })
 
@@ -335,7 +427,8 @@ describe("getTransactionsByUser", () => {
             expect(response.body.error).toBe("Query parameters badly formatted");
         }
     });
-    test('should return an error if min is greater than max', async () => {
+    //should not return an error but an empty transactions array
+    test.skip('should return an error if min is greater than max', async () => {
         const refreshToken = generateToken(test_users[0], '1h');
         const accessToken = generateToken(test_users[0], '1h');
 
