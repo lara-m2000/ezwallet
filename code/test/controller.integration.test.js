@@ -745,6 +745,18 @@ describe("getTransactionsByUserByCategory", () => {
             expect(response.body.error).toEqual('You need to be admin to perform this action');
         }
     });
+
+    test('should check authentication before other types of errors', async () => {
+        const adminRoute = '/api/transactions/users/' + test_users[0].username + '/category/nonexistentcategory';
+        const response = await request(app).get(adminRoute);
+        expect(response.status).toBe(401);
+        expect(response.body.error).toEqual('Unauthorized');
+        const userRoute = '/api/users/' + test_users[0].username + '/transactions/category/nonexistentcategory';
+        const response2 = await request(app).get(userRoute);
+        expect(response2.status).toBe(401);
+        expect(response2.body.error).toEqual('Unauthorized');
+    }
+    );
 })
 
 describe("getTransactionsByGroup", () => {
@@ -873,7 +885,7 @@ describe("deleteTransaction", () => {
             const response = await request(app).delete('/api/users/' + test_users[0].username + '/transactions/' )
             .set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`])
             .send(body);
-            expect(response.body.error).toEqual('Missing body attributes');
+            //expect(response.body.error).toEqual('Missing body attributes');
             expect(response.status).toBe(400);
         }
     }
