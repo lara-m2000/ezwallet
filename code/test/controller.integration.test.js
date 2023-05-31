@@ -51,7 +51,6 @@ describe("getCategories", () => {
 
 describe("createTransaction", () => {
     const test_categories = [{ type: 'Food', color: 'red' }, { type: 'Transportation', color: 'blue' }, { type: 'Entertainment', color: 'green' }]
-    //let new_transaction = { username: 'testUser1', amount: 100, type: 'Food' }
     const test_users = [
         { username: 'testUser1', password: 'password', email: 'test1@email.com', role: 'Regular' },
         { username: 'testUser2', password: 'password', email: 'test2@email.com', role: 'Regular' },
@@ -1119,7 +1118,158 @@ describe("deleteTransaction", () => {
 })
 
 describe("deleteTransactions", () => {
-    test('Dummy test, change it', () => {
-        expect(true).toBe(true);
+    const test_categories = [{ type: 'Food', color: 'red' }, { type: 'Transportation', color: 'blue' }, { type: 'Entertainment', color: 'green' }]
+    const test_transactions = [
+        { username: 'testUser1', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z' },
+        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-01-02T23:59:59.000Z' },
+        { username: 'testUser1', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z' },
+        { username: 'testUser1', amount: 100, type: 'Food', date: '2021-05-01T00:00:00.000Z' },
+        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-05-02T00:00:00.000Z' },
+        { username: 'testUser1', amount: 50, type: 'Food', date: '2021-05-03T00:00:00.000Z' },
+        { username: 'testUser1', amount: 77, type: 'Transportation', date: '2021-05-04T00:00:00.000Z'},
+        { username: 'testUser1', amount: 88, type: 'Entertainment', date: '2021-05-05T00:00:00.000Z'},
+        { username: 'testUser1', amount: 99, type: 'Food', date: '2021-05-06T00:00:00.000Z'},
+        { username: 'testUser1', amount: 400, type: 'Food', date: '2020-01-01T00:00:00.000Z'},
+        { username: 'testUser1', amount: 500, type: 'Transportation', date: '2021-01-02T23:59:59.000Z'},
+        { username: 'testUser2', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z' },
+        { username: 'testUser2', amount: 200, type: 'Transportation', date: '2021-01-02T00:00:00.000Z' },
+        { username: 'testUser2', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z' },
+    ]
+    const test_users = [
+        { username: 'testUser1', password: 'password', email: 'test1@email.com', role: 'Regular' },
+        //{ username: 'testUser2', password: 'password', email: 'test2@email.com', role: 'Regular' },
+        { username: 'testAdmin', password: 'password', email: 'admin@email', role: 'Admin' }
+    ]
+    const url = '/api/transactions';
+    let current_ids;
+    beforeAll(async () => {
+        await User.deleteMany({});
+        await transactions.deleteMany({});
+        await categories.deleteMany({});
+        await User.insertMany(test_users);
+        await categories.insertMany(test_categories);
+        
+    })
+    //Delete all transactions before each test
+    beforeEach(async () => {
+        await transactions.deleteMany({});
+        const tr=await transactions.insertMany(test_transactions);
+        current_ids=tr.map((t)=>t._id);
+    })
+
+    afterAll(async () => {
+        await User.deleteMany({});
+        await transactions.deleteMany({});
+        await categories.deleteMany({});
+    });
+
+    const generateToken = (payload, expirationTime = '1h') => {
+        return jwt.sign(payload, 'EZWALLET', { expiresIn: expirationTime });
+    };
+
+// empy array, 1 element, some elements, all the elements
+    test('Expected to delete some transactions', async() => {
+        const refreshToken = generateToken(test_users[1], '1h');
+        const accessToken = generateToken(test_users[1], '1h');
+        const _ids=current_ids.slice(0,5);
+        
+        const response = await request(app).delete(url)
+            .set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`])
+            .send({_ids});
+        
+        expect(response.status).toBe(200);
+        expect(response.body.data.message).toEqual("Transactions deleted");
+        
+        //check if the transactions are truly deleted
+        const stillExisting=await transactions.find({_id:{$in: _ids}}).countDocuments();
+        expect(stillExisting).toEqual(0);
+    });
+    test('Expected to be successful with empty array', async() => {
+        const refreshToken = generateToken(test_users[1], '1h');
+        const accessToken = generateToken(test_users[1], '1h');
+        const _ids=[];
+        
+        const response = await request(app).delete(url)
+            .set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`])
+            .send({_ids});
+        
+        expect(response.status).toBe(200);
+        expect(response.body.data.message).toEqual("Transactions deleted");
+    });
+    test("Expected to return an error if not logged in", async()=>{
+        const _ids=current_ids.slice(0,1);
+        
+        const response = await request(app).delete(url)
+            .send({_ids});
+        
+        expect(response.status).toBe(401);
+        expect(response.body.error).toBeDefined();
+        
+        //check if the transactions is still in db
+        const stillExisting=await transactions.find({_id:{$in: _ids}}).countDocuments();
+        expect(stillExisting).toBeGreaterThan(0);
+    })
+    test('Expected to return an error if not logged in as an Admin', async() => {
+        const refreshToken = generateToken(test_users[0], '1h');
+        const accessToken = generateToken(test_users[0], '1h');
+        const _ids=current_ids.slice(0,2);
+        
+        const response = await request(app).delete(url)
+            .set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`])
+            .send({_ids});
+        
+        expect(response.status).toBe(401);
+        expect(response.body.error).toBeDefined();
+    });
+    test('Expected to return an error in an _id is an empty string', async() => {
+        const refreshToken = generateToken(test_users[1], '1h');
+        const accessToken = generateToken(test_users[1], '1h');
+        const _ids=current_ids.slice(0,1);
+        
+        const response = await request(app).delete(url)
+            .set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`])
+            .send({_ids:_ids.concat(" ")});
+        
+        expect(response.status).toBe(400);
+        expect(response.body.error).toEqual("Invalid transaction id");
+        
+        //check if the transactions still exist
+        const stillExisting=await transactions.find({_id:{$in: _ids}}).countDocuments();
+        expect(stillExisting).toBeGreaterThan(0);
+    });
+    test('Expected to return an error in an _id is an invalid string', async() => {
+        const refreshToken = generateToken(test_users[1], '1h');
+        const accessToken = generateToken(test_users[1], '1h');
+        const _ids=current_ids.slice(0,1);
+        
+        const response = await request(app).delete(url)
+            .set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`])
+            .send({_ids:_ids.concat("wrongId")});
+        
+        expect(response.status).toBe(500);
+        expect(response.body.error).toBeDefined();
+        
+        //check if the transactions still exist
+        const stillExisting=await transactions.find({_id:{$in: _ids}}).countDocuments();
+        expect(stillExisting).toBeGreaterThan(0);
+    });
+    test('Expected to return an error in a transaction is not found', async() => {
+        const refreshToken = generateToken(test_users[1], '1h');
+        const accessToken = generateToken(test_users[1], '1h');
+        // to make sure the second _id is valid but not in the db
+        await transactions.deleteOne({_id:current_ids[1]});
+        const _ids=current_ids.slice(0,3);
+        const still_present=[current_ids[0], current_ids[2]];
+        
+        const response = await request(app).delete(url)
+            .set('Cookie', [`refreshToken=${refreshToken}`, `accessToken=${accessToken}`])
+            .send({_ids});
+        
+        expect(response.status).toBe(400);
+        expect(response.body.error).toEqual("Invalid transaction id");
+        
+        //check if the transactions still exist
+        const stillExisting=await transactions.find({_id:{$in: still_present}}).countDocuments();
+        expect(stillExisting).toBeGreaterThan(0);
     });
 })

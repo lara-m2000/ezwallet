@@ -418,20 +418,13 @@ export const deleteTransactions = async (req, res) => {
         if (!auth.flag) {
             return res.status(401).json({ error: auth.cause })
         }
-        let correctIds = true;
-        await ids.forEach(async (id) => {
-            if (id === "") {
-                correctIds = false;
-                return;
-            }
+        for (const id of ids){
+            if(typeof id !== "string" || !id.trim())
+                return res.status(400).json({ error: "Invalid transaction id" });
             const t = await transactions.findById(id);
             if (!t) {
-                correctIds = false;
-                return;
+                return res.status(400).json({ error: "Invalid transaction id" });
             }
-        })
-        if (!correctIds) {
-            return res.status(400).json({ error: "Invalid transaction id" });
         }
 
         await transactions.deleteMany({ _id: { $in: ids } });
