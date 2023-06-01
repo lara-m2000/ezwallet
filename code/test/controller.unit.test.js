@@ -170,7 +170,7 @@ describe('updateCategory', () => {
     });
 
     test('should return an error if invalid parameter in request', async () => {
-        req.params.type = undefined;
+        req.params.type = ' ';
 
         await updateCategory(req, res);
 
@@ -328,6 +328,8 @@ describe("deleteCategory", () => {
         categories.countDocuments.mockResolvedValueOnce(req.body.types.length)
         // Returns categories in the db that match the passed ones
         categories.find.mockResolvedValueOnce(req.body.types)
+        // Returns the oldest category in the db
+        categories.find.mockResolvedValueOnce(req.body.types[0])
         const deletedCategories = {modifiedCount: 1};
         // Update the transactions type and return the number of modified transactions
         transactions.updateMany.mockResolvedValueOnce(deletedCategories)

@@ -210,9 +210,11 @@ describe("updateCategory", () => {
 
       test('should update the category and related transactions successfully', async () => {
         let tran,typeCnt = 0;
-        for (tran in test_transactions)
-            if(tran.type === oldType)
+        for (let i=0;i<test_transactions.length;i++){
+            if(test_transactions[i].type === oldType){
                 typeCnt++;
+            }        
+        }
 
         const res = await updateRequest(body, oldType);
 
@@ -298,9 +300,175 @@ describe("updateCategory", () => {
 })
 
 describe("deleteCategory", () => { 
-    test('Dummy test, change it', () => {
-        expect(true).toBe(true);
+    
+    beforeEach(async () => {
+        await categories.deleteMany({});
+        await transactions.deleteMany({});
+        await categories.insertMany(test_categories);
+        await transactions.insertMany(test_transactions);
+        body = {
+            types: ['Food', 'Entertainment'] 
+        };
+    })
+
+    const deleteRequest = async (body,refreshToken = admin.refreshToken) => {
+        return await request(app)
+          .delete(`/api/categories`)
+          .set("Content-Type", "application/json")
+          .set("Cookie", [
+            `refreshToken=${refreshToken}`,
+            `accessToken=${refreshToken}`,
+          ])
+          .send(body);
+      };
+
+    test('should return an error if user is not authorized', async () => {
+        const res = await deleteRequest(body, regularUser.refreshToken);
+
+        expect(res.status).toBe(401);
+        expect(res.body).toEqual({ error: "You need to be admin to perform this action" });
     });
+
+    test('Should return an error if types is not an array', async () => {
+        body.types = 123;
+
+        const res = await deleteRequest(body);
+
+        expect(res.status).toBe(400);
+        expect(res.body).toEqual({ error: 'Types must be a non-void array' });
+    });
+
+    test('Should return an error if types is a void array', async () => {
+        body.types = [];
+
+        const res = await deleteRequest(body);
+
+        expect(res.status).toBe(400);
+        expect(res.body).toEqual({ error: 'Types must be a non-void array' });
+    });
+
+    test('Should return an error if types contains void strings', async () => {
+        body.types = ['Food','   '];
+
+        const res = await deleteRequest(body);
+
+        expect(res.status).toBe(400);
+        expect(res.body).toEqual({ error: 'Types must be an array of non-void strings' });
+    });
+
+    test('Should return an error if types contains non string elements', async () => {
+        body.types = ['Food',123];
+
+        const res = await deleteRequest(body);
+
+        expect(res.status).toBe(400);
+        expect(res.body).toEqual({ error: 'Types must be an array of non-void strings' });
+    });
+
+
+    test('Should return error 400 if the number of existing categories is <=1', async () => {
+        await categories.deleteMany({});
+        await categories.insertMany([{type: 'Food', color: 'Blue'}]);
+        
+        const res = await deleteRequest(body);
+        
+        expect(res.status).toBe(400);
+        expect(res.body).toEqual({
+            error: 'Not enough categories to perform a deletion',
+        });
+    });
+
+    test('Should return error 400 if one of the passed categories does not exist', async () => {
+        body.types.push('FakeCategory');
+        const docsBefore = await categories.countDocuments();
+        
+        const res = await deleteRequest(body);
+        
+        expect(res.status).toBe(400);
+        expect(res.body).toEqual({
+            error: 'All categories must exist',
+        });
+        const docsAfter = await categories.countDocuments();
+        // No elimination should happen
+        expect(docsAfter).toBe(docsBefore);
+    });
+
+    test('Should delete categories and update transactions when #passed_categories=#db_categories', async () => {
+        body.types = test_categories.map(e => e.type);
+        // Find oldest category
+        const foundCategories = await categories.find({}).sort({createdAt:1}).limit(1);
+        const firstCategory = foundCategories[0].type;
+        // Count transactions that are going to be modified
+        let tran = await transactions.find({});
+        let modTrans = 0;
+        tran.forEach((el) => {
+            if(el.type !== firstCategory)
+                modTrans++;
+        });
+
+        const res = await deleteRequest(body);
+
+        expect(res.status).toBe(200);
+        expect(res.body).toEqual({
+            data: {message: "Categories deleted", count: modTrans}
+        });
+        // Check that the transactions type is the first inserted category
+        tran = await transactions.find({});
+        let flag = true;
+        for(let i=0; i<tran.length;i++){
+            if(tran[i].type !== firstCategory){
+                flag = false;
+                break;
+            }
+        }
+        expect(flag).toBe(true);
+    });
+
+    test('Should delete categories and update transactions when #passed_categories<#db_categories', async () => {
+        // Insert another category just to be sure the natural order sorting works
+        await categories.insertMany({type: 'Dummy', color: 'Dummy'});
+        body.types = test_categories.map(e => e.type);
+        const foundCategories = await categories.find({}).sort({createdAt: 1}).limit(2);
+        // Eliminate all but the second oldest category
+        const firstCategory = 'Dummy';//foundCategories[1].type;
+        // Remove firstCategory from the categories to remove
+        /*let index = body.types.indexOf(firstCategory);
+        body.types.splice(index,1);*/
+        // Count transactions that are going to be modified
+        let tran = await transactions.find({});
+        let modTrans = 0;
+        tran.forEach((el) => {
+            if(el.type !== firstCategory)
+                modTrans++;
+        });
+
+        const res = await deleteRequest(body);
+
+        expect(res.status).toBe(200);
+        expect(res.body).toEqual({
+            data: {message: "Categories deleted", count: modTrans}
+        });
+        // Check that the transactions type is the first inserted category
+        tran = await transactions.find({})
+        let flag = true;
+        for(let i=0; i<tran.length;i++){
+            if(tran[i].type !== firstCategory){
+                flag = false;
+                break;
+            }
+        }
+        expect(flag).toBe(true);
+    });
+
+    /*test('should return a server error if an exception occurs', async () => {
+        const errorMessage = 'Internal Server Error';
+        categories.countDocuments.mockRejectedValueOnce(new Error(errorMessage));
+
+        await deleteCategory(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.json).toHaveBeenCalledWith({ error: errorMessage });
+    });*/
 })
 
 describe("getCategories", () => { 

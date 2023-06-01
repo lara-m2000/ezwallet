@@ -87,7 +87,7 @@ export const updateCategory = async (req, res) => {
         await categories.updateOne({ type: oldType }, { $set: { type: type, color: color } });  // Update the category
 
         let changes = {modifiedCount : 0};
-        if(type === oldType){// No need to update the transactions if the type is the same
+        if(type !== oldType){// No need to update the transactions if the type is the same
             //Update all the related transactions and retrieve the number of changed transactions
             changes = await transactions.updateMany({ type: oldType }, { $set: { type: type } });
         }
@@ -138,8 +138,9 @@ export const deleteCategory = async (req, res) => {
         if(nCategories <= 1)
             return res.status(400).json({error: 'Not enough categories to perform a deletion'});
 
-        //Check for the existence of all categories, return categories sorted in ascending order of creationTime
-        const foundCategories = await categories.find({ type: { $in: types }}, {sort :{CreatedAt:1}});
+        //Check for the existence of all categories, return categories id in the db sorted in ascending order of creationTime
+        let foundCategories = await categories.find({type: {$in: types}});
+        foundCategories = foundCategories.map(e => e.type);
         
         //Return an error if at least one category does not exist
         if (foundCategories.length < types.length) {
@@ -150,9 +151,14 @@ export const deleteCategory = async (req, res) => {
         //Check if categories to be deleted cover all the categories in the DB
         if (foundCategories.length === nCategories) {
             //Retrieve all types to delete except for the first element (the first according to creationTime)
-            typesToDelete = foundCategories.map(e => e.type).slice(1);
-            oldestType = foundCategories[0].type;
-
+            oldestType = await categories.find({}).sort({ createdAt: 1 }).limit(1);
+            oldestType = oldestType[0].type;
+            
+            // Remove the oldest type from the types to delete
+            const index = foundCategories.indexOf(oldestType);
+            foundCategories.splice(index,1);
+            typesToDelete = foundCategories;
+            
             //Delete all categories except the first one
             await categories.deleteMany({ type: { $in: typesToDelete } });
         } else {
@@ -161,12 +167,14 @@ export const deleteCategory = async (req, res) => {
             await categories.deleteMany({ type: { $in: typesToDelete } });
 
             //Retrieve the first created category among the remaining ones
-            const oldestCategory = await categories.findOne({}, {}, {sort :{ createdAt: 1 }});
-            oldestType = oldestCategory.type;
+            oldestType = await categories.find({}).sort({ createdAt: 1 }).limit(1);
+            oldestType = oldestType[0].type;
         }
+        
         //Update all transactions involved with the type of the category with first creation time
         const result = await transactions.updateMany({ type: { $in: typesToDelete } }, { $set: { type: oldestType } });
-        return res.status(200).json({data: {message: "Categories deleted", count: result.modifiedCount}, refreshedTokenMessage: res.locals.refreshedTokenMessage});
+        return res.status(200)
+            .json({data: {message: "Categories deleted", count: result.modifiedCount,}, refreshedTokenMessage: res.locals.refreshedTokenMessage});
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
