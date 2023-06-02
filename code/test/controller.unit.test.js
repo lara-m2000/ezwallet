@@ -974,7 +974,7 @@ describe("deleteTransaction", () => {
         expect(res.status).toHaveBeenCalledWith(401);
         expect(res.json).toHaveBeenCalledWith({ error: 'Unauthorized' });
     });
-    test('should return a 401 error if user asks to delete a transaction that is not theirs', async () => {
+    test('should return a 400 error if user asks to delete a transaction that is not theirs', async () => {
         const mockUser = { username: 'Mario' };
         const mockTransaction = { _id: '6hjkohgfc8nvu786', username: 'notMario' };
 
@@ -986,9 +986,9 @@ describe("deleteTransaction", () => {
 
         await deleteTransaction(req, res);
 
-        expect(res.status).toHaveBeenCalledWith(401);
+        expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith({
-            error: 'Unauthorized',
+            error: "You can't delete a transaction of another user",
         });
         expect(User.findOne).toHaveBeenCalledWith({ username: 'Mario' });
         expect(transactions.findById).toHaveBeenCalledWith('6hjkohgfc8nvu786');

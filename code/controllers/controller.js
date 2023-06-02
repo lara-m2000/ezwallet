@@ -386,7 +386,7 @@ export const deleteTransaction = async (req, res) => { //only called by regular 
         const id = req.body._id;
         if (!id || typeof id !== "string" || !id.trim())
             return res.status(400).json({ error: "Missing body attributes" });
-        const transactionToDelete = await transactions.findOne({ _id: id });
+        const transactionToDelete = await transactions.findById(id);
         if (!transactionToDelete) {
             return res.status(400).json({ error: "Transaction not found" });
         }
