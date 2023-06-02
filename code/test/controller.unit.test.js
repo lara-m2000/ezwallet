@@ -338,6 +338,7 @@ describe("deleteCategory", () => {
         // Update the transactions type and return the number of modified transactions
         transactions.updateMany.mockResolvedValueOnce(deletedCategories)
 
+
         await deleteCategory(req, res);
         
         expect(res.status).toHaveBeenCalledWith(200);
@@ -358,6 +359,7 @@ describe("deleteCategory", () => {
         limitMock.mockResolvedValueOnce([oldestCategory]);
         const deletedCategories = {modifiedCount: 2};
         transactions.updateMany.mockResolvedValueOnce(deletedCategories)
+
 
         await deleteCategory(req, res);
         
