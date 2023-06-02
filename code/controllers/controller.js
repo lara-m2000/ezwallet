@@ -138,7 +138,7 @@ export const deleteCategory = async (req, res) => {
         if(nCategories <= 1)
             return res.status(400).json({error: 'Not enough categories to perform a deletion'});
 
-        //Check for the existence of all categories, return categories id in the db sorted in ascending order of creationTime
+        //Check for the existence of all categories, return categories in the db
         let foundCategories = await categories.find({type: {$in: types}});
         foundCategories = foundCategories.map(e => e.type);
         
