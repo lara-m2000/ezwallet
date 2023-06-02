@@ -506,21 +506,6 @@ describe("getCategories", () => {
           .send();
     };
 
-    // TODO: it returns 200 even if the user is not in the db
-    /*test('should return an error if user is not authenticated', async () => {
-        const accessToken = jwt.sign(
-            { ...newUser('fake'), password: undefined, role: 'Admin' },
-            'fakeKey',
-            { expiresIn: "300d" }
-          );
-
-        const res = await getCategories();
-
-        expect(res.status).toBe(401);
-        expect(res.body).toEqual({ error: "JsonWebTokenError" });
-    });*/
-
-
     test('should return all categories', async () => {
         const res = await getRequest();
         
