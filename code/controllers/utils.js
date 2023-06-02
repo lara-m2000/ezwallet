@@ -16,7 +16,7 @@ export const handleDateFilterParams = (req) => {
     if (!(date || from || upTo))
         return {};
     let matchObj = { date: {} };
-    const dayEnd = "T23:59:59.000Z";
+    const dayEnd = "T23:59:59.999Z";
     if (date) {
         if (!dateRegex.test(date)) {
             throw new Error("Wrong date format")
