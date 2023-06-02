@@ -26,7 +26,7 @@ describe("handleDateFilterParams", () => {
 
         const result=handleDateFilterParams(req);
         
-        expect(result.date.$lte).toEqual(new Date("2023-04-30T23:59:59.000Z"));
+        expect(result.date.$lte).toEqual(new Date("2023-04-30T23:59:59.999Z"));
     });
     test("Expect to return an object with 'from' and 'upTo' query",()=>{
         const req={query:{from: "2023-04-30", upTo:"2023-05-10"}};
@@ -34,7 +34,7 @@ describe("handleDateFilterParams", () => {
         const result=handleDateFilterParams(req);
         
         expect(result.date.$gte).toEqual(new Date("2023-04-30T00:00:00.000Z"));
-        expect(result.date.$lte).toEqual(new Date("2023-05-10T23:59:59.000Z"));
+        expect(result.date.$lte).toEqual(new Date("2023-05-10T23:59:59.999Z"));
     });
     test("Expect to return an object with 'date' query",()=>{
         const req={query:{date: "2023-05-10"}};
@@ -43,7 +43,7 @@ describe("handleDateFilterParams", () => {
         
         expect(result).toEqual({date: {
             $gte:new Date("2023-05-10T00:00:00.000Z"), 
-            $lte:new Date("2023-05-10T23:59:59.000Z")}
+            $lte:new Date("2023-05-10T23:59:59.999Z")}
         });
     });
     test("Expect to throw an error if 'date' and 'from' are present",()=>{
