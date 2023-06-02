@@ -324,12 +324,16 @@ describe("deleteCategory", () => {
     });
 
     test('Should delete categories and update transactions when #passed_categories=#db_categories', async () => {
+        const sortMock = jest.fn();
+        const limitMock = jest.fn();
         // Returns number of documents in the db
         categories.countDocuments.mockResolvedValueOnce(req.body.types.length)
         // Returns categories in the db that match the passed ones
         categories.find.mockResolvedValueOnce(req.body.types)
         // Returns the oldest category in the db
-        categories.find.mockResolvedValueOnce(req.body.types[0])
+        categories.find.mockReturnValueOnce({sort: sortMock});
+        sortMock.mockReturnValueOnce({limit: limitMock});
+        limitMock.mockResolvedValueOnce([req.body.types[0]]);
         const deletedCategories = {modifiedCount: 1};
         // Update the transactions type and return the number of modified transactions
         transactions.updateMany.mockResolvedValueOnce(deletedCategories)
@@ -343,11 +347,15 @@ describe("deleteCategory", () => {
     });
 
     test('Should delete categories and update transactions when #passed_categories<#db_categories', async () => {
+        const sortMock = jest.fn();
+        const limitMock = jest.fn();
         categories.countDocuments.mockResolvedValueOnce(req.body.types.length+1)
         categories.find.mockResolvedValueOnce(req.body.types)
         // Oldest category not deleted has to be retrieved from the db
         const oldestCategory = {type: 'category3'}
-        categories.findOne.mockResolvedValueOnce(oldestCategory)
+        categories.find.mockReturnValueOnce({sort: sortMock});
+        sortMock.mockReturnValueOnce({limit: limitMock});
+        limitMock.mockResolvedValueOnce([oldestCategory]);
         const deletedCategories = {modifiedCount: 2};
         transactions.updateMany.mockResolvedValueOnce(deletedCategories)
 
