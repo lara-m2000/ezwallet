@@ -241,7 +241,7 @@ describe("getAllTransactions", () => {
     const test_categories = [{ type: 'Food', color: 'red' }, { type: 'Transportation', color: 'blue' }, { type: 'Entertainment', color: 'green' }]
     const test_transactions = [
         { username: 'testUser1', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z' },
-        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-01-02T23:59:59.000Z' },
+        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-01-02T23:59:59.999Z' },
         { username: 'testUser1', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z' },
         { username: 'testUser1', amount: 100, type: 'Food', date: '2021-05-01T00:00:00.000Z' },
         { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-05-02T00:00:00.000Z' },
@@ -250,7 +250,7 @@ describe("getAllTransactions", () => {
         { username: 'testUser1', amount: 88, type: 'Entertainment', date: '2021-05-05T00:00:00.000Z'},
         { username: 'testUser1', amount: 99, type: 'Food', date: '2021-05-06T00:00:00.000Z'},
         { username: 'testUser1', amount: 400, type: 'Food', date: '2020-01-01T00:00:00.000Z'},
-        { username: 'testUser1', amount: 500, type: 'Transportation', date: '2021-01-02T23:59:59.000Z'},
+        { username: 'testUser1', amount: 500, type: 'Transportation', date: '2021-01-02T23:59:59.999Z'},
         { username: 'testUser2', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z' },
         { username: 'testUser2', amount: 200, type: 'Transportation', date: '2021-01-02T00:00:00.000Z' },
         { username: 'testUser2', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z' },
@@ -262,7 +262,7 @@ describe("getAllTransactions", () => {
     ]
     const transactions_with_color = [
         { username: 'testUser1', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z', color: 'red' },
-        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-01-02T23:59:59.000Z', color: 'blue' },
+        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-01-02T23:59:59.999Z', color: 'blue' },
         { username: 'testUser1', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z', color: 'green' },
         { username: 'testUser1', amount: 100, type: 'Food', date: '2021-05-01T00:00:00.000Z', color: 'red' },
         { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-05-02T00:00:00.000Z', color: 'blue' },
@@ -271,7 +271,7 @@ describe("getAllTransactions", () => {
         { username: 'testUser1', amount: 88, type: 'Entertainment', date: '2021-05-05T00:00:00.000Z', color: 'green' },
         { username: 'testUser1', amount: 99, type: 'Food', date: '2021-05-06T00:00:00.000Z', color: 'red' },
         { username: 'testUser1', amount: 400, type: 'Food', date: '2020-01-01T00:00:00.000Z', color: 'red' },
-        { username: 'testUser1', amount: 500, type: 'Transportation', date: '2021-01-02T23:59:59.000Z', color: 'blue' },
+        { username: 'testUser1', amount: 500, type: 'Transportation', date: '2021-01-02T23:59:59.999Z', color: 'blue' },
         { username: 'testUser2', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z', color: 'red' },
         { username: 'testUser2', amount: 200, type: 'Transportation', date: '2021-01-02T00:00:00.000Z', color: 'blue' },
         { username: 'testUser2', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z', color: 'green' },
@@ -339,7 +339,7 @@ describe("getTransactionsByUser", () => {
     const test_categories = [{ type: 'Food', color: 'red' }, { type: 'Transportation', color: 'blue' }, { type: 'Entertainment', color: 'green' }]
     const test_transactions = [
         { username: 'testUser1', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z' },
-        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-01-02T23:59:59.000Z' },
+        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-01-02T23:59:59.999Z' },
         { username: 'testUser1', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z' },
         { username: 'testUser1', amount: 100, type: 'Food', date: '2021-05-01T00:00:00.000Z' },
         { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-05-02T00:00:00.000Z' },
@@ -348,7 +348,7 @@ describe("getTransactionsByUser", () => {
         { username: 'testUser1', amount: 88, type: 'Entertainment', date: '2021-05-05T00:00:00.000Z' },
         { username: 'testUser1', amount: 99, type: 'Food', date: '2021-05-06T00:00:00.000Z' },
         { username: 'testUser1', amount: 400, type: 'Food', date: '2020-01-01T00:00:00.000Z' },
-        { username: 'testUser1', amount: 500, type: 'Transportation', date: '2021-01-02T23:59:59.000Z' },
+        { username: 'testUser1', amount: 500, type: 'Transportation', date: '2021-01-02T23:59:59.999Z' },
         { username: 'testUser2', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z' },
         { username: 'testUser2', amount: 200, type: 'Transportation', date: '2021-01-02T00:00:00.000Z' },
         { username: 'testUser2', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z' },
@@ -360,7 +360,7 @@ describe("getTransactionsByUser", () => {
     ]
     const transactions_with_color = [
         { username: 'testUser1', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z', color: 'red' },
-        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-01-02T23:59:59.000Z', color: 'blue' },
+        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-01-02T23:59:59.999Z', color: 'blue' },
         { username: 'testUser1', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z', color: 'green' },
         { username: 'testUser1', amount: 100, type: 'Food', date: '2021-05-01T00:00:00.000Z', color: 'red' },
         { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-05-02T00:00:00.000Z', color: 'blue' },
@@ -369,7 +369,7 @@ describe("getTransactionsByUser", () => {
         { username: 'testUser1', amount: 88, type: 'Entertainment', date: '2021-05-05T00:00:00.000Z', color: 'green' },
         { username: 'testUser1', amount: 99, type: 'Food', date: '2021-05-06T00:00:00.000Z', color: 'red' },
         { username: 'testUser1', amount: 400, type: 'Food', date: '2020-01-01T00:00:00.000Z', color: 'red' },
-        { username: 'testUser1', amount: 500, type: 'Transportation', date: '2021-01-02T23:59:59.000Z', color: 'blue' },
+        { username: 'testUser1', amount: 500, type: 'Transportation', date: '2021-01-02T23:59:59.999Z', color: 'blue' },
         { username: 'testUser2', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z', color: 'red' },
         { username: 'testUser2', amount: 200, type: 'Transportation', date: '2021-01-02T00:00:00.000Z', color: 'blue' },
         { username: 'testUser2', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z', color: 'green' },
@@ -442,7 +442,7 @@ describe("getTransactionsByUser", () => {
         const refreshToken = generateToken(test_users[0], '1h');
         const accessToken = generateToken(test_users[0], '1h');
         const url = '/api/users/' + test_users[0].username + '/transactions?upTo=2021-01-02';
-        const result = transactions_with_color.filter(transaction => transaction.username === test_users[0].username && transaction.date <= '2021-01-02T23:59:59.000Z');
+        const result = transactions_with_color.filter(transaction => transaction.username === test_users[0].username && transaction.date <= '2021-01-02T23:59:59.999Z');
 
         await transactions.insertMany(test_transactions);
 
@@ -455,7 +455,7 @@ describe("getTransactionsByUser", () => {
         const refreshToken = generateToken(test_users[0], '1h');
         const accessToken = generateToken(test_users[0], '1h');
         const url = '/api/users/' + test_users[0].username + '/transactions?from=2021-01-02&upTo=2021-05-01';
-        const result = transactions_with_color.filter(transaction => transaction.username === test_users[0].username && transaction.date >= '2021-01-02T00:00:00.000Z' && transaction.date <= '2021-05-01T23:59:59.000Z');
+        const result = transactions_with_color.filter(transaction => transaction.username === test_users[0].username && transaction.date >= '2021-01-02T00:00:00.000Z' && transaction.date <= '2021-05-01T23:59:59.999Z');
 
         await transactions.insertMany(test_transactions);
 
@@ -725,7 +725,7 @@ describe("getTransactionsByUserByCategory", () => {
     const test_categories = [{ type: 'Food', color: 'red' }, { type: 'Transportation', color: 'blue' }, { type: 'Entertainment', color: 'green' }]
     const test_transactions = [
         { username: 'testUser1', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z' },
-        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-01-02T23:59:59.000Z' },
+        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-01-02T23:59:59.999Z' },
         { username: 'testUser1', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z' },
         { username: 'testUser1', amount: 100, type: 'Food', date: '2021-05-01T00:00:00.000Z' },
         { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-05-02T00:00:00.000Z' },
@@ -734,7 +734,7 @@ describe("getTransactionsByUserByCategory", () => {
         { username: 'testUser1', amount: 88, type: 'Entertainment', date: '2021-05-05T00:00:00.000Z' },
         { username: 'testUser1', amount: 99, type: 'Food', date: '2021-05-06T00:00:00.000Z' },
         { username: 'testUser1', amount: 400, type: 'Food', date: '2020-01-01T00:00:00.000Z' },
-        { username: 'testUser1', amount: 500, type: 'Transportation', date: '2021-01-02T23:59:59.000Z' },
+        { username: 'testUser1', amount: 500, type: 'Transportation', date: '2021-01-02T23:59:59.999Z' },
         { username: 'testUser2', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z' },
         { username: 'testUser2', amount: 200, type: 'Transportation', date: '2021-01-02T00:00:00.000Z' },
         { username: 'testUser2', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z' },
@@ -746,7 +746,7 @@ describe("getTransactionsByUserByCategory", () => {
     ]
     const transactions_with_color = [
         { username: 'testUser1', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z', color: 'red' },
-        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-01-02T23:59:59.000Z', color: 'blue' },
+        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-01-02T23:59:59.999Z', color: 'blue' },
         { username: 'testUser1', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z', color: 'green' },
         { username: 'testUser1', amount: 100, type: 'Food', date: '2021-05-01T00:00:00.000Z', color: 'red' },
         { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-05-02T00:00:00.000Z', color: 'blue' },
@@ -755,7 +755,7 @@ describe("getTransactionsByUserByCategory", () => {
         { username: 'testUser1', amount: 88, type: 'Entertainment', date: '2021-05-05T00:00:00.000Z', color: 'green' },
         { username: 'testUser1', amount: 99, type: 'Food', date: '2021-05-06T00:00:00.000Z', color: 'red' },
         { username: 'testUser1', amount: 400, type: 'Food', date: '2020-01-01T00:00:00.000Z', color: 'red' },
-        { username: 'testUser1', amount: 500, type: 'Transportation', date: '2021-01-02T23:59:59.000Z', color: 'blue' },
+        { username: 'testUser1', amount: 500, type: 'Transportation', date: '2021-01-02T23:59:59.999Z', color: 'blue' },
         { username: 'testUser2', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z', color: 'red' },
         { username: 'testUser2', amount: 200, type: 'Transportation', date: '2021-01-02T00:00:00.000Z', color: 'blue' },
         { username: 'testUser2', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z', color: 'green' },
@@ -957,7 +957,7 @@ describe("deleteTransaction", () => {
     const test_categories = [{ type: 'Food', color: 'red' }, { type: 'Transportation', color: 'blue' }, { type: 'Entertainment', color: 'green' }]
     const test_transactions = [
         { username: 'testUser1', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z' },
-        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-01-02T23:59:59.000Z' },
+        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-01-02T23:59:59.999Z' },
         { username: 'testUser1', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z' },
         { username: 'testUser1', amount: 100, type: 'Food', date: '2021-05-01T00:00:00.000Z' },
         { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-05-02T00:00:00.000Z' },
@@ -966,7 +966,7 @@ describe("deleteTransaction", () => {
         { username: 'testUser1', amount: 88, type: 'Entertainment', date: '2021-05-05T00:00:00.000Z' },
         { username: 'testUser1', amount: 99, type: 'Food', date: '2021-05-06T00:00:00.000Z' },
         { username: 'testUser1', amount: 400, type: 'Food', date: '2020-01-01T00:00:00.000Z' },
-        { username: 'testUser1', amount: 500, type: 'Transportation', date: '2021-01-02T23:59:59.000Z' },
+        { username: 'testUser1', amount: 500, type: 'Transportation', date: '2021-01-02T23:59:59.999Z' },
         { username: 'testUser2', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z' },
         { username: 'testUser2', amount: 200, type: 'Transportation', date: '2021-01-02T00:00:00.000Z' },
         { username: 'testUser2', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z' },
@@ -1148,7 +1148,7 @@ describe("deleteTransaction", () => {
 describe("deleteTransactions", () => {
     const test_transactions = [
         { username: 'testUser1', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z' },
-        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-01-02T23:59:59.000Z' },
+        { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-01-02T23:59:59.999Z' },
         { username: 'testUser1', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z' },
         { username: 'testUser1', amount: 100, type: 'Food', date: '2021-05-01T00:00:00.000Z' },
         { username: 'testUser1', amount: 200, type: 'Transportation', date: '2021-05-02T00:00:00.000Z' },
@@ -1157,7 +1157,7 @@ describe("deleteTransactions", () => {
         { username: 'testUser1', amount: 88, type: 'Entertainment', date: '2021-05-05T00:00:00.000Z'},
         { username: 'testUser1', amount: 99, type: 'Food', date: '2021-05-06T00:00:00.000Z'},
         { username: 'testUser1', amount: 400, type: 'Food', date: '2020-01-01T00:00:00.000Z'},
-        { username: 'testUser1', amount: 500, type: 'Transportation', date: '2021-01-02T23:59:59.000Z'},
+        { username: 'testUser1', amount: 500, type: 'Transportation', date: '2021-01-02T23:59:59.999Z'},
         { username: 'testUser2', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z' },
         { username: 'testUser2', amount: 200, type: 'Transportation', date: '2021-01-02T00:00:00.000Z' },
         { username: 'testUser2', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z' },
