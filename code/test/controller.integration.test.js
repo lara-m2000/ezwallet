@@ -222,6 +222,12 @@ describe("updateCategory", () => {
         expect(res.body).toEqual({
             data: { message: "Category edited successfully", count: typeCnt }
         });
+
+        // Check that the oldType is not in the db anymore
+        let cats = await categories.find({});
+        cats = cats.map(e => e.type);
+        const index = cats.indexOf(oldType);
+        expect(index).toBe(-1);
     });
 
     test('should update the category\'s color successfully', async () => {
@@ -233,6 +239,15 @@ describe("updateCategory", () => {
         expect(res.body).toEqual({
             data: { message: "Category edited successfully", count: 0 }
         });
+
+        // Check that the oldType is not in the db anymore
+        const cats = await categories.find({});
+        let flag = false;
+        for(let i=0;i<cats.length;i++){
+            if(cats[i].type == oldType && cats[i].color == body.color)
+                flag = true;
+        }
+        expect(flag).toBe(true);
     });
     
     test('should return an error if user is not authorized', async () => {
@@ -430,10 +445,10 @@ describe("deleteCategory", () => {
         body.types = test_categories.map(e => e.type);
         const foundCategories = await categories.find({}).sort({createdAt: 1}).limit(2);
         // Eliminate all but the second oldest category
-        const firstCategory = 'Dummy';//foundCategories[1].type;
+        const firstCategory = foundCategories[1].type;
         // Remove firstCategory from the categories to remove
-        /*let index = body.types.indexOf(firstCategory);
-        body.types.splice(index,1);*/
+        let index = body.types.indexOf(firstCategory);
+        body.types.splice(index,1);
         // Count transactions that are going to be modified
         let tran = await transactions.find({});
         let modTrans = 0;
@@ -472,9 +487,64 @@ describe("deleteCategory", () => {
 })
 
 describe("getCategories", () => { 
-    test('Dummy test, change it', () => {
-        expect(true).toBe(true);
+
+    beforeEach(async () => {
+        await categories.deleteMany({});
+        await transactions.deleteMany({});
+        await categories.insertMany(test_categories);
+        await transactions.insertMany(test_transactions);
+    })
+
+    const getRequest = async (refreshToken = admin.refreshToken) => {
+        return await request(app)
+          .get(`/api/categories`)
+          .set("Content-Type", "application/json")
+          .set("Cookie", [
+            `refreshToken=${refreshToken}`,
+            `accessToken=${refreshToken}`,
+          ])
+          .send();
+      };
+
+      // TODO: it returns 200 even if the user is not in the db
+      /*test('should return an error if user is not authenticated', async () => {
+        const accessToken = jwt.sign(
+            { ...newUser('fake'), password: undefined, role: 'Regular' },
+            process.env.ACCESS_KEY,
+            { expiresIn: "300d" });
+        const res = await getRequest(accessToken);
+
+        expect(res.status).toBe(401);
+        expect(res.body).toEqual({ error: "Mismatched users" });
+    });*/
+
+
+    test('should return all categories', async () => {
+        const res = await getRequest();
+        
+        expect(res.status).toBe(200);
+        expect(res.body).toEqual({
+            data: test_categories
+        });
     });
+
+    test('should return an empty array if there are no categories', async () => {
+        await categories.deleteMany({});
+
+        const res = await getRequest();
+
+        expect(res.status).toBe(200);
+        expect(res.body).toEqual({ data: [] });
+    });
+
+    /*test('should handle and return error 500', async () => {
+        // Mock the categories.find function to throw an error
+        categories.find.mockRejectedValueOnce(new Error('Database error'));
+        await getCategories(req, res);
+        // Verify the response
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Database error' });
+    });*/
 })
 
 describe("createTransaction", () => { 
