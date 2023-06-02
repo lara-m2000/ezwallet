@@ -395,16 +395,10 @@ describe("deleteCategory", () => {
 
     test('Should delete categories and update transactions when #passed_categories=#db_categories', async () => {
         body.types = test_categories.map(e => e.type);
-        // Find oldest category
-        const foundCategories = await categories.find({}).sort({createdAt:1}).limit(1);
-        const firstCategory = foundCategories[0].type;
+        // The oldest category is the first one of the array that we insert beforeeach test
+        const firstCategory = test_categories[0].type;
         // Count transactions that are going to be modified
-        let tran = await transactions.find({});
-        let modTrans = 0;
-        tran.forEach((el) => {
-            if(el.type !== firstCategory)
-                modTrans++;
-        });
+        const modTrans = test_transactions.filter(e => e.type !== firstCategory).length;
 
         const res = await deleteRequest(body);
 
@@ -412,8 +406,12 @@ describe("deleteCategory", () => {
         expect(res.body).toEqual({
             data: {message: "Categories deleted", count: modTrans}
         });
+        // Check that the categories have been deleted
+        const foundCategories = await categories.find({});
+        expect(foundCategories.length).toBe(1);
+        expect(foundCategories[0].type).toBe(firstCategory);
         // Check that the transactions type is the first inserted category
-        tran = await transactions.find({});
+        let tran = await transactions.find({});
         let flag = true;
         for(let i=0; i<tran.length;i++){
             if(tran[i].type !== firstCategory){
@@ -424,7 +422,32 @@ describe("deleteCategory", () => {
         expect(flag).toBe(true);
     });
 
-    test('Should delete categories and update transactions when #passed_categories<#db_categories', async () => {
+    test('Should delete categories and update transactions when #passed_categories<#db_categories-1', async () => {
+        // Define categories to be deleted
+        body.types = test_categories.filter(e => e.type == 'Food').map(e => e.type);
+        // The oldest category is the first one of the array that we insert beforeeach test (except for the category we are deleting now)
+        const firstCategory = test_categories.filter(e => e.type !== 'Food')[0].type; 
+        // Save transactions that are going to be modified
+        const oldTransactions = await transactions.find({type: 'Food'});
+        const modTrans = oldTransactions.length;
+
+        const res = await deleteRequest(body);
+
+        expect(res.status).toBe(200);
+        expect(res.body).toEqual({
+            data: {message: "Categories deleted", count: modTrans}}
+        );
+        // Check that the categories have been deleted
+        const foundCategories = await categories.findOne({type: 'Food'});
+        expect(foundCategories).toBe(null);
+        // Check that the transactions type is the first inserted category
+        const newTransactions = await transactions.find({_id: {$in: oldTransactions.map(e => e._id)}});
+        for (const tran of newTransactions) {
+            expect(tran.type).toBe(firstCategory);
+        }
+    });
+
+    test('Should delete categories and update transactions when #passed_categories<#db_categories-2', async () => {
         // Insert another category just to be sure the natural order sorting works
         await categories.insertMany({type: 'Dummy', color: 'Dummy'});
         body.types = test_categories.map(e => e.type);
