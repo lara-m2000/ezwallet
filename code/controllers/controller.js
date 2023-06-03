@@ -1,6 +1,7 @@
 import { categories, transactions } from "../models/model.js";
 import { Group, User } from "../models/User.js";
 import { handleDateFilterParams, handleAmountFilterParams, verifyAuth } from "./utils.js";
+import {getUsernameFromEmail} from "./users.utils.js";
 
 /**
  * Create a new category
@@ -287,10 +288,15 @@ export const getTransactionsByGroup = async (req, res) => {
         if (!auth.flag) {
             return res.status(401).json({ error: auth.cause });
         }
-        transactions.aggregate([
+
+        const emails = group.members.map((m) => m.email);
+
+        const groupUsername = await getUsernameFromEmail(emails);
+
+        const data = await transactions.aggregate([
             {
                 $match: {
-                    username: { $in: groupMembers }
+                    username: { $in: groupUsername }
                 }
             },
             {
@@ -301,12 +307,24 @@ export const getTransactionsByGroup = async (req, res) => {
                     as: "categories_info"
                 }
             },
-            { $unwind: "$categories_info" }
-        ]).then((result) => {
-            let data = result.map(v => Object.assign({}, { _id: v._id, username: v.username, amount: v.amount, type: v.type, color: v.categories_info.color, date: v.date }))
-            res.json({ data: data, refreshedTokenMessage: res.locals.refreshedTokenMessage });
-        }).catch(error => { throw (error) })
+            {
+                $unwind: "$categories_info"
+            },
+            {
+                $project: {
+                    _id: 0,
+                    username: "$username",
+                    amount: "$amount",
+                    type: "$type",
+                    date: "$date",
+                    color: "$categories_info.color",
+                }
+            },
+        ]);
+
+        res.status(200).json({ data: data, refreshedTokenMessage: res.locals.refreshedTokenMessage });
     } catch (error) {
+        console.log(error);
         res.status(500).json({ error: error.message })
     }
 }
@@ -340,11 +358,16 @@ export const getTransactionsByGroupByCategory = async (req, res) => {
         if (!auth.flag) {
             return res.status(401).json({ error: auth.cause });
         }
-        transactions.aggregate([
+
+        const emails = group.members.map((m) => m.email);
+
+        const groupUsername = await getUsernameFromEmail(emails);
+
+        const data = await transactions.aggregate([
             {
                 $match: {
-                    username: { $in: groupMembers },
-                    type: req.params.category
+                    username: { $in: groupUsername },
+                    type: req.params.category,
                 }
             },
             {
@@ -355,12 +378,24 @@ export const getTransactionsByGroupByCategory = async (req, res) => {
                     as: "categories_info"
                 }
             },
-            { $unwind: "$categories_info" }
-        ]).then((result) => {
-            let data = result.map(v => Object.assign({}, { _id: v._id, username: v.username, amount: v.amount, type: v.type, color: v.categories_info.color, date: v.date }))
-            res.json({ data: data, message: res.locals.message });
-        }).catch(error => { throw (error) })
+            {
+                $unwind: "$categories_info"
+            },
+            {
+                $project: {
+                    _id: 0,
+                    username: "$username",
+                    amount: "$amount",
+                    type: "$type",
+                    date: "$date",
+                    color: "$categories_info.color",
+                }
+            },
+        ]);
+
+        res.status(200).json({ data: data, message: res.locals.message });
     } catch (error) {
+        console.log(error);
         res.status(500).json({ error: error.message })
     }
 }
