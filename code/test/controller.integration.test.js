@@ -4,7 +4,7 @@ import { categories, transactions } from '../models/model';
 import mongoose, { Model } from 'mongoose';
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
-import { User } from '../models/User';
+import { Group, User } from '../models/User';
 import { verifyAuth } from '../controllers/utils'; //TODO:delete
 
 dotenv.config();
@@ -941,15 +941,199 @@ describe("getTransactionsByUserByCategory", () => {
     );
 })
 
+const newUser = (user) => ({
+    username: user,
+    email: `${user}@${user}.it`,
+    id: user,
+    password: user,
+});
+
+/**
+ *
+ * @param {*} user
+ * @param {"Regular"|"Admin"} role
+ * @returns
+ */
+const newDbUser = (user, role = "Regular") => ({
+    ...newUser(user),
+    role: role,
+    refreshToken: jwt.sign(
+        { ...newUser(user), password: undefined, role: role },
+        process.env.ACCESS_KEY,
+        { expiresIn: "300d" }
+    ),
+    accessToken: jwt.sign(
+        { ...newUser(user), password: undefined, role: role },
+        process.env.ACCESS_KEY,
+        { expiresIn: "300d" }
+    ),
+});
+
 describe("getTransactionsByGroup", () => {
-    test('Dummy test, change it', () => {
-        expect(true).toBe(true);
+    const sendRequest = async (groupName, refreshToken = bre.refreshToken, admin = false) => {
+        return await request(app)
+            .get(admin
+                ? `/api/transactions/groups/${groupName}`
+                : `/api/groups/${groupName}/transactions`)
+            .set("Content-Type", "application/json")
+            .set("Cookie", [
+              `refreshToken=${refreshToken}`,
+              `accessToken=${refreshToken}`,
+            ])
+            .send();
+    };
+
+    const bre = newDbUser("bre");
+    const fra = newDbUser("fra");
+    const breAdmin = newDbUser("breAdmin", "Admin");
+
+    const groupStub = () => ({
+        name: "test",
+        members: [{email: bre.email}]
+    });
+
+    const transactionsStub = () => [
+        { username: 'bre', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z' },
+        { username: 'bre', amount: 200, type: 'Transportation', date: '2021-01-02T23:59:59.000Z' },
+        { username: 'breAdmin', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z' },
+    ];
+
+    const categoriesStub = () => [{ type: 'Food', color: 'red' }, { type: 'Transportation', color: 'blue' }, { type: 'Entertainment', color: 'green' }];
+
+    /**
+     * Keep the data inside the DB consistent,
+     * the test are all the same so just keep all
+     * the initialization in one place
+     */
+    beforeEach(async () => {
+        await User.deleteMany();
+        await Group.deleteMany();
+        await transactions.deleteMany();
+        await  categories.deleteMany();
+
+        await User.create([bre, fra, breAdmin]);
+        await Group.create(groupStub());
+        await transactions.create(transactionsStub());
+        await categories.create(categoriesStub());
+    });
+
+    test("should return transactions", async () => {
+        const res = await sendRequest(groupStub().name);
+
+        expect(res.status).toBe(200);
+        expect(res.body.data).toHaveLength(2);
+    });
+
+    test("should return error if group doesn't exist", async () => {
+        const res = await sendRequest("Camurati:(");
+
+        expect(res.status).toBe(400);
+    });
+
+    test("should return 401 is user is not part of the group", async () => {
+        const res = await sendRequest(groupStub().name, fra.refreshToken);
+
+        expect(res.status).toBe(401);
+    });
+
+    test("should return 401 if not Admin role", async () => {
+        const res = await sendRequest(groupStub().name, bre.refreshToken, true);
+
+        expect(res.status).toBe(401);
+    });
+
+    test("should return transaction if Admin", async () => {
+        const res = await sendRequest(groupStub().name, breAdmin.refreshToken, true);
+
+        expect(res.status).toBe(200);
+        expect(res.body.data).toHaveLength(2);
     });
 })
 
 describe("getTransactionsByGroupByCategory", () => {
-    test('Dummy test, change it', () => {
-        expect(true).toBe(true);
+    const sendRequest = async (groupName, category, refreshToken = bre.refreshToken, admin = false) => {
+        return await request(app)
+            .get(admin
+                ? `/api/transactions/groups/${groupName}/category/${category}`
+                : `/api/groups/${groupName}/transactions/category/${category}`)
+            .set("Content-Type", "application/json")
+            .set("Cookie", [
+                `refreshToken=${refreshToken}`,
+                `accessToken=${refreshToken}`,
+            ])
+            .send();
+    };
+
+    const bre = newDbUser("bre");
+    const fra = newDbUser("fra");
+    const breAdmin = newDbUser("breAdmin", "Admin");
+
+    const groupStub = () => ({
+        name: "test",
+        members: [{email: bre.email}]
+    });
+
+    const transactionsStub = () => [
+        { username: 'bre', amount: 100, type: 'Food', date: '2020-01-01T00:00:00.000Z' },
+        { username: 'bre', amount: 200, type: 'Transportation', date: '2021-01-02T23:59:59.000Z' },
+        { username: 'breAdmin', amount: 300, type: 'Entertainment', date: '2022-01-03T00:00:00.000Z' },
+    ];
+
+    const categoriesStub = () => [{ type: 'Food', color: 'red' }, { type: 'Transportation', color: 'blue' }, { type: 'Entertainment', color: 'green' }];
+
+    /**
+     * Keep the data inside the DB consistent,
+     * the test are all the same so just keep all
+     * the initialization in one place
+     */
+    beforeEach(async () => {
+        await User.deleteMany();
+        await Group.deleteMany();
+        await transactions.deleteMany();
+        await  categories.deleteMany();
+
+        await User.create([bre, fra, breAdmin]);
+        await Group.create(groupStub());
+        await transactions.create(transactionsStub());
+        await categories.create(categoriesStub());
+    });
+
+    test("should return list of transactions", async () => {
+        const res = await sendRequest(groupStub().name, "Food");
+
+        expect(res.status).toBe(200);
+        expect(res.body.data).toHaveLength(1);
+    });
+
+    test("should return error if group doesn't exist", async () => {
+        const res = await sendRequest("Cabodi<3", "Food");
+
+        expect(res.status).toBe(400);
+    });
+
+    test("should return 400 if category doesn't exist", async () => {
+        const res = await sendRequest(groupStub().name, "NonEsiste");
+
+        expect(res.status).toBe(400);
+    });
+
+    test("should return 401 is user is not part of the group", async () => {
+        const res = await sendRequest(groupStub().name, "Food", fra.refreshToken);
+
+        expect(res.status).toBe(401);
+    });
+
+    test("should return 401 if not Admin role", async () => {
+        const res = await sendRequest(groupStub().name, "Food", bre.refreshToken, true);
+
+        expect(res.status).toBe(401);
+    });
+
+    test("should return transaction if Admin", async () => {
+        const res = await sendRequest(groupStub().name, "Food", breAdmin.refreshToken, true);
+
+        expect(res.status).toBe(200);
+        expect(res.body.data).toHaveLength(1);
     });
 })
 
