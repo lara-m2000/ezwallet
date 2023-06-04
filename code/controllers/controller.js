@@ -393,7 +393,7 @@ export const getTransactionsByGroupByCategory = async (req, res) => {
             },
         ]);
 
-        res.status(200).json({ data: data, message: res.locals.message });
+        res.status(200).json({ data: data, refreshedTokenMessage: res.locals.refreshedTokenMessage });
     } catch (error) {
         console.log(error);
         res.status(500).json({ error: error.message })
