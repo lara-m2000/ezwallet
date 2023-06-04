@@ -120,7 +120,7 @@ describe('register', () => {
   })
   test('should return an error if email is missing in req.body', async () => {
     const user = {
-      user: 'validUser',
+      username: 'validUser',
       password: 'password123',
     };
 
@@ -133,7 +133,7 @@ describe('register', () => {
   })
   test('should return an error if password is missing in req.body', async () => {
     const user = {
-      user: 'validUser',
+      username: 'validUser',
       email: 'valid@email.com',
     };
 
@@ -169,46 +169,53 @@ describe('register', () => {
     }
   })
   test('should return an error if email is empty in req.body', async () => {
-    const user = {
-      user: 'validUser',
-      email: ' ',
-      password: 'password123',
-    };
-
-    const response = await request(app)
-      .post('/api/register')
-      .send(user);
-    // Check the response status code and error message
-    expect(response.status).toBe(400);
-    expect(response.body).toEqual({ error: 'Non valid req.body' });
+    const userList = [
+      { username: 'validUser', email: ' ', password: 'password123' },
+      { username: 'validUser', email: '\n', password: 'password123' },
+      { username: 'validUser', email: '\t', password: 'password123' },
+      { username: 'validUser', email: '', password: 'password123' },
+      { username: 'validUser', email: '\r\t\n', password: 'password123' },
+    ]
+    for (const user of userList) {
+      const response = await request(app)
+        .post('/api/register')
+        .send(user);
+      // Check the response status code and error message
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({ error: 'Non valid req.body' });
+    }
   })
   test('should return an error if password is empty in req.body', async () => {
-    const user = {
-      user: 'validUser',
-      email: 'valid@email.com',
-      password: ' ',
-    };
-    const response = await request(app)
-      .post('/api/register')
-      .send(user);
-    // Check the response status code and error message
-    expect(response.status).toBe(400);
-    expect(response.body).toEqual({ error: 'Non valid req.body' });
+    const userList = [
+      { username: 'validUser', email: 'valid@email.com', password: ' ' },
+      { username: 'validUser', email: 'valid2@email.com', password: '\n'},
+      { username: 'validUser', email: 'valid3@email.com', password: ''},
+      { username: 'validUser', email: 'valid4@email.com', password: '\t'},
+      { username: 'validUser', email: 'valid5@email.com', password: '\r\t\n'},
+    ]
+    for (const user of userList) {
+      const response = await request(app)
+        .post('/api/register')
+        .send(user);
+      // Check the response status code and error message
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({ error: 'Non valid req.body' });
+    }    
   })
 
   test('should return an error if an element is not a string in req.body', async () => {
     const user1 = {
-      user: 123,
+      username: 123,
       email: "valid@email.com",
       password: "password",
     };
     const user2 = {
-      user: "validUser",
+      username: "validUser",
       email: 123,
       password: "password",
     };
     const user3 = {
-      user: "validUser",
+      username: "validUser",
       email: "valid@email.com",
       password: 123,
     };
@@ -323,7 +330,7 @@ describe("registerAdmin", () => {
   })
   test('should return an error if email is missing in req.body', async () => {
     const user = {
-      user: 'validUser',
+      username: 'validUser',
       password: 'password123',
     };
 
@@ -336,7 +343,7 @@ describe("registerAdmin", () => {
   })
   test('should return an error if password is missing in req.body', async () => {
     const user = {
-      user: 'validUser',
+      username: 'validUser',
       email: 'valid@email.com',
     };
 
@@ -373,7 +380,7 @@ describe("registerAdmin", () => {
   })
   test('should return an error if email is empty in req.body', async () => {
     const user = {
-      user: 'validUser',
+      username: 'validUser',
       email: ' ',
       password: 'password123',
     };
@@ -387,7 +394,7 @@ describe("registerAdmin", () => {
   })
   test('should return an error if password is empty in req.body', async () => {
     const user = {
-      user: 'validUser',
+      username: 'validUser',
       email: 'valid@email.com',
       password: ' ',
     };
@@ -401,17 +408,17 @@ describe("registerAdmin", () => {
 
   test('should return an error if an element is not a string in req.body', async () => {
     const user1 = {
-      user: 123,
+      username: 123,
       email: "valid@email.com",
       password: "password",
     };
     const user2 = {
-      user: "validUser",
+      username: "validUser",
       email: 123,
       password: "password",
     };
     const user3 = {
-      user: "validUser",
+      username: "validUser",
       email: "valid@email.com",
       password: 123,
     };
