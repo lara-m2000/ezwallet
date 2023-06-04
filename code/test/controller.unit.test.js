@@ -956,6 +956,19 @@ describe("getTransactionsByGroup", () => {
         expect(verifyAuth).toHaveBeenCalled();
         expect(res.status).toHaveBeenCalledWith(401);
     });
+
+    test("should return 500 if exception occurs", async () => {
+        Group.findOne.mockRejectedValueOnce(Object.assign({}, { message: "Exception" }));
+        verifyAuth.mockReturnValueOnce({ flag: true });
+        transactions.aggregate.mockResolvedValueOnce(transactionStub());
+
+        const res = mockRes();
+        await getTransactionsByGroup(reqStub(group().name), res);
+
+        expect(Group.findOne).toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(500);
+    }
+    );
 });
 
 describe("getTransactionsByGroupByCategory", () => {
@@ -1063,6 +1076,20 @@ describe("getTransactionsByGroupByCategory", () => {
         expect(verifyAuth).toHaveBeenCalled();
         expect(res.status).toHaveBeenCalledWith(401);
     });
+
+    test("should return 500 if exception occurs", async () => {
+        Group.findOne.mockRejectedValueOnce(Object.assign({}, { message: "Exception" }));
+        categories.findOne.mockResolvedValueOnce(categoriesStub());
+        verifyAuth.mockReturnValueOnce({ flag: true });
+        transactions.aggregate.mockResolvedValueOnce(transactionStub());
+
+        const res = mockRes();
+        await getTransactionsByGroupByCategory(reqStub(group().name), res);
+
+        expect(Group.findOne).toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(500);
+    }
+    );
 });
 
 describe("deleteTransaction", () => {
