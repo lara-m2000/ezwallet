@@ -1,21 +1,23 @@
 import request from "supertest";
 import { app } from "../app";
 import { categories, transactions } from "../models/model";
-import { User } from "../models/User.js";
+import {Group, User} from "../models/User.js";
 import {
     createTransaction,
     deleteTransactions,
     getAllTransactions,
     getTransactionsByUser,
     getTransactionsByUserByCategory,
-    deleteTransaction,
+    deleteTransaction, getTransactionsByGroup, getTransactionsByGroupByCategory,
 } from "../controllers/controller";
 import { verifyAuth } from "../controllers/utils";
+import {getUsernameFromEmail} from "../controllers/users.utils.js";
 
 //jest.mock('../models/model');
 jest.mock("../models/User.js");
 jest.mock("../models/model.js");
 jest.mock("../controllers/utils.js");
+jest.mock("../controllers/users.utils.js");
 
 beforeEach(() => {
     jest.clearAllMocks();
@@ -860,15 +862,234 @@ describe("getTransactionsByUserByCategory", () => {
 
 });
 
+/**
+ *
+ * @param {string} user
+ * @returns {{email: string, username: string}}
+ */
+const userStub = (user) => ({
+    username: user,
+    email: `${user}@${user}.it`,
+});
+
+/**
+ *
+ * @param {string} name
+ * @param {string[]} emails
+ * @returns {{members: {email:string}, name:string}}
+ */
+const groupStub = (name, emails) => ({
+    name: name,
+    members: emails.map((e) => ({ email: e })),
+});
+
+const mockRes = () => ({
+    status: jest.fn().mockReturnThis(),
+    json: jest.fn(),
+    locals: {
+        refreshedTokenMessage: "token"
+    },
+});
+
+const transactionCategoryStub = (type) => ({
+    type: type,
+    username: type,
+    amount: 10,
+    date: "2023-05-19T00:00:00",
+});
+
+const categoryStub = (type) => ({
+    type: type,
+    color: type,
+});
+
 describe("getTransactionsByGroup", () => {
-    test("Dummy test, change it", () => {
-        expect(true).toBe(true);
+    const reqStub = (groupName, admin = false) => ({
+        params: { name: groupName },
+        url: { indexOf: jest.fn().mockReturnValue(admin ? 0 : -1) },
+    });
+
+    const bre = userStub("bre");
+    const fra = userStub("fra");
+    const breAdmin = userStub("breAdmin");
+
+    const users = [bre, fra, breAdmin];
+
+    const group = () => groupStub("test", users);
+
+    const transactionStub = () => [
+        transactionCategoryStub("bre"),
+        transactionCategoryStub("fra"),
+        transactionCategoryStub("breAdmin"),
+    ];
+
+    beforeEach(async () => {
+        jest.resetAllMocks();
+
+        getUsernameFromEmail.mockImplementationOnce(async (e) =>
+            users.filter((u) => e.includes(u.email)).map((u) => u.username)
+        );
+    })
+
+    test("should return list of transactions", async () => {
+        Group.findOne.mockResolvedValueOnce(group());
+        verifyAuth.mockReturnValueOnce({ flag: true });
+        transactions.aggregate.mockResolvedValueOnce(transactionStub());
+
+        const res = mockRes();
+        await getTransactionsByGroup(reqStub(group().name), res);
+
+        expect(Group.findOne).toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({
+            data: transactionStub(),
+            refreshedTokenMessage: "token"
+        });
+    });
+
+    test("should return 400 if group doesn't exist", async () => {
+        Group.findOne.mockResolvedValueOnce();
+        verifyAuth.mockReturnValueOnce({ flag: true });
+        transactions.aggregate.mockResolvedValueOnce(transactionStub());
+
+        const res = mockRes();
+        await getTransactionsByGroup(reqStub(group().name), res);
+
+        expect(Group.findOne).toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(400);
+    });
+
+    test("should return 401 if not authenticated", async () => {
+        Group.findOne.mockResolvedValueOnce(group());
+        verifyAuth.mockReturnValueOnce({ flag: false, cause: "boh" });
+        transactions.aggregate.mockResolvedValueOnce(transactionStub());
+
+        const res = mockRes();
+        await getTransactionsByGroup(reqStub(group().name), res);
+
+        expect(Group.findOne).toHaveBeenCalled();
+        expect(verifyAuth).toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(401);
+    });
+
+    test("should return 401 if not Admin", async () => {
+        Group.findOne.mockResolvedValueOnce(group());
+        verifyAuth.mockReturnValueOnce({ flag: false, cause: "boh" });
+        transactions.aggregate.mockResolvedValueOnce(transactionStub());
+
+        const res = mockRes();
+        await getTransactionsByGroup(reqStub(group().name, true), res);
+
+        expect(Group.findOne).toHaveBeenCalled();
+        expect(verifyAuth).toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(401);
     });
 });
 
 describe("getTransactionsByGroupByCategory", () => {
-    test("Dummy test, change it", () => {
-        expect(true).toBe(true);
+    const reqStub = (groupName, type = "bre", admin = false) => ({
+        params: {
+            name: groupName,
+            category: type,
+        },
+        url: { indexOf: jest.fn().mockReturnValue(admin ? 0 : -1) },
+    });
+
+    const bre = userStub("bre");
+    const fra = userStub("fra");
+    const breAdmin = userStub("breAdmin");
+
+    const users = [bre, fra, breAdmin];
+
+    const group = () => groupStub("test", users);
+
+    const transactionStub = () => [
+        transactionCategoryStub("bre"),
+        transactionCategoryStub("fra"),
+        transactionCategoryStub("breAdmin"),
+    ];
+
+    const categoriesStub = () => [
+        categoryStub("bre")
+    ];
+
+    beforeEach(async () => {
+        jest.resetAllMocks();
+
+        getUsernameFromEmail.mockImplementationOnce(async (e) =>
+            users.filter((u) => e.includes(u.email)).map((u) => u.username)
+        );
+    })
+
+    test("should return list of transactions", async () => {
+        Group.findOne.mockResolvedValueOnce(group());
+        categories.findOne.mockResolvedValueOnce(categoriesStub());
+        verifyAuth.mockReturnValueOnce({ flag: true });
+        transactions.aggregate.mockResolvedValueOnce(transactionStub());
+
+        const res = mockRes();
+        await getTransactionsByGroupByCategory(reqStub(group().name), res);
+
+        expect(Group.findOne).toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({
+            data: transactionStub(),
+            refreshedTokenMessage: "token"
+        });
+    });
+
+    test("should return 400 if group doesn't exist", async () => {
+        Group.findOne.mockResolvedValueOnce();
+        categories.findOne.mockResolvedValueOnce(categoriesStub());
+        verifyAuth.mockReturnValueOnce({ flag: true });
+        transactions.aggregate.mockResolvedValueOnce(transactionStub());
+
+        const res = mockRes();
+        await getTransactionsByGroupByCategory(reqStub(group().name), res);
+
+        expect(Group.findOne).toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(400);
+    });
+
+    test("should return 400 if category doesn't exist", async () => {
+        Group.findOne.mockResolvedValueOnce(group());
+        categories.findOne.mockResolvedValueOnce();
+        verifyAuth.mockReturnValueOnce({ flag: true });
+        transactions.aggregate.mockResolvedValueOnce(transactionStub());
+
+        const res = mockRes();
+        await getTransactionsByGroupByCategory(reqStub(group().name), res);
+
+        expect(Group.findOne).toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(400);
+    });
+
+    test("should return 401 if not authenticated", async () => {
+        Group.findOne.mockResolvedValueOnce(group());
+        categories.findOne.mockResolvedValueOnce(categoriesStub());
+        verifyAuth.mockReturnValueOnce({ flag: false, cause: "boh" });
+        transactions.aggregate.mockResolvedValueOnce(transactionStub());
+
+        const res = mockRes();
+        await getTransactionsByGroupByCategory(reqStub(group().name), res);
+
+        expect(Group.findOne).toHaveBeenCalled();
+        expect(verifyAuth).toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(401);
+    });
+
+    test("should return 401 if not Admin", async () => {
+        Group.findOne.mockResolvedValueOnce(group());
+        categories.findOne.mockResolvedValueOnce(categoriesStub());
+        verifyAuth.mockReturnValueOnce({ flag: false, cause: "boh" });
+        transactions.aggregate.mockResolvedValueOnce(transactionStub());
+
+        const res = mockRes();
+        await getTransactionsByGroupByCategory(reqStub(group().name, true), res);
+
+        expect(Group.findOne).toHaveBeenCalled();
+        expect(verifyAuth).toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(401);
     });
 });
 
