@@ -1,4 +1,4 @@
-import {User} from "../models/User.js";
+import { User } from "../models/User.js";
 
 /**
  * @param {string[]} emails
@@ -16,3 +16,14 @@ export const getUsernameFromEmail = async (emails) => {
         ])
     ).map((u) => u.username);
 }
+
+/**
+ *
+ * @param {typeof User.schema.obj} user
+ * @returns {{username: string, email:string, role:string}}
+ */
+export const userSchemaMapper = (user) => ({
+  username: user.username,
+  email: user.email,
+  role: user.role,
+});

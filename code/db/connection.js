@@ -9,4 +9,4 @@ const conn = mongoose.connect(process.env.MONGO_URI).then((db) => {
     console.log(err)
 })
 
-export default conn;s
+export default conn;
