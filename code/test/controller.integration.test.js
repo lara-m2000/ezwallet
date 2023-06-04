@@ -199,7 +199,7 @@ describe("updateCategory", () => {
     
     const updateRequest = async (body,oldType,refreshToken = admin.refreshToken) => {
         return await request(app)
-          .patch(`/api/categories/${oldType}`)
+          .patch(`/api/categories/${oldType}/`)
           .set("Content-Type", "application/json")
           .set("Cookie", [
             `refreshToken=${refreshToken}`,
@@ -257,13 +257,12 @@ describe("updateCategory", () => {
         expect(res.body).toEqual({ error: "You need to be admin to perform this action" });
     });
 
-    // Non riesco a generare un parametro nullo --> Ritorna un 404 o che la categoria non esiste
-    /*test('should return an error if invalid parameter in request', async () => {
-        const res = await updateRequest(body, 0);
+    test('should return an error if invalid parameter in request', async () => {
+        const res = await updateRequest(body, '  ');
 
         expect(res.status).toBe(400);
         expect(res.body).toEqual({ error: 'Invalid parameter in request' });
-    });*/
+    });
 
     test('should return an error if type or color are not strings', async () => {
         body.type = 123;
