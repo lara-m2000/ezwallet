@@ -108,6 +108,17 @@ describe("User", () => {
         refreshedTokenMessage: res.locals.refreshedTokenMessage,
       });
     });
+
+    test("should return error 500 if exception is thrown", async () => {
+      const mockReq = {};
+      const res = mockRes();
+      verifyAdmin.mockRejectedValue(Object.assign({}, {message: "error"}));
+
+      await getUsers(mockReq, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({error: "error"});
+    });
   });
 
   describe("getUser", () => {
@@ -148,6 +159,18 @@ describe("User", () => {
 
       expect(res.status).toHaveBeenCalledWith(400);
     });
+
+    test("should return error 500 if exception is thrown", async () => {
+      const mockReq = {};
+      const res = mockRes();
+      verifyUserOrAdmin.mockRejectedValue(Object.assign({}, {message: "error"}));
+
+      await getUser(mockReq, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({error: "error"});
+    }
+  );
   });
 
   describe("deleteUser", () => {
