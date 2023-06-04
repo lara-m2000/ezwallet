@@ -29,30 +29,6 @@ beforeEach(() => {
       transactions.prototype.save.mockClear();*/
 });
 
-describe("createCategory", () => {
-    test("Dummy test, change it", () => {
-        expect(true).toBe(true);
-    });
-});
-
-describe("updateCategory", () => {
-    test("Dummy test, change it", () => {
-        expect(true).toBe(true);
-    });
-});
-
-describe("deleteCategory", () => {
-    test("Dummy test, change it", () => {
-        expect(true).toBe(true);
-    });
-});
-
-describe("getCategories", () => {
-    test("Dummy test, change it", () => {
-        expect(true).toBe(true);
-    });
-});
-
 describe("createTransaction", () => {
     const mockRes = () => ({
         status: jest.fn().mockReturnThis(),
