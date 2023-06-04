@@ -148,17 +148,25 @@ describe('register', () => {
 
   test('should return an error if username is empty in req.body', async () => {
     const user = {
-      user: ' ',
+      username: ' ',
       email: 'valid@email.com',
       password: 'password123',
     };
-
-    const response = await request(app)
-      .post('/api/register')
-      .send(user);
-    // Check the response status code and error message
-    expect(response.status).toBe(400);
-    expect(response.body).toEqual({ error: 'Non valid req.body' });
+    const userList = [
+      { username: ' ', email: 'valid@email.com', password: 'password123' },
+      { username: '\n', email: 'valid2@email.com', password: 'password123' },
+      { username: '\t', email: 'valid3@email.com', password: 'password123' },
+      { username: '', email: 'valid4@email.com', password: 'password123' },
+      { username: '\r\t\n', email: 'valid5@email.com', password: 'password123' },
+    ]
+    for (const user of userList) {
+      const response = await request(app)
+        .post('/api/register')
+        .send(user);
+      // Check the response status code and error message
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({ error: 'Non valid req.body' });
+    }
   })
   test('should return an error if email is empty in req.body', async () => {
     const user = {
@@ -343,17 +351,25 @@ describe("registerAdmin", () => {
 
   test('should return an error if username is empty in req.body', async () => {
     const user = {
-      user: ' ',
+      username: ' ',
       email: 'valid@email.com',
       password: 'password123',
     };
-
-    const response = await request(app)
-      .post('/api/admin')
-      .send(user);
-    // Check the response status code and error message
-    expect(response.status).toBe(400);
-    expect(response.body).toEqual({ error: 'Non valid req.body' });
+    const userList = [
+      { username: ' ', email: 'valid@email.com', password: 'password123' },
+      { username: '\n', email: 'valid2@email.com', password: 'password123' },
+      { username: '\t', email: 'valid3@email.com', password: 'password123' },
+      { username: '', email: 'valid4@email.com', password: 'password123' },
+      { username: '\r\t\n', email: 'valid5@email.com', password: 'password123' },
+    ]
+    for (const user of userList) {
+      const response = await request(app)
+        .post('/api/admin')
+        .send(user);
+      // Check the response status code and error message
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({ error: 'Non valid req.body' });
+    }
   })
   test('should return an error if email is empty in req.body', async () => {
     const user = {
