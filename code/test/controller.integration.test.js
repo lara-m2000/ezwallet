@@ -76,7 +76,7 @@ describe("createTransaction", () => {
     });
 
     const generateToken = (payload, expirationTime = '1h') => {
-        return jwt.sign(payload, 'EZWALLET', { expiresIn: expirationTime });
+        return jwt.sign(payload, process.env.ACCESS_KEY, { expiresIn: expirationTime });
     };
 
     test("Expect to sucessfully create a new transaction", async()=>{
@@ -295,7 +295,7 @@ describe("getAllTransactions", () => {
     });
 
     const generateToken = (payload, expirationTime = '1h') => {
-        return jwt.sign(payload, 'EZWALLET', { expiresIn: expirationTime });
+        return jwt.sign(payload, process.env.ACCESS_KEY, { expiresIn: expirationTime });
     };
     test('Expect to return a list with all transactions', async () => {
         const refreshToken = generateToken(test_users[2], '1h');
@@ -394,7 +394,7 @@ describe("getTransactionsByUser", () => {
     });
 
     const generateToken = (payload, expirationTime = '1h') => {
-        return jwt.sign(payload, 'EZWALLET', { expiresIn: expirationTime });
+        return jwt.sign(payload, process.env.ACCESS_KEY, { expiresIn: expirationTime });
     };
     //Route: User
     test('should return non-filtered user transactions', async () => {
@@ -780,7 +780,7 @@ describe("getTransactionsByUserByCategory", () => {
     });
 
     const generateToken = (payload, expirationTime = '1h') => {
-        return jwt.sign(payload, 'EZWALLET', { expiresIn: expirationTime });
+        return jwt.sign(payload, process.env.ACCESS_KEY, { expiresIn: expirationTime });
     };
 
     test('should return all transactions of a user filtered by given category', async () => {
@@ -996,7 +996,7 @@ describe("deleteTransaction", () => {
     });
 
     const generateToken = (payload, expirationTime = '1h') => {
-        return jwt.sign(payload, 'EZWALLET', { expiresIn: expirationTime });
+        return jwt.sign(payload, process.env.ACCESS_KEY, { expiresIn: expirationTime });
     };
     test('Should successfully delete a transaction', async () => {
         const refreshToken = generateToken(test_users[0]);
@@ -1186,7 +1186,7 @@ describe("deleteTransactions", () => {
     });
 
     const generateToken = (payload, expirationTime = '1h') => {
-        return jwt.sign(payload, 'EZWALLET', { expiresIn: expirationTime });
+        return jwt.sign(payload, process.env.ACCESS_KEY, { expiresIn: expirationTime });
     };
 
     test('Expected to delete some transactions', async() => {
