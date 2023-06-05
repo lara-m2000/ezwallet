@@ -240,7 +240,7 @@ export const handleAmountFilterParams = (req) => {
     const { min, max } = req.query;
     if (!max && !min)
         return {};
-    if ((max && isNaN(Number(max))) || (min && isNaN(Number(min))))
+    if ((max && (isNaN(Number(max))||max==" ")) || (min && (isNaN(Number(min))||min==" ")))
         throw new Error("Query parameters badly formatted");
     /*if ((min && max) && Number(min) > Number(max)) {
         throw new Error("Min amount cannot be greater than max amount");

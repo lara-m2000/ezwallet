@@ -32,8 +32,60 @@ afterAll(async () => {
 });
 
 describe("handleDateFilterParams", () => {
-    test('Dummy test, change it', () => {
-        expect(true).toBe(true);
+    let req;
+    beforeEach(() => {
+        req={query:{}};
+    });
+
+    test("Expect to return an empty object when called without query params", () => {
+        const result=handleDateFilterParams(req);
+        expect(result).toEqual({});
+    });
+    test("Expect to return a `date` attribute with `$gte` attribute from `from` query",()=>{
+        req.query={from: "2023-04-30"};
+        const result=handleDateFilterParams(req);
+        expect(result.date.$gte).toEqual(new Date("2023-04-30T00:00:00.000Z"));
+        expect(result.date.$lte).toBeUndefined();
+    });
+    test("Expect to return a `date` attribute with `$lte` attribute from 'upTo' query",()=>{
+        req.query={upTo: "2023-04-30"};
+        const result=handleDateFilterParams(req);
+        expect(result.date.$lte).toEqual(new Date("2023-04-30T23:59:59.999Z"));
+        expect(result.date.$gte).toBeUndefined();
+    });
+    test("Expect to return a `date` attribute with `$lte` and `$gte` from 'from' and 'upTo' query",()=>{
+        req.query={from: "2023-04-30", upTo:"2023-05-10"};
+        const result=handleDateFilterParams(req);
+        expect(result.date.$gte).toEqual(new Date("2023-04-30T00:00:00.000Z"));
+        expect(result.date.$lte).toEqual(new Date("2023-05-10T23:59:59.999Z"));
+    });
+    test("Expect to return a `date` attribute with `$lte` and `$gte` from 'date' query",()=>{
+        req.query={date: "2023-05-10"};
+        const result=handleDateFilterParams(req);
+        expect(result).toEqual({date: {
+            $gte:new Date("2023-05-10T00:00:00.000Z"), 
+            $lte:new Date("2023-05-10T23:59:59.999Z")}
+        });
+    });
+    test("Expect to throw an error if `date` id present with another attribute",()=>{
+        const reqs=[
+            {query:{from:"2023-04-30", date: "2023-05-10"}},
+            {query:{upTo:"2023-04-30", date: "2023-05-10"}}
+        ];
+        for (req of reqs){
+            expect(()=>handleDateFilterParams(req)).toThrowError();
+        }
+    });
+
+    test("Expect to throw an error if a query param is in the wrong format",()=>{
+        const reqs=[
+            {query:{date: "AA2023-05-10"}},
+            {query:{from: "22023-05-10"}},
+            {query:{upTo: "10-05-2023"}},
+            {query:{from: "2023-05-10", upTo:" "}}
+        ];
+        for (req of reqs)
+            expect(()=>handleDateFilterParams(req)).toThrowError();
     });
 })
 
@@ -402,7 +454,38 @@ describe('verifyAuth', () => {
 
 
 describe("handleAmountFilterParams", () => {
-    test('Dummy test, change it', () => {
-        expect(true).toBe(true);
+    let req;
+    beforeEach(() => {
+        req={query:{}};
     });
+    test('Expect to return empty object if no query params are passed', () => {
+        const result=handleAmountFilterParams(req);
+        expect(result).toEqual({});
+    });
+    test("Expect to return an `amount` attribute with `$gte` from `min` query", ()=>{
+        req.query={min:"10"};
+        const result=handleAmountFilterParams(req);
+        expect(result.amount.$gte).toEqual(10)
+    })
+    test("Expect to return an `amount` attribute with `$lte` from `max` query", ()=>{
+        req.query={max:"50"};
+        const result=handleAmountFilterParams(req);
+        expect(result.amount.$lte).toEqual(50)
+    })
+    test("Expect to return an `amount` attribute with `$gte` and `$lte` from `min` and `max` query", ()=>{
+        req.query={min:"10", max:"50"};
+        const result=handleAmountFilterParams(req);
+        expect(result.amount.$gte).toEqual(10);
+        expect(result.amount.$lte).toEqual(50);
+    })
+    test("Expect to throw an error if amount is in the wrong format",()=>{
+        const reqs=[
+            {query:{min:"A10"}},
+            {query:{min:"10", max: " "}},
+        ];
+        for (const req of reqs) {
+            expect(()=>handleAmountFilterParams(req)).toThrowError();
+        }
+    })
+
 })
