@@ -191,9 +191,15 @@ export const verifyAdmin = async (req, res) => {
  * @returns 
  */
 export const verifyUser = async (req, res) => {
-    const currUser = await getUserFromToken(req.cookies.refreshToken);
+  const currUser = await getUserFromToken(req.cookies.refreshToken);
 
-    return { ...verifyAuth(req, res, { authType: "User", username: currUser.username }), currUser };
+  return {
+    ...verifyAuth(req, res, {
+      authType: "User",
+      username: req.params.username ?? currUser.username,
+    }),
+    currUser,
+  };
 }
 
 /**
@@ -209,7 +215,7 @@ export const verifyUserOrAdmin = async (req, res) => {
     let isFlag = false;
     let { flag, cause } = verifyAuth(req, res, {
         authType: "User",
-        username: currUser.username,
+        username: req.params.username ?? currUser.username,
     });
     isFlag |= flag;
 

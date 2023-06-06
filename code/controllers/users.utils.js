@@ -2,7 +2,7 @@ import { User } from "../models/User.js";
 
 /**
  * @param {string[]} emails
- * @returns {string[]}
+ * @returns {Promise.<string[]>}
  */
 export const getUsernameFromEmail = async (emails) => {
     return (
