@@ -2,18 +2,14 @@ import { Group, User } from "../models/User.js";
 import { transactions } from "../models/model.js";
 import { arrayIntersection } from "./array.utils.js";
 import {
-  addEmail,
   findExistingUsers,
   findUsersGroup,
-  getUserFromToken,
   getUserReference,
   groupSchemaMapper,
 } from "./group.utils.js";
 import { userSchemaMapper } from "./users.utils.js";
 import {
   verifyAdmin,
-  verifyAuth,
-  verifyUser,
   verifyUserOrAdmin,
 } from "./utils.js";
 import * as yup from "yup";
@@ -133,7 +129,7 @@ export const createGroup = async (req, res) => {
       null
     );
     if (!isValidationOk) {
-      return res.state(400).json({ error: errorMessage });
+      return res.status(400).json({ error: errorMessage });
     }
 
     const { name, memberEmails } = body;
@@ -240,7 +236,7 @@ export const getGroup = async (req, res) => {
       schema
     );
     if (!isValidationOk) {
-      return res.state(400).json({ error: errorMessage });
+      return res.status(400).json({ error: errorMessage });
     }
 
     const { name } = params;
