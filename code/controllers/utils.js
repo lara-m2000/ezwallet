@@ -180,9 +180,6 @@ export const verifyAuth = (req, res, info) => {
  */
 export const verifyAdmin = async (req, res) => {
     const currUser = await getUserFromToken(req.cookies.refreshToken);
-    if (!currUser) {
-        return { flag: false, cause: "User not found", currUser: currUser };
-    }
 
     return { ...verifyAuth(req, res, { authType: "Admin" }), currUser };
 }
@@ -195,9 +192,6 @@ export const verifyAdmin = async (req, res) => {
  */
 export const verifyUser = async (req, res) => {
     const currUser = await getUserFromToken(req.cookies.refreshToken);
-    if (!currUser) {
-        return { flag: false, cause: "User not found", currUser: currUser };
-    }
 
     return { ...verifyAuth(req, res, { authType: "User", username: currUser.username }), currUser };
 }
@@ -210,9 +204,6 @@ export const verifyUser = async (req, res) => {
  */
 export const verifyUserOrAdmin = async (req, res) => {
     const currUser = await getUserFromToken(req.cookies.refreshToken);
-    if (!currUser) {
-        return { flag: false, cause: "User not found", currUser: currUser, isAdmin: false};
-    }
 
     let isAdmin = false;
     let isFlag = false;
