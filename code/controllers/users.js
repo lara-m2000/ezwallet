@@ -8,10 +8,7 @@ import {
   groupSchemaMapper,
 } from "./group.utils.js";
 import { userSchemaMapper } from "./users.utils.js";
-import {
-  verifyAdmin,
-  verifyUserOrAdmin,
-} from "./utils.js";
+import { verifyAdmin, verifyUserOrAdmin } from "./utils.js";
 import * as yup from "yup";
 import { validateRequest } from "./validate.js";
 
@@ -154,6 +151,13 @@ export const createGroup = async (req, res) => {
     const [membersNotInGroup, membersInGroup] = await findUsersGroup(
       membersFound
     );
+
+    // check if requesting user is already in a group
+    if (membersInGroup.includes(currUser.email)) {
+      return res
+        .status(400)
+        .json({ error: "Requesting user is already part of a group" });
+    }
 
     // check if every user is non-existing or if is part of a group
     if (membersFound.length === membersInGroup.length) {
