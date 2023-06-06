@@ -541,11 +541,14 @@ export const deleteUser = async (req, res) => {
     }
     const { email } = body;
 
-    const user = await User.findOneAndDelete({ email: email });
+    const user = await User.findOneAndDelete({
+      role: { $ne: "Admin" },
+      email: email,
+    });
 
     // check if user exist
     if (!user) {
-      return res.status(400).json({ error: "User doesn't exist" });
+      return res.status(400).json({ error: "User doesn't exist or is Admin" });
     }
 
     let deletedFromGroup = false;
