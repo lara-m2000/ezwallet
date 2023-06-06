@@ -21,7 +21,7 @@
      <report the here the dependency graph of EzWallet>
      
 # Integration approach
-
+    We adopted a bottom-up approach, we started from testing utils.js module, which is at the bottom of the dependency graph, and then we tested the other modules, going up in the graph.
     <Write here the integration sequence you adopted, in general terms (top down, bottom up, mixed) and as sequence
     (ex: step1: unit A, step 2: unit A+B, step 3: unit A+B+C, etc)> 
     <Some steps may  correspond to unit testing (ex step1 in ex above)>
@@ -60,7 +60,7 @@
 
 ## Coverage white box
 
-![Test_coverage](./images/coverage.png)
+![Test_coverage](./images/coverage.PNG)
 
 
 
