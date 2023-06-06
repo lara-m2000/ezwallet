@@ -444,6 +444,10 @@ export const removeFromGroup = async (req, res) => {
       return res.status(400).json({ error: "Group does not exist" });
     }
 
+    if (group.members.length === 1) {
+      return res.status(400).json({ error: "Group only have one member" });
+    }
+
     // check if user is in group
     if (!isAdmin) {
       const userInGroup = group.members
