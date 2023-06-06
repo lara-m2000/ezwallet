@@ -22,7 +22,7 @@
      
 # Integration approach
     We adopted a bottom-up approach, we started from testing utils.js module, on which the 3 main modules controller.js, users.js, auth.js depend on.
-    Then we tested the 3 main modules, and at the same time the other secondary external modules (as a consequence of testing the previous ones).
+    Then we tested the 3 main modules, and, as a consequence of testing the previous ones, also other secondary util modules (validate.js, group.utils.js, array.utils.js) were covered.
 
     Step 1: unit testing of utils.js
     Step 2: integration testing of utils.js
