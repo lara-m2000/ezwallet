@@ -180,9 +180,6 @@ export const verifyAuth = (req, res, info) => {
  */
 export const verifyAdmin = async (req, res) => {
     const currUser = await getUserFromToken(req.cookies.refreshToken);
-    if (!currUser) {
-        return { flag: false, cause: "User not found", currUser: currUser };
-    }
 
     return { ...verifyAuth(req, res, { authType: "Admin" }), currUser };
 }
@@ -195,9 +192,6 @@ export const verifyAdmin = async (req, res) => {
  */
 export const verifyUser = async (req, res) => {
     const currUser = await getUserFromToken(req.cookies.refreshToken);
-    if (!currUser) {
-        return { flag: false, cause: "User not found", currUser: currUser };
-    }
 
     return { ...verifyAuth(req, res, { authType: "User", username: currUser.username }), currUser };
 }
@@ -210,9 +204,6 @@ export const verifyUser = async (req, res) => {
  */
 export const verifyUserOrAdmin = async (req, res) => {
     const currUser = await getUserFromToken(req.cookies.refreshToken);
-    if (!currUser) {
-        return { flag: false, cause: "User not found", currUser: currUser, isAdmin: false};
-    }
 
     let isAdmin = false;
     let isFlag = false;
@@ -240,7 +231,7 @@ export const handleAmountFilterParams = (req) => {
     const { min, max } = req.query;
     if (!max && !min)
         return {};
-    if ((max && isNaN(Number(max))) || (min && isNaN(Number(min))))
+    if ((max && (isNaN(Number(max))||max==" ")) || (min && (isNaN(Number(min))||min==" ")))
         throw new Error("Query parameters badly formatted");
     /*if ((min && max) && Number(min) > Number(max)) {
         throw new Error("Min amount cannot be greater than max amount");
