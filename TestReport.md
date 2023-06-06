@@ -22,7 +22,13 @@
      
 # Integration approach
     We adopted a bottom-up approach, we started from testing utils.js module, on which the 3 main modules controller.js, users.js, auth.js depend on.
-    Then we tested the 3 main modules, and at the same time the other secondary external modules, 
+    Then we tested the 3 main modules, and at the same time the other secondary external modules (as a consequence of testing the previous ones).
+
+    Step 1: unit testing of utils.js
+    Step 2: integration testing of utils.js
+    Step 3: unit testing of controller.js, users.js, auth.js
+    Step 4: integration testing of controller.js, users.js, auth.js
+    Step 5: API testing using Postman
     <Write here the integration sequence you adopted, in general terms (top down, bottom up, mixed) and as sequence
     (ex: step1: unit A, step 2: unit A+B, step 3: unit A+B+C, etc)> 
     <Some steps may  correspond to unit testing (ex step1 in ex above)>
