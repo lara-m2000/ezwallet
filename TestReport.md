@@ -18,7 +18,7 @@
 
 # Dependency graph 
 
-     <report the here the dependency graph of EzWallet>
+![Dependency_graph](./images/dependency_graph.jpg)
      
 # Integration approach
     We adopted a bottom-up approach, we started from testing utils.js module, on which the 3 main modules controller.js, users.js, auth.js depend on.
