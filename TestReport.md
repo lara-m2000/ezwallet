@@ -25,9 +25,13 @@ We adopted a bottom-up approach, we started from testing utils.js module, on whi
 Then we tested the 3 main modules, and, as a consequence of testing the previous ones, also other secondary util modules (validate.js, group.utils.js, array.utils.js) were covered.
 
 Step 1: unit testing of utils.js
+
 Step 2: integration testing of utils.js
+
 Step 3: unit testing of controller.js, users.js, auth.js
+
 Step 4: integration testing of controller.js, users.js, auth.js
+
 Step 5: API testing using Postman
 
 # Tests
