@@ -447,36 +447,27 @@ Step 5: API testing using Postman
 <Report in the following table the coverage of  functional requirements (from official requirements) >
 
 | Functional Requirements covered |   Test(s) | 
-| ------------------------------- | ----------- | 
-|createTransaction|1, 2, 3, 4, 5, 6, 7, 8, 9, 10|
-|getAllTransactions|11, 12, 13, 14|
-|getTransactionsByUser|15, 16, 17, 18, 19, 20, 21|
-|getTransactionsByUserByCategory|22, 23, 24, 25, 26, 27|
-|getTransactionsByGroup|28, 29, 30, 31|
-|getTransactionsByGroupByCategory|32, 33, 34, 35, 36|
-|deleteTransaction|37, 38, 39, 40, 41, 42, 43|
-|deleteTransactions|44, 45, 46, 47, 48, 49, 50|
-|createCategory|51, 52, 53, 54, 55, 56|
-|updateCategory|57, 58, 59, 60, 61, 62, 63, 64, 65|
-|deleteCategory|66, 67, 68, 69, 70, 71, 72, 73, 74, 75|
-|getCategories|76, 77, 78, 79|
+| ------------------------------- | ----------- |
+|FR3||
+|createTransaction|1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193|
+|getAllTransactions|11, 12, 13, 14, 194, 195, 196|
+|getTransactionsByUser|15, 16, 17, 18, 19, 20, 21, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224|
+|getTransactionsByUserByCategory|22, 23, 24, 25, 26, 27, 225, 226, 227, 228, 229, 230, 232, 233, 234, 235, 236, 237, 238, 231|
+|getTransactionsByGroup|28, 29, 30, 31, 239, 240, 241, 242, 243|
+|getTransactionsByGroupByCategory|32, 33, 34, 35, 36, 244, 245, 246, 247, 248, 249|
+|deleteTransaction|37, 38, 39, 40, 41, 42, 43, 250, 251, 252, 253, 254, 255, 256, 257, 258, 259, 260|
+|deleteTransactions|44, 45, 46, 47, 48, 49, 50, 261, 262, 263, 264, 265, 266, 267, 268, 269|
+|FR2||
+|createCategory|51, 52, 53, 54, 55, 56, 158, 159, 160, 161, 162|
+|updateCategory|57, 58, 59, 60, 61, 62, 63, 64, 65, 163, 164, 165, 166, 167, 168, 169, 170|
+|deleteCategory|66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180|
+|getCategories|76, 77, 78, 79, 181, 182|
+
 |handleDateFilterParams|80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 116, 117, 118, 119, 120, 121, 122|
 |verifyAuth|90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152|
 |handleAmountFilterParams|111, 112, 113, 114, 115, 153, 154, 155, 156, 157|
-|createCategory  |158, 159, 160, 161, 162|
-|updateCategory  |163, 164, 165, 166, 167, 168, 169, 170|
-|deleteCategory  |171, 172, 173, 174, 175, 176, 177, 178, 179, 180|
-|getCategories  |181|
-|getCategories |182|
-|createTransaction |183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193|
-|getAllTransactions |194, 195, 196|
-|getTransactionsByUser |197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224|
-|getTransactionsByUserByCategory            |225, 226, 227, 228, 229, 230, 232, 233, 234, 235, 236, 237, 238|
-|getTransactionsByUserByCategory       |231|
-|getTransactionsByGroup  |239, 240, 241, 242, 243|
-|getTransactionByGroupByCategory |244, 245, 246, 247, 248, 249|
-|deleteTransaction |250, 251, 252, 253, 254, 255, 256, 257, 258, 259, 260|
-|deleteTransactions  |261, 262, 263, 264, 265, 266, 267, 268, 269|
+
+|FR1||
 |register        |270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 311, 312, 313|
 |registerAdmin |281, 282, 283, 284, 285, 286, 287, 288, 289, 290, 291, 314, 315, 316|
 |login |292, 293, 294, 295, 296, 297, 298, 299, 300|
@@ -487,14 +478,15 @@ Step 5: API testing using Postman
 |login           |317, 318, 319, 320|
 |logout |321, 322, 323, 324|
 |getUsers |325, 326, 327, 328, 329, 330, 352, 353|
+|getUser |354, 355, 356, 357|
+|deleteUser |358, 359, 360, 361, 362|
+|FR5||
 |createGroup |331, 332, 333, 334, 335, 363, 364, 365, 366, 367|
 |getGroups |336, 337, 368, 369, 370|
 |getGroup |338, 339, 371, 372, 373, 374|
 |addToGroup |340, 341, 342, 343, 344, 375, 376, 377, 378, 379, 380, 381|
 |removeFromGroup |345, 346, 347, 348, 349, 382, 383, 384, 385, 386, 387, 388|
 |deleteGroup |350, 351, 389, 390, 391|
-|getUser |354, 355, 356, 357|
-|deleteUser |358, 359, 360, 361, 362|
 
 
 
