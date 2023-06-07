@@ -152,7 +152,7 @@ export const deleteCategory = async (req, res) => {
         //Check if categories to be deleted cover all the categories in the DB
         if (foundCategories.length === nCategories) {
             //Retrieve all types to delete except for the first element (the first according to creationTime)
-            oldestType = await categories.find({}).sort({ createdAt: 1 }).limit(1);
+            oldestType = await categories.find({}).sort({ _id: 1 }).limit(1);
             oldestType = oldestType[0].type;
             
             // Remove the oldest type from the types to delete
@@ -168,7 +168,7 @@ export const deleteCategory = async (req, res) => {
             await categories.deleteMany({ type: { $in: typesToDelete } });
 
             //Retrieve the first created category among the remaining ones
-            oldestType = await categories.find({}).sort({ createdAt: 1 }).limit(1);
+            oldestType = await categories.find({}).sort({ _id: 1 }).limit(1);
             oldestType = oldestType[0].type;
         }
         
