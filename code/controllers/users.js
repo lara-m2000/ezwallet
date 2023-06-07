@@ -2,20 +2,13 @@ import { Group, User } from "../models/User.js";
 import { transactions } from "../models/model.js";
 import { arrayIntersection } from "./array.utils.js";
 import {
-  addEmail,
   findExistingUsers,
   findUsersGroup,
-  getUserFromToken,
   getUserReference,
   groupSchemaMapper,
 } from "./group.utils.js";
 import { userSchemaMapper } from "./users.utils.js";
-import {
-  verifyAdmin,
-  verifyAuth,
-  verifyUser,
-  verifyUserOrAdmin,
-} from "./utils.js";
+import { verifyAdmin, verifyUserOrAdmin } from "./utils.js";
 import * as yup from "yup";
 import { validateRequest } from "./validate.js";
 
@@ -133,7 +126,7 @@ export const createGroup = async (req, res) => {
       null
     );
     if (!isValidationOk) {
-      return res.state(400).json({ error: errorMessage });
+      return res.status(400).json({ error: errorMessage });
     }
 
     const { name, memberEmails } = body;
@@ -158,6 +151,13 @@ export const createGroup = async (req, res) => {
     const [membersNotInGroup, membersInGroup] = await findUsersGroup(
       membersFound
     );
+
+    // check if requesting user is already in a group
+    if (membersInGroup.includes(currUser.email)) {
+      return res
+        .status(400)
+        .json({ error: "Requesting user is already part of a group" });
+    }
 
     // check if every user is non-existing or if is part of a group
     if (membersFound.length === membersInGroup.length) {
@@ -240,7 +240,7 @@ export const getGroup = async (req, res) => {
       schema
     );
     if (!isValidationOk) {
-      return res.state(400).json({ error: errorMessage });
+      return res.status(400).json({ error: errorMessage });
     }
 
     const { name } = params;
