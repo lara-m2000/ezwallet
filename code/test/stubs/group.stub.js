@@ -1,4 +1,4 @@
-export default groupStub = () => {
+export default function groupStub() {
   return {
     name: "test",
     members: [
