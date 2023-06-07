@@ -335,13 +335,8 @@ describe("Groups", () => {
 
       const res = await sendRequest(bodyStub(), fra.refreshToken);
 
-      expect(res.status).toBe(200);
-      expect(res.body.data.alreadyInGroup).toEqual([newUser("fra").email]);
-      expect(res.body.data.group.members).toEqual([
-        {
-          email: newUser("bre").email,
-        },
-      ]);
+      expect(res.status).toBe(400);
+      expect(res.body.error).toBe("Requesting user is already part of a group");
     });
 
     test("should return error if users do not exist or belog to a group", async () => {
