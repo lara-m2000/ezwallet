@@ -1,6 +1,5 @@
 # Test Report
 
-<The goal of this document is to explain how the application was tested, detailing how the test cases were defined and what they cover>
 
 # Contents
 
@@ -36,8 +35,6 @@ Step 4: integration testing of controller.js, users.js, auth.js
 Step 5: API testing using Postman
 
 # Tests
-
-   <in the table below list the test cases defined For each test report the object tested, the test level (API, integration, unit) and the technique used to define the test case  (BB/ eq partitioning, BB/ boundary, WB/ statement coverage, etc)>   <split the table if needed>
 
 
 | Test ID | Test case name | Object(s) tested | Test level | Technique used |
@@ -444,46 +441,39 @@ Step 5: API testing using Postman
 
 ## Coverage of FR
 
-<Report in the following table the coverage of  functional requirements (from official requirements) >
 
 | Functional Requirements covered |   Test(s) | 
 | ------------------------------- | ----------- |
-|FR3|  |
-|createTransaction|1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193|
-|getAllTransactions|11, 12, 13, 14, 194, 195, 196|
-|getTransactionsByUser|15, 16, 17, 18, 19, 20, 21, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224|
-|getTransactionsByUserByCategory|22, 23, 24, 25, 26, 27, 225, 226, 227, 228, 229, 230, 232, 233, 234, 235, 236, 237, 238, 231|
-|getTransactionsByGroup|28, 29, 30, 31, 239, 240, 241, 242, 243|
-|getTransactionsByGroupByCategory|32, 33, 34, 35, 36, 244, 245, 246, 247, 248, 249|
-|deleteTransaction|37, 38, 39, 40, 41, 42, 43, 250, 251, 252, 253, 254, 255, 256, 257, 258, 259, 260|
-|deleteTransactions|44, 45, 46, 47, 48, 49, 50, 261, 262, 263, 264, 265, 266, 267, 268, 269|
-|handleAmountFilterParams|111, 112, 113, 114, 115, 153, 154, 155, 156, 157|
-|handleDateFilterParams|80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 116, 117, 118, 119, 120, 121, 122|
-|FR4|  |
-|createCategory|51, 52, 53, 54, 55, 56, 158, 159, 160, 161, 162|
-|updateCategory|57, 58, 59, 60, 61, 62, 63, 64, 65, 163, 164, 165, 166, 167, 168, 169, 170|
-|deleteCategory|66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180|
-|getCategories|76, 77, 78, 79, 181, 182|
-|FR1|  |
-|register        |270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 311, 312, 313|
-|registerAdmin |281, 282, 283, 284, 285, 286, 287, 288, 289, 290, 291, 314, 315, 316|
-|login |292, 293, 294, 295, 296, 297, 298, 299, 300|
-|logout          |301, 302, 303|
-|isValidBody     |304, 305, 306, 308|
-|isValidBody  |307|
-|isValidEmail     |309, 310|
-|login           |317, 318, 319, 320|
-|logout |321, 322, 323, 324|
-|getUsers |325, 326, 327, 328, 329, 330, 352, 353|
-|getUser |354, 355, 356, 357|
-|deleteUser |358, 359, 360, 361, 362|
-|FR2|  |
-|createGroup |331, 332, 333, 334, 335, 363, 364, 365, 366, 367|
-|getGroups |336, 337, 368, 369, 370|
-|getGroup |338, 339, 371, 372, 373, 374|
-|addToGroup |340, 341, 342, 343, 344, 375, 376, 377, 378, 379, 380, 381|
-|removeFromGroup |345, 346, 347, 348, 349, 382, 383, 384, 385, 386, 387, 388|
-|deleteGroup |350, 351, 389, 390, 391|
+|FR1| ----------- |
+|FR11 register        |270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 311, 312, 313|
+|FR12 login |292, 293, 294, 295, 296, 297, 298, 299, 300, 317, 318, 319, 320|
+|FR13 logout          |301, 302, 303, 321, 322, 323, 324|
+|FR14 registerAdmin |281, 282, 283, 284, 285, 286, 287, 288, 289, 290, 291, 314, 315, 316|
+|FR15 getUsers |325, 326, 327, 328, 329, 330, 352, 353|
+|FR16 getUser |354, 355, 356, 357|
+|FR17 deleteUser |358, 359, 360, 361, 362|
+|FR2| ----------- |
+|FR21 createGroup |331, 332, 333, 334, 335, 363, 364, 365, 366, 367|
+|FR22 getGroups |336, 337, 368, 369, 370|
+|FR23 getGroup |338, 339, 371, 372, 373, 374|
+|FR24 addToGroup |340, 341, 342, 343, 344, 375, 376, 377, 378, 379, 380, 381|
+|FR26 removeFromGroup |345, 346, 347, 348, 349, 382, 383, 384, 385, 386, 387, 388|
+|FR28 deleteGroup |350, 351, 389, 390, 391|
+|FR3| ----------- |
+|FR31 createTransaction|1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193|
+|FR32 getAllTransactions|11, 12, 13, 14, 194, 195, 196|
+|FR33 getTransactionsByUser|15, 16, 17, 18, 19, 20, 21, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224|
+|FR34 getTransactionsByUserByCategory|22, 23, 24, 25, 26, 27, 225, 226, 227, 228, 229, 230, 232, 233, 234, 235, 236, 237, 238, 231|
+|FR35 getTransactionsByGroup|28, 29, 30, 31, 239, 240, 241, 242, 243|
+|FR36 getTransactionsByGroupByCategory|32, 33, 34, 35, 36, 244, 245, 246, 247, 248, 249|
+|FR37 deleteTransaction|37, 38, 39, 40, 41, 42, 43, 250, 251, 252, 253, 254, 255, 256, 257, 258, 259, 260|
+|FR38 deleteTransactions|44, 45, 46, 47, 48, 49, 50, 261, 262, 263, 264, 265, 266, 267, 268, 269|
+|FR4| ----------- |
+|FR41 createCategory|51, 52, 53, 54, 55, 56, 158, 159, 160, 161, 162|
+|FR42 updateCategory|57, 58, 59, 60, 61, 62, 63, 64, 65, 163, 164, 165, 166, 167, 168, 169, 170|
+|FR43 deleteCategory|66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180|
+|FR44 getCategories|76, 77, 78, 79, 181, 182|
+
 
 
 
