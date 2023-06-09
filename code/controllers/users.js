@@ -160,7 +160,11 @@ export const createGroup = async (req, res) => {
     }
 
     // check if every user is non-existing or if is part of a group
-    if (membersFound.length === membersInGroup.length) {
+    // or if the user is the only one in the members of the new group
+    if (
+      membersFound.length === membersInGroup.length ||
+      membersNotInGroup.length === 1
+    ) {
       return res
         .status(400)
         .json({ error: "User don't exit or already in a group" });
