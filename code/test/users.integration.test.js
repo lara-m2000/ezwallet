@@ -313,15 +313,13 @@ describe("Groups", () => {
       expect(res.status).toBe(400);
     });
 
-    test("should return non exising users", async () => {
+    test("should return 400 if all emails except the email of the user asking are not ok", async () => {
       const fra = newDbUser("fra");
       await User.create(fra);
 
       const res = await sendRequest(bodyStub(), fra.refreshToken);
 
-      expect(res.status).toBe(200);
-      expect(res.body.data.group.members).toEqual([{ email: fra.email }]);
-      expect(res.body.data.membersNotFound).toEqual([newUser("bre").email]);
+      expect(res.status).toBe(400);
     });
 
     test("should return non exising users in a group", async () => {
