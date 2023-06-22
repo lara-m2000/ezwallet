@@ -1625,7 +1625,7 @@ describe("deleteCategory", () => {
         await deleteCategory(req, res);
 
         expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({ error: 'Types must be a non-void array' });
+        expect(res.json).toHaveBeenCalledWith({ error: 'Wrong format' });
     });
 
     test('Should return an error if types is a void array', async () => {
@@ -1652,7 +1652,7 @@ describe("deleteCategory", () => {
         await deleteCategory(req, res);
 
         expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({ error: 'Types must be an array of non-void strings' });
+        expect(res.json).toHaveBeenCalledWith({ error: 'Wrong format' });
     });
 
 

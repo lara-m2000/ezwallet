@@ -348,7 +348,7 @@ describe("deleteCategory", () => {
         const res = await deleteRequest(body);
 
         expect(res.status).toBe(400);
-        expect(res.body).toEqual({ error: 'Types must be a non-void array' });
+        expect(res.body).toEqual({ error: 'Wrong format' });
     });
 
     test('Should return an error if types is a void array', async () => {
@@ -375,7 +375,7 @@ describe("deleteCategory", () => {
         const res = await deleteRequest(body);
 
         expect(res.status).toBe(400);
-        expect(res.body).toEqual({ error: 'Types must be an array of non-void strings' });
+        expect(res.body).toEqual({ error: 'Wrong format' });
     });
 
 
