@@ -206,7 +206,7 @@ export const getGroups = async (req, res) => {
     const groups = await Group.find();
 
     res.status(200).json({
-      data: { groups: groups.map(groupSchemaMapper) },
+      data: groups.map(groupSchemaMapper),
       refreshedTokenMessage: res.locals.refreshedTokenMessage,
     });
   } catch (err) {
