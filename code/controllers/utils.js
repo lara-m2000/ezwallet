@@ -1,6 +1,10 @@
 import jwt from 'jsonwebtoken'
 import { Group, User } from "../models/User.js"
 import { getUserFromToken } from './group.utils.js'
+import dayjs from 'dayjs';
+import customParseFormat from "dayjs/plugin/customParseFormat"
+
+dayjs.extend(customParseFormat);
 
 /**
  * Handle possible date filtering options in the query parameters for getTransactionsByUser when called by a Regular user.
@@ -20,7 +24,7 @@ export const handleDateFilterParams = (req) => {
     let matchObj = { date: {} };
     const dayEnd = "T23:59:59.999Z";
     if (date) {
-        if (!dateRegex.test(date)) {
+        if (!dayjs(date, "YYYY-MM-DD", true).isValid()) {
             throw new Error("Wrong date format")
         }
         // selects transactions with this specific date
@@ -31,13 +35,13 @@ export const handleDateFilterParams = (req) => {
         return matchObj;
     }
     if (from) {
-        if (!dateRegex.test(from)) {
+        if (!dayjs(from, "YYYY-MM-DD", true).isValid()) {
             throw new Error("Wrong date format")
         }
         matchObj.date.$gte = new Date(from);
     }
     if (upTo) {
-        if (!dateRegex.test(upTo)) {
+        if (!dayjs(upTo, "YYYY-MM-DD", true).isValid()) {
             throw new Error("Wrong date format")
         }
         matchObj.date.$lte = new Date(upTo + dayEnd);
