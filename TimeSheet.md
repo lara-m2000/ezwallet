@@ -15,14 +15,14 @@ These figures will not be used to evaluate neither the project nor the team, the
 | apr 10 - 16| 20ph | | | | | | | | 
 | apr 17 - 23| 30ph | | | | | | | | 
 | apr 24 - apr 30 | 40ph | | | | | | | | 
-| may 1 - 7  | | | | | | | | | 
-| may 8 - 14| | | | | | | | | 
-| may 15 - 21| | | | | | | | | 
-| may 22 - 28| | | | | | | | | 
-| may 29 - jun 4 | | | | | | | | | 
-| jun 5 - 11 | | | | | | | | | 
+| may 1 - 7  | | |15 ph |4 ph | | | | | 
+| may 8 - 14| | |15 ph |4 ph | | | | | 
+| may 15 - 21| | |15 ph |4 ph| | | | | 
+| may 22 - 28| | |5 ph |15 ph |15 ph | | | | 
+| may 29 - jun 4 | || |25 ph |20 ph | | | | 
+| jun 5 - 11 | | | |10 ph|10 ph | | | | 
 | jun 12 -18 | | | | | | | | | 
-| jun 19 - 25 | | | | | | | | | 
+| jun 19 - 25 | | | | | |3 ph | | | 
 | jun 26 - jul 2 | | | | | | | | | 
 | jul 3 - 9 | | | | | | | | | 
 | jul 10 - 16 | | | | | | | | |
