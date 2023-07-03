@@ -386,7 +386,7 @@ describe("Groups", () => {
       const res = await sendRequest({});
 
       expect(res.status).toBe(200);
-      expect(res.body.data.groups).toEqual([
+      expect(res.body.data).toEqual([
         groupSchemaMapper(newGroup("test")),
       ]);
     });
@@ -395,7 +395,7 @@ describe("Groups", () => {
       const res = await sendRequest({});
 
       expect(res.status).toBe(200);
-      expect(res.body.data.groups).toEqual([]);
+      expect(res.body.data).toEqual([]);
     });
 
     test("should return error if user requesting is not Admin", async () => {

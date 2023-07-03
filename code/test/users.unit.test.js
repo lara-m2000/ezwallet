@@ -425,7 +425,7 @@ describe("Group", () => {
       expect(GroupFind).toHaveBeenCalled();
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
-        data: { groups: [groupSchemaMapper(groupStub())] },
+        data: [groupSchemaMapper(groupStub())],
         refreshedTokenMessage: mockRes().locals.refreshedTokenMessage,
       });
     });
@@ -440,7 +440,7 @@ describe("Group", () => {
       expect(GroupFind).toBeCalled();
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
-        data: { groups: [] },
+        data: [],
         refreshedTokenMessage: mockRes().locals.refreshedTokenMessage,
       });
     });

@@ -3,6 +3,8 @@ import { categories, transactions } from "../models/model.js";
 import { Group, User } from "../models/User.js";
 import { handleDateFilterParams, handleAmountFilterParams, verifyAuth } from "./utils.js";
 import {getUsernameFromEmail} from "./users.utils.js";
+import * as yup from "yup";
+import { validateRequest } from "./validate.js";
 
 /**
  * Create a new category
@@ -112,13 +114,27 @@ export const updateCategory = async (req, res) => {
  */
 export const deleteCategory = async (req, res) => {
     try {
+        // Validation schema
+        const categorySchema = yup.object().shape({
+            types: yup.array().of(
+                yup.string().strict().required()
+            ).strict().required()
+        });
+
         //Perform control on authentication
         const adminAuth = verifyAuth(req, res, { authType: "Admin" });
         if (!adminAuth.flag) {
             return res.status(401).json({ error: adminAuth.cause });
         }
+
         //Retrieve array of types from request body and eliminate the duplicate values
-        const typesArr = req.body.types;
+        const { isValidationOk, body } = validateRequest(req, null, categorySchema);
+        if (!isValidationOk) {
+            return res.status(400).json({ error: "Wrong format" });
+        }
+        console.log(req.body, body)
+
+        const typesArr = body.types;
         let types = [];
         for(let i=0;i<typesArr.length;i++)
             if(types.indexOf(typesArr[i])===-1)
@@ -140,7 +156,7 @@ export const deleteCategory = async (req, res) => {
             return res.status(400).json({error: 'Not enough categories to perform a deletion'});
 
         //Check for the existence of all categories, return categories in the db
-        let foundCategories = await categories.find({type: {$in: types}});
+        let foundCategories = (await categories.find({type: {$in: types}})) ?? [];
         foundCategories = foundCategories.map(e => e.type);
         
         //Return an error if at least one category does not exist
@@ -177,6 +193,7 @@ export const deleteCategory = async (req, res) => {
         return res.status(200)
             .json({data: {message: "Categories deleted", count: result.modifiedCount,}, refreshedTokenMessage: res.locals.refreshedTokenMessage});
     } catch (error) {
+        console.log(error);
         res.status(500).json({ error: error.message })
     }
 }
